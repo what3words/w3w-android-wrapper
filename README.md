@@ -10,16 +10,6 @@ To obtain an API key, please visit [https://accounts.what3words.com/](https://ac
 
 The artifact is available through <a href="https://search.maven.org/search?q=g:com.what3words">Maven Central</a>.
 
-### Maven
-
-```xml
-<dependency>
-  <groupId>com.what3words</groupId>
-  <artifactId>w3w-java-wrapper</artifactId>
-  <version>3.0.4</version>
-</dependency>
-```
-
 ### Gradle
 
 ```
