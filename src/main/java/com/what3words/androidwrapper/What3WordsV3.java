@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper;
 
 import java.security.MessageDigest;
+import java.util.Map;
 
 import com.google.common.io.BaseEncoding;
 
@@ -52,6 +53,10 @@ public class What3WordsV3 extends com.what3words.javawrapper.What3WordsV3 {
     }
     
     public What3WordsV3(String apiKey, String endpoint, Context context) {
-        super(apiKey, endpoint, context.getPackageName(), getSignature(context));
+        super(apiKey, endpoint, context.getPackageName(), getSignature(context), null);
+    }
+    
+    public What3WordsV3(String apiKey, String endpoint, Context context, Map<String, String> headers) {
+        super(apiKey, endpoint, context.getPackageName(), getSignature(context), headers);
     }
 }
