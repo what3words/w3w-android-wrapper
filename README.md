@@ -17,7 +17,7 @@ repositories {
   mavenCentral()
 }
 
-implementation 'com.what3words:w3w-android-wrapper:3.1.2'
+implementation 'com.what3words:w3w-android-wrapper:3.1.3'
 ```
 
 ## Documentation

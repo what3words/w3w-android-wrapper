@@ -49,7 +49,11 @@ public class What3WordsV3 extends com.what3words.javawrapper.What3WordsV3 {
     }
     
     public What3WordsV3(String apiKey, Context context) {
-        super(apiKey, context.getPackageName(), getSignature(context));
+        super(apiKey, context.getPackageName(), getSignature(context), null);
+    }
+
+    public What3WordsV3(String apiKey, Context context, Map<String, String> headers) {
+        super(apiKey, context.getPackageName(), getSignature(context), headers);
     }
     
     public What3WordsV3(String apiKey, String endpoint, Context context) {
