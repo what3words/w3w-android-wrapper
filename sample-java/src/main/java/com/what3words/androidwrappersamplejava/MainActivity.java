@@ -25,7 +25,6 @@ import java.util.List;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import kotlin.Unit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -129,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
             if (volume != null) {
                 volumeAutoSuggestVoice.setText(String.format("volume: %s", Math.round(volume * 100)));
             }
-            return Unit.INSTANCE;
         });
 
         voiceBuilder = wrapper.autosuggest(microphone, "en")
@@ -140,12 +138,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     resultAutoSuggestVoice.setText(String.format("Suggestions: %s", TextUtils.join(",", suggestionsWords)));
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record);
-                    return Unit.INSTANCE;
                 })
                 .onError(error -> {
-                    resultAutoSuggest.setText(error);
+                    buttonAutoSuggestVoice.setText(error);
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record);
-                    return Unit.INSTANCE;
                 });
 
         buttonAutoSuggestVoice.setOnClickListener(view -> {

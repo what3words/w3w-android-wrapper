@@ -3,6 +3,7 @@ package com.what3words.androidwrapper.voice
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.voice.VoiceBuilder.Microphone.Companion.RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
@@ -14,7 +15,6 @@ import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import okio.ByteString
 import kotlin.math.abs
-import kotlin.math.log10
 
 class VoiceBuilder(
     private val api: What3WordsV3,
@@ -29,8 +29,8 @@ class VoiceBuilder(
     private var nFocusResults: Int? = null
     private var focus: Coordinates? = null
     private var nResults: Int = 3
-    private var onSuggestionsCallback: ((suggestions: List<Suggestion>) -> Unit)? = null
-    private var onErrorCallback: ((message: String) -> Unit)? = null
+    private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
+    private var onErrorCallback: Consumer<String>? = null
     private var isListening = false
 
     init {
@@ -45,7 +45,7 @@ class VoiceBuilder(
         mic.stopRecording()
         isListening = false
         CoroutineScope(Dispatchers.Main).launch {
-            onSuggestionsCallback?.invoke(suggestions)
+            onSuggestionsCallback?.accept(suggestions)
         }
     }
 
@@ -53,16 +53,16 @@ class VoiceBuilder(
         mic.stopRecording()
         isListening = false
         CoroutineScope(Dispatchers.Main).launch {
-            onErrorCallback?.invoke(message)
+            onErrorCallback?.accept(message)
         }
     }
 
-    fun onSuggestions(callback: ((suggestions: List<Suggestion>) -> Unit)): VoiceBuilder {
+    fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
         this.onSuggestionsCallback = callback
         return this
     }
 
-    fun onError(callback: ((message: String) -> Unit)): VoiceBuilder {
+    fun onError(callback: Consumer<String>): VoiceBuilder {
         this.onErrorCallback = callback
         return this
     }
@@ -216,7 +216,7 @@ class VoiceBuilder(
             const val FORMAT = AudioFormat.ENCODING_PCM_16BIT
         }
 
-        private var onListeningCallback: ((dbValue: Float?) -> Unit)? = null
+        private var onListeningCallback: Consumer<Float?>? = null
 
         private val bufferSize = AudioRecord.getMinBufferSize(
             RECORDING_RATE, CHANNEL, FORMAT
@@ -225,7 +225,7 @@ class VoiceBuilder(
         private var recorder: AudioRecord? = null
         private var continueRecording: Boolean = false
 
-        fun onListening(callback: (dbValue: Float?) -> Unit): Microphone {
+        fun onListening(callback: Consumer<Float?>): Microphone {
             this.onListeningCallback = callback
             return this
         }
@@ -255,7 +255,7 @@ class VoiceBuilder(
                             val dB =
                                 VoiceSignalParser.transform(buffer.map { abs(it.toDouble()) }.sum())
                             CoroutineScope(Dispatchers.Main).launch {
-                                onListeningCallback?.invoke(dB)
+                                onListeningCallback?.accept(dB)
                             }
                         }
                         socket.send(ByteString.of(*buffer))
