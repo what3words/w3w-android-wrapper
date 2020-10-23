@@ -36,6 +36,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textInputConvertTo3wa"
                 style="@style/TextLight.XS"
+                android:inputType="textNoSuggestions"
+                android:imeOptions="actionDone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -92,6 +94,8 @@
                 android:id="@+id/textInputConvertToCoordinates"
                 style="@style/TextLight.XS"
                 android:layout_width="match_parent"
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -146,6 +150,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textInputAutoSuggest"
                 style="@style/TextLight.XS"
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -219,6 +225,7 @@
             app:layout_constraintTop_toTopOf="@id/buttonAutoSuggestVoice" />
 
         <TextView
+            android:focusable="true"
             android:id="@+id/resultAutoSuggestVoice"
             style="@style/TextLight.S"
             android:layout_width="0dp"
