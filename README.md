@@ -13,7 +13,7 @@ The artifact is available through <a href="https://search.maven.org/search?q=g:c
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.4'
+implementation 'com.what3words:w3w-android-wrapper:3.1.5'
 ```
 
 ## Documentation
