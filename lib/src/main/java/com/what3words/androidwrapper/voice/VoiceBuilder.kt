@@ -103,7 +103,7 @@ class VoiceBuilder(
      * this will be truncated to the maximum. The default is 3
      *
      * @param n the number of AutoSuggest results to return
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun nResults(n: Int?): VoiceBuilder {
         nResults = n ?: 3
@@ -117,7 +117,7 @@ class VoiceBuilder(
      * which will return just one focussed result and the rest unfocussed.
      *
      * @param n number of results within the results set which will have a focus
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun nFocusResults(n: Int?): VoiceBuilder {
         nFocusResults = n
@@ -130,7 +130,7 @@ class VoiceBuilder(
      *
      * @param centre the centre of the circle
      * @param radius the radius of the circle in kilometres
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun clipToCircle(
         centre: Coordinates?,
@@ -148,7 +148,7 @@ class VoiceBuilder(
      * returns no results.
      *
      * @param countryCodes countries to clip results too
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun clipToCountry(countryCodes: List<String>): VoiceBuilder {
         clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
@@ -159,7 +159,7 @@ class VoiceBuilder(
      * Restrict autosuggest results to a <code>BoundingBox</code>.
      *
      * @param boundingBox <code>BoundingBox</code> to clip results too
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun clipToBoundingBox(
         boundingBox: BoundingBox?
@@ -174,7 +174,7 @@ class VoiceBuilder(
      * accepting up to 25 pairs.
      *
      * @param polygon the polygon to clip results too
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a {@link VoiceBuilder} instance
      */
     fun clipToPolygon(
         polygon: List<Coordinates>
