@@ -108,16 +108,16 @@ public class MainActivity extends AppCompatActivity {
 ### voice autosuggest example in Kotlin
 ```Kotlin
 val microphone = VoiceBuilder.Microphone().onListening { volume ->
-				Log.i("VoiceSample","volume: $volume")
-        }
+    Log.i("VoiceSample","volume: $volume")
+}
 
 wrapper.autosuggest(microphone, "en")
-            .focus(51.423,-0.1245)
-            .onSuggestions { suggestions ->
-				Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
-            }.onError { error ->
-				Log.e("VoiceSample", error)
-            }
+    .focus(51.423, -0.1245)
+    .onSuggestions { suggestions ->
+        Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
+    }.onError { error ->
+        Log.e("VoiceSample", error)
+    }.startListening()
 ```
 *Note: You will need AUDIO_RECORD permission to use our Suggestion Voice API, for examples how to handle the permission request check our sample and sample-java apps in this repo.*
 
