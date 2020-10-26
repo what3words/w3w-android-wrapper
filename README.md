@@ -105,13 +105,14 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
-### voice suggestion call example in Kotlin
+### voice autosuggest example in Kotlin
 ```Kotlin
 val microphone = VoiceBuilder.Microphone().onListening { volume ->
 				Log.i("VoiceSample","volume: $volume")
         }
 
 wrapper.autosuggest(microphone, "en")
+            .focus(51.423,-0.1245)
             .onSuggestions { suggestions ->
 				Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
             }.onError { error ->
