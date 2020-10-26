@@ -1,6 +1,3 @@
-
-
-
 # <img src="https://what3words.com/assets/images/w3w_square_red.png" width="64" height="64" alt="what3words">&nbsp;w3w-android-wrapper
 
 An Android library to use the [what3words v3 API](https://docs.what3words.com/api/v3/).
@@ -16,7 +13,7 @@ The artifact is available through <a href="https://search.maven.org/search?q=g:c
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:1.0.0'
+implementation 'com.what3words:w3w-android-wrapper:3.1.4'
 ```
 
 ## Documentation
@@ -43,28 +40,28 @@ build.gradle (app level)
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    
+
     dependencies {
         ...
         // we are going to use coroutines for kotlin examples, feel free to use any other library of your choice.
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
-        
+
         // we are going to use rxjava for java examples, feel free to use any other library of your choice.
         implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
         implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     }
 ```
 
-### convertTo3wa example in kotlin with Coroutines. 
-*for more Kotlin examples try our **sample app** in this repo*
+### convertTo3wa example in kotlin with Coroutines.
+Because it is not possible to perform a networking operation on the main application thread, API calls need to be made in a background thread, we used Coroutines in this example. *for more Kotlin examples try our **sample app** in this repo*.
 
 ```Kotlin
-class MainActivity : AppCompatActivity() {  
-    override fun onCreate(savedInstanceState: Bundle?) {  
-        super.onCreate(savedInstanceState)  
-        setContentView(R.layout.activity_main)  
-  
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
         val wrapper = What3WordsV3("YOUR_API_KEY_HERE", this)
         CoroutineScope(Dispatchers.IO).launch {
             //use wrapper.convertTo3wa() with Dispatcher.IO - background thread
@@ -83,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 ```
 
 ### convertTo3wa example in Java with RxJava
-*for more Java examples try our **sample-java app** in this repo*
+Because it is not possible to perform a networking operation on the main application thread, API calls need to be made in a background thread, we used RxJava in this example. *for more Java examples try our **sample-java app** in this repo*
 
 ```Java
 public class MainActivity extends AppCompatActivity {
@@ -107,6 +104,21 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 ```
+
+### voice suggestion call example in Kotlin
+```Kotlin
+val microphone = VoiceBuilder.Microphone().onListening { volume ->
+				Log.i("VoiceSample","volume: $volume")
+        }
+
+wrapper.autosuggest(microphone, "en")
+            .onSuggestions { suggestions ->
+				Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
+            }.onError { error ->
+				Log.e("VoiceSample", error)
+            }
+```
+*Note: You will need AUDIO_RECORD permission to use our Suggestion Voice API, for examples how to handle the permission request check our sample and sample-java apps in this repo.*
 
 ### Other available wrapper calls and examples.
 
