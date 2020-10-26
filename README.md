@@ -28,6 +28,9 @@ AndroidManifest.xml
     package="com.yourpackage.yourapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- add if using voice api autosuggest -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
 build.gradle (app level)
