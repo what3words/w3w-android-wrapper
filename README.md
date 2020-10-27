@@ -35,25 +35,25 @@ AndroidManifest.xml
 
 build.gradle (app level)
 ```gradle
+android {
+    ...
+    // for Java only.
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+dependencies {
+    ...
+    // we are going to use coroutines for kotlin examples, feel free to use any other library of your choice.
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
 
-    dependencies {
-        ...
-        // we are going to use coroutines for kotlin examples, feel free to use any other library of your choice.
-        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
-        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
-
-        // we are going to use rxjava for java examples, feel free to use any other library of your choice.
-        implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
-        implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    }
+    // we are going to use rxjava for java examples, feel free to use any other library of your choice.
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+}
 ```
 
 ### convertTo3wa example in kotlin with Coroutines.
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Log.e("MainActivity", result.getError().getMessage());
                     }
-                }));
+                });
     }
 }
 ```
@@ -122,7 +122,9 @@ wrapper.autosuggest(microphone, "en")
         Log.e("VoiceSample", error)
     }.startListening()
 ```
-*Note: You will need AUDIO_RECORD permission to use our Suggestion Voice API, for examples how to handle the permission request check our sample and sample-java apps in this repo.*
+**For a full working example with voice and AUDIO_RECORD permission request check our [sample](https://github.com/what3words/w3w-android-wrapper/blob/master/sample/src/main/java/com/what3words/androidwrappersample/MainActivity.kt "sample") and [sample-java](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-java/src/main/java/com/what3words/androidwrappersamplejava/MainActivity.java "sample-java")**
+
+*Note: Please bear in mind that the Android Emulator cannot record audio. Therefore, you will need to test on a real device that can record.*
 
 ### Other available wrapper calls and examples.
 

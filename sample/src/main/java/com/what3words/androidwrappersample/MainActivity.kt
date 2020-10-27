@@ -89,13 +89,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //voice autosuggest sample
-        builder = wrapper.autosuggest(VoiceBuilder.Microphone().onListening {
+        val microphone = VoiceBuilder.Microphone().onListening {
             it?.let { volume ->
                 volumeAutoSuggestVoice.text =
                     "volume: ${(volume.times(100).roundToInt())}"
             }
-        }, "en")
+        }
+
+        //voice autosuggest sample
+        builder = wrapper.autosuggest(microphone, "en")
             .onSuggestions { suggestions ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 resultAutoSuggestVoice.text =
@@ -110,6 +112,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 builder?.stopListening()
             } else {
+                //Check if RECORD_AUDIO permission is granted
                 val permission =
                     PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 
@@ -117,11 +120,8 @@ class MainActivity : AppCompatActivity() {
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
                     builder?.startListening()
                 } else {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.RECORD_AUDIO),
-                        1
-                    )
+                    //request RECORD_AUDIO permission
+                    ActivityCompat.requestPermissions(this,  arrayOf(Manifest.permission.RECORD_AUDIO), 1)
                 }
             }
         }
