@@ -1,0 +1,4 @@
+include ':sample-java'
+include ':lib'
+include ':sample'
+rootProject.name = "androidwrapper"
