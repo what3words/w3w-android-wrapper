@@ -204,7 +204,7 @@ class VoiceBuilder(
             url += "&clip-to-polygon=${it.joinToString(",") { "${it.lat},${it.lng}" }}"
         }
         clipToBoundingBox?.let {
-            url += "&clip-to-polygon=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
+            url += "&clip-to-bounding-box=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
         }
         return url
     }
