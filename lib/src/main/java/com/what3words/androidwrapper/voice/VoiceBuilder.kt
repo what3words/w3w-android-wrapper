@@ -195,13 +195,13 @@ class VoiceBuilder(
             }
         }
         clipToCountry?.let {
-            url += "&clip-to-country=${it.joinToString()}"
+            url += "&clip-to-country=${it.joinToString(",")}"
         }
         clipToCircle?.let {
             url += "&clip-to-circle=${it.lat},${it.lng},${clipToCircleRadius ?: 1}"
         }
         clipToPolygon?.let {
-            url += "&clip-to-polygon=${it.joinToString()}"
+            url += "&clip-to-polygon=${it.joinToString(",") { "${it.lat},${it.lng}" }}"
         }
         clipToBoundingBox?.let {
             url += "&clip-to-polygon=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
