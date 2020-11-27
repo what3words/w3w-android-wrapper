@@ -132,7 +132,7 @@ wrapper.autosuggest(microphone, "en")
 ```Kotlin
     val result = wrapper.convertToCoordinates("index.home.raft").execute()
 ```
-- **wrapper.autosuggest()** - AutoSuggest can take a slightly incorrect 3 word address, and suggest a list of valid 3 word addresses. For autosuggest filters like *focus* below go to :LINK DEV HERE:
+- **wrapper.autosuggest()** - AutoSuggest can take a slightly incorrect 3 word address, and suggest a list of valid 3 word addresses. For more autosuggest proprieties similar to *focus* below go to our [documentation](https://developer.what3words.com/public-api/docs#autosuggest)
 ```Kotlin
     val result = wrapper.autosuggest("index.home.r").focus(51.502,-0.12345).execute()
 ```
