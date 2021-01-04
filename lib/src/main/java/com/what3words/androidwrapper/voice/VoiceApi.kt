@@ -2,6 +2,7 @@ package com.what3words.androidwrapper.voice
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.Suggestion
 import okhttp3.*
@@ -113,7 +114,14 @@ class VoiceApi constructor(
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosing(webSocket, code, reason)
                 if (code != 1000) {
-                    listener?.error(Gson().fromJson(reason, APIError::class.java))
+                    try {
+                        listener?.error(Gson().fromJson(reason, APIError::class.java))
+                    } catch (e :JsonSyntaxException) {
+                        listener?.error(APIError().apply {
+                            this.code = "UnknownError"
+                            this.message = reason
+                        })
+                    }
                     webSocket.close(code, reason)
                 }
             }
