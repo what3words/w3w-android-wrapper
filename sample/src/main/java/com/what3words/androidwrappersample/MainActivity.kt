@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                     "Suggestions: ${suggestions.joinToString { it.words }}"
             }.onError { error ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
-                resultAutoSuggestVoice.text = error.message
+                resultAutoSuggestVoice.text = "${error.key}, ${error.message}"
             }
 
         buttonAutoSuggestVoice.setOnClickListener {

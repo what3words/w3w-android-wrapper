@@ -103,9 +103,10 @@ class VoiceApi constructor(
                 super.onFailure(webSocket, t, response)
                 if (socket != null) t.message?.let {
                     listener?.error(APIError().apply {
-                        code = "UnknownError"
+                        code = "NetworkError"
                         message = it
                     })
+                    socket = null
                 }
             }
 
