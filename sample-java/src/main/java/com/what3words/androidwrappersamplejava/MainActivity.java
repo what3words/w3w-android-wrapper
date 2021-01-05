@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record);
                 })
                 .onError(error -> {
-                    buttonAutoSuggestVoice.setText(error);
+                    resultAutoSuggestVoice.setText(error.getMessage());
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record);
                 });
 

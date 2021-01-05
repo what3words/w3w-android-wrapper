@@ -8,6 +8,8 @@ import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.voice.VoiceBuilder.Microphone.Companion.RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
+import com.what3words.javawrapper.response.APIError
+import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +32,7 @@ class VoiceBuilder(
     private var focus: Coordinates? = null
     private var nResults: Int = 3
     private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
-    private var onErrorCallback: Consumer<String>? = null
+    private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
 
     init {
@@ -49,11 +51,19 @@ class VoiceBuilder(
         }
     }
 
-    override fun error(message: String) {
+    override fun error(message: APIError) {
         mic.stopRecording()
         isListening = false
+        // look for the error within the available error enums
+        var errorEnum = APIResponse.What3WordsError.get(message.code)
+
+        // Haven't found the error, return UNKNOWN_ERROR
+        if (errorEnum == null) {
+            errorEnum = APIResponse.What3WordsError.UNKNOWN_ERROR
+        }
+        errorEnum.message = message.message
         CoroutineScope(Dispatchers.Main).launch {
-            onErrorCallback?.accept(message)
+            onErrorCallback?.accept(errorEnum)
         }
     }
 
@@ -62,7 +72,7 @@ class VoiceBuilder(
         return this
     }
 
-    fun onError(callback: Consumer<String>): VoiceBuilder {
+    fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilder {
         this.onErrorCallback = callback
         return this
     }

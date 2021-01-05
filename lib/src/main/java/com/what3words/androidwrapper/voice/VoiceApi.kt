@@ -2,6 +2,8 @@ package com.what3words.androidwrapper.voice
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.Suggestion
 import okhttp3.*
 import org.json.JSONObject
@@ -23,7 +25,7 @@ interface VoiceApiListener {
     /**
      * When there's an error with the VoiceAPI connection, please find all errors at: https://developer.what3words.com/voice-api/docs#error-handling
      */
-    fun error(message: String)
+    fun error(message: APIError)
 }
 
 /**
@@ -86,7 +88,10 @@ class VoiceApi constructor(
                 }
 
                 if (message.code != null && message.message != null) {
-                    listener?.error(message.message!!)
+                    listener?.error(APIError().apply {
+                        code = "UnknownError"
+                        this.message = message.message
+                    })
                     webSocket.close(1002, "JOB FINISHED WITH ERRORS")
                 }
             }
@@ -97,13 +102,26 @@ class VoiceApi constructor(
                 response: Response?
             ) {
                 super.onFailure(webSocket, t, response)
-                if (socket != null) t.message?.let { listener?.error(it) }
+                if (socket != null) t.message?.let {
+                    listener?.error(APIError().apply {
+                        code = "NetworkError"
+                        message = it
+                    })
+                    socket = null
+                }
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosing(webSocket, code, reason)
                 if (code != 1000) {
-                    listener?.error(reason)
+                    try {
+                        listener?.error(Gson().fromJson(reason, APIError::class.java))
+                    } catch (e :JsonSyntaxException) {
+                        listener?.error(APIError().apply {
+                            this.code = "UnknownError"
+                            this.message = reason
+                        })
+                    }
                     webSocket.close(code, reason)
                 }
             }
