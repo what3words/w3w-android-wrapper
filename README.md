@@ -13,7 +13,7 @@ The artifact is available through [![Maven Central](https://img.shields.io/maven
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.6'
+implementation 'com.what3words:w3w-android-wrapper:3.1.7'
 ```
 
 ## Documentation
@@ -119,7 +119,7 @@ wrapper.autosuggest(microphone, "en")
     .onSuggestions { suggestions ->
         Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
     }.onError { error ->
-        Log.e("VoiceSample", error)
+        Log.e("VoiceSample", error.message)
     }.startListening()
 ```
 **For a full working example with voice and AUDIO_RECORD permission request check our [sample](https://github.com/what3words/w3w-android-wrapper/blob/master/sample/src/main/java/com/what3words/androidwrappersample/MainActivity.kt "sample") and [sample-java](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-java/src/main/java/com/what3words/androidwrappersamplejava/MainActivity.java "sample-java")**
