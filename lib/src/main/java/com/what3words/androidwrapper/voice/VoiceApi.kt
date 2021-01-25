@@ -76,23 +76,30 @@ class VoiceApi constructor(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                val message = Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
-                if (message.message == BaseVoiceMessagePayload.RecognitionStarted) {
+                val socketMessage = Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
+                if (socketMessage.message == BaseVoiceMessagePayload.RecognitionStarted) {
                     listener?.connected(webSocket)
                 }
 
-                if (message.message == BaseVoiceMessagePayload.Suggestions) {
+                if (socketMessage.message == BaseVoiceMessagePayload.Suggestions) {
                     val result = Gson().fromJson(text, SuggestionsPayload::class.java)
                     listener?.suggestions(result.suggestions)
-                    webSocket.close(1000, "JOB FINISHED")
                 }
 
-                if (message.code != null && message.message != null) {
+                if (socketMessage.message == BaseVoiceMessagePayload.Error) {
+                    val result = Gson().fromJson(text, ErrorPayload::class.java)
                     listener?.error(APIError().apply {
                         code = "UnknownError"
-                        this.message = message.message
+                        this.message = "${result.type} - ${result.reason}"
                     })
-                    webSocket.close(1002, "JOB FINISHED WITH ERRORS")
+                }
+
+                if (socketMessage.message == BaseVoiceMessagePayload.W3WError) {
+                    val result = Gson().fromJson(text, W3WErrorPayload::class.java)
+                    listener?.error(APIError().apply {
+                        code = result.error.code
+                        this.message = result.error.message
+                    })
                 }
             }
 
@@ -116,14 +123,14 @@ class VoiceApi constructor(
                 if (code != 1000) {
                     try {
                         listener?.error(Gson().fromJson(reason, APIError::class.java))
-                    } catch (e :JsonSyntaxException) {
+                    } catch (e: JsonSyntaxException) {
                         listener?.error(APIError().apply {
                             this.code = "UnknownError"
                             this.message = reason
                         })
                     }
-                    webSocket.close(code, reason)
                 }
+                webSocket.close(code, reason)
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
