@@ -94,6 +94,9 @@ class MainActivity : AppCompatActivity() {
                 volumeAutoSuggestVoice.text =
                     "volume: ${(volume.times(100).roundToInt())}"
             }
+        }.onError {
+            buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
+            resultAutoSuggestVoice.text = it
         }
 
         //voice autosuggest sample
@@ -121,7 +124,11 @@ class MainActivity : AppCompatActivity() {
                     builder?.startListening()
                 } else {
                     //request RECORD_AUDIO permission
-                    ActivityCompat.requestPermissions(this,  arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.RECORD_AUDIO),
+                        1
+                    )
                 }
             }
         }
