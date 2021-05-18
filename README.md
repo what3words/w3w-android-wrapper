@@ -13,7 +13,7 @@ The artifact is available through [![Maven Central](https://img.shields.io/maven
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.10'
+implementation 'com.what3words:w3w-android-wrapper:3.1.11'
 ```
 
 ## Documentation
