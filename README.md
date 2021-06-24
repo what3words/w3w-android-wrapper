@@ -33,6 +33,13 @@ AndroidManifest.xml
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
+add the following proguard rules
+```
+-keep class com.what3words.javawrapper.request.* { *; }
+-keep class com.what3words.javawrapper.response.* { *; }
+-keep class com.what3words.androidwrapper.voice.* { *; } // add if using voice api autosuggest 
+```
+
 build.gradle (app level)
 ```gradle
 android {
