@@ -33,13 +33,6 @@ AndroidManifest.xml
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
-add the following proguard rules
-```
--keep class com.what3words.javawrapper.request.* { *; }
--keep class com.what3words.javawrapper.response.* { *; }
--keep class com.what3words.androidwrapper.voice.* { *; } // add if using voice api autosuggest 
-```
-
 build.gradle (app level)
 ```gradle
 android {
@@ -60,6 +53,13 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 }
+```
+
+add the following ProGuard rules
+```
+-keep class com.what3words.javawrapper.request.* { *; }
+-keep class com.what3words.javawrapper.response.* { *; }
+-keep class com.what3words.androidwrapper.voice.* { *; } // add if using voice api autosuggest 
 ```
 
 ### convertTo3wa example in kotlin with Coroutines.
