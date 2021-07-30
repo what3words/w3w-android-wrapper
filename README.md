@@ -126,7 +126,7 @@ val microphone = Microphone().onListening { volume ->
 }
 
 wrapper.autosuggestWithCoordinates(microphone, "en")
-    .focus(51.423, -0.1245)
+    .focus(Coordinates(51.423, -0.1245))
     .onSuggestions { suggestions ->
         Log.i("VoiceSample", "Suggestions: ${suggestions.joinToString { "${it.words}, lat:${it.coordinates.lat}, lng:${it.coordinates.lng}" }}")
     }.onError { error ->
