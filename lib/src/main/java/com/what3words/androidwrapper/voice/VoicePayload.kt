@@ -1,8 +1,11 @@
 package com.what3words.androidwrapper.voice
 
 import com.what3words.javawrapper.response.Suggestion
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
 
 data class SuggestionsPayload(val suggestions: List<Suggestion>) : BaseVoiceMessagePayload()
+
+data class SuggestionsWithCoordinatesPayload(val suggestions: List<SuggestionWithCoordinates>) : BaseVoiceMessagePayload()
 
 data class ErrorPayload(val type: String, val code: Int?, val reason: String) : BaseVoiceMessagePayload()
 

@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.VoiceBuilder
+import com.what3words.androidwrapper.voice.*
 import com.what3words.javawrapper.request.Coordinates
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    private var builder: VoiceBuilder? = null
+    private var builder: VoiceBuilderWithCoordinates? = null
     private val wrapper by lazy {
         What3WordsV3("YOUR_API_KEY_HERE", this)
     }
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val microphone = VoiceBuilder.Microphone().onListening {
+        val microphone = Microphone().onListening {
             it?.let { volume ->
                 volumeAutoSuggestVoice.text =
                     "volume: ${(volume.times(100).roundToInt())}"
@@ -99,12 +99,13 @@ class MainActivity : AppCompatActivity() {
             resultAutoSuggestVoice.text = it
         }
 
-        //voice autosuggest sample
-        builder = wrapper.autosuggest(microphone, "en")
+        //voice autosuggest-with-coordinates sample
+        builder = wrapper.autosuggestWithCoordinates(microphone, "en")
+            .focus(Coordinates(51.457269, -0.074788))
             .onSuggestions { suggestions ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 resultAutoSuggestVoice.text =
-                    "Suggestions: ${suggestions.joinToString { it.words }}"
+                    "Suggestions: ${suggestions.joinToString { "${it.words}, lat:${it.coordinates.lat}, lng:${it.coordinates.lng}" }}"
             }.onError { error ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 resultAutoSuggestVoice.text = "${error.key}, ${error.message}"

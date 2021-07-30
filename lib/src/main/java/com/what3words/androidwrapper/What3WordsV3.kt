@@ -4,8 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.google.common.io.BaseEncoding
-import com.what3words.androidwrapper.voice.VoiceApi
-import com.what3words.androidwrapper.voice.VoiceBuilder
+import com.what3words.androidwrapper.voice.*
 import java.security.MessageDigest
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
@@ -81,9 +80,16 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
     }
 
     fun autosuggest(
-        microphone: VoiceBuilder.Microphone,
+        microphone: Microphone,
         voiceLanguage: String
     ): VoiceBuilder {
         return VoiceBuilder(this, microphone, voiceLanguage)
+    }
+
+    fun autosuggestWithCoordinates(
+        microphone: Microphone,
+        voiceLanguage: String
+    ): VoiceBuilderWithCoordinates {
+        return VoiceBuilderWithCoordinates(this, microphone, voiceLanguage)
     }
 }
