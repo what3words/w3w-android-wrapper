@@ -11,11 +11,6 @@ To obtain an API key, please visit [https://what3words.com/select-plan](https://
 The artifact is available through [![Maven Central](https://img.shields.io/maven-central/v/com.what3words/w3w-android-wrapper.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.what3words%22%20AND%20a:%22w3w-android-wrapper%22)
 
 ### Gradle
-```
-maven {
-    url "https://oss.sonatype.org/content/repositories/comwhat3words-1087/"
-}
-```
 
 ```
 implementation 'com.what3words:w3w-android-wrapper:3.1.12'
@@ -125,10 +120,10 @@ val microphone = Microphone().onListening { volume ->
     Log.i("VoiceSample","volume: $volume")
 }
 
-wrapper.autosuggestWithCoordinates(microphone, "en")
+wrapper.autosuggest(microphone, "en")
     .focus(Coordinates(51.423, -0.1245))
     .onSuggestions { suggestions ->
-        Log.i("VoiceSample", "Suggestions: ${suggestions.joinToString { "${it.words}, lat:${it.coordinates.lat}, lng:${it.coordinates.lng}" }}")
+        Log.i("VoiceSample", "Suggestions: ${suggestions.joinToString { "${it.words}" }}")
     }.onError { error ->
         Log.e("VoiceSample", error.message)
     }.startListening()
