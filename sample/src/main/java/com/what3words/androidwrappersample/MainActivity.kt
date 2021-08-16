@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    private var builder: VoiceBuilderWithCoordinates? = null
+    private var builder: VoiceBuilder? = null
     private val wrapper by lazy {
         What3WordsV3("YOUR_API_KEY_HERE", this)
     }
@@ -99,13 +99,13 @@ class MainActivity : AppCompatActivity() {
             resultAutoSuggestVoice.text = it
         }
 
-        //voice autosuggest-with-coordinates sample
-        builder = wrapper.autosuggestWithCoordinates(microphone, "en")
+        //voice autosuggest sample
+        builder = wrapper.autosuggest(microphone, "en")
             .focus(Coordinates(51.457269, -0.074788))
             .onSuggestions { suggestions ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 resultAutoSuggestVoice.text =
-                    "Suggestions: ${suggestions.joinToString { "${it.words}, lat:${it.coordinates.lat}, lng:${it.coordinates.lng}" }}"
+                    "Suggestions: ${suggestions.joinToString { it.words }}"
             }.onError { error ->
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 resultAutoSuggestVoice.text = "${error.key}, ${error.message}"
