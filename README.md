@@ -13,7 +13,7 @@ The artifact is available through [![Maven Central](https://img.shields.io/maven
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.11'
+implementation 'com.what3words:w3w-android-wrapper:3.1.12'
 ```
 
 ## Documentation
@@ -116,14 +116,14 @@ public class MainActivity extends AppCompatActivity {
 
 ### voice autosuggest example in Kotlin
 ```Kotlin
-val microphone = VoiceBuilder.Microphone().onListening { volume ->
+val microphone = Microphone().onListening { volume ->
     Log.i("VoiceSample","volume: $volume")
 }
 
 wrapper.autosuggest(microphone, "en")
-    .focus(51.423, -0.1245)
+    .focus(Coordinates(51.423, -0.1245))
     .onSuggestions { suggestions ->
-        Log.i("VoiceSample","Suggestions: ${suggestions.joinToString { it.words }}")
+        Log.i("VoiceSample", "Suggestions: ${suggestions.joinToString { "${it.words}" }}")
     }.onError { error ->
         Log.e("VoiceSample", error.message)
     }.startListening()
