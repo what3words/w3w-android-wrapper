@@ -7,17 +7,17 @@ import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
-import com.what3words.javawrapper.response.Suggestion
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 
-class VoiceBuilder(
+class VoiceBuilderWithCoordinates(
     private val api: What3WordsV3,
     private val mic: Microphone,
     private val voiceLanguage: String
-) : VoiceApiListener {
+) : VoiceApiListenerWithCoordinates {
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null
     private var clipToCircle: Coordinates? = null
@@ -26,20 +26,20 @@ class VoiceBuilder(
     private var nFocusResults: Int? = null
     private var focus: Coordinates? = null
     private var nResults: Int = 3
-    private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
+    private var onSuggestionsCallback: Consumer<List<SuggestionWithCoordinates>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
 
     init {
-        api.voiceApi.listener = this
+        api.voiceApi.listenerWithCoordinates = this
     }
 
-    fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
+    fun onSuggestions(callback: Consumer<List<SuggestionWithCoordinates>>): VoiceBuilderWithCoordinates {
         this.onSuggestionsCallback = callback
         return this
     }
 
-    fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilder {
+    fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilderWithCoordinates {
         this.onErrorCallback = callback
         return this
     }
@@ -48,7 +48,7 @@ class VoiceBuilder(
         mic.startRecording(socket)
     }
 
-    override fun suggestions(suggestions: List<Suggestion>) {
+    override fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>) {
         mic.stopRecording()
         isListening = false
         CoroutineScope(Dispatchers.Main).launch {
@@ -72,12 +72,12 @@ class VoiceBuilder(
         }
     }
 
-    fun startListening(): VoiceBuilder {
+    fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
         api.voiceApi.open(
             RECORDING_RATE,
             url = createSocketUrl(),
-            withCoordinates = false
+            withCoordinates = true
         )
         return this
     }
@@ -99,7 +99,7 @@ class VoiceBuilder(
      * @param coordinates the focus to use
      * @return a {@link W3WAutoSuggestEditText} instance
      */
-    fun focus(coordinates: Coordinates?): VoiceBuilder {
+    fun focus(coordinates: Coordinates?): VoiceBuilderWithCoordinates {
         focus = coordinates
         return this
     }
@@ -111,7 +111,7 @@ class VoiceBuilder(
      * @param n the number of AutoSuggest results to return
      * @return a {@link VoiceBuilder} instance
      */
-    fun nResults(n: Int?): VoiceBuilder {
+    fun nResults(n: Int?): VoiceBuilderWithCoordinates {
         nResults = n ?: 3
         return this
     }
@@ -125,7 +125,7 @@ class VoiceBuilder(
      * @param n number of results within the results set which will have a focus
      * @return a {@link VoiceBuilder} instance
      */
-    fun nFocusResults(n: Int?): VoiceBuilder {
+    fun nFocusResults(n: Int?): VoiceBuilderWithCoordinates {
         nFocusResults = n
         return this
     }
@@ -141,7 +141,7 @@ class VoiceBuilder(
     fun clipToCircle(
         centre: Coordinates?,
         radius: Double?
-    ): VoiceBuilder {
+    ): VoiceBuilderWithCoordinates {
         clipToCircle = centre
         clipToCircleRadius = radius
         return this
@@ -156,7 +156,7 @@ class VoiceBuilder(
      * @param countryCodes countries to clip results too
      * @return a {@link VoiceBuilder} instance
      */
-    fun clipToCountry(countryCodes: List<String>): VoiceBuilder {
+    fun clipToCountry(countryCodes: List<String>): VoiceBuilderWithCoordinates {
         clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
         return this
     }
@@ -169,7 +169,7 @@ class VoiceBuilder(
      */
     fun clipToBoundingBox(
         boundingBox: BoundingBox?
-    ): VoiceBuilder {
+    ): VoiceBuilderWithCoordinates {
         clipToBoundingBox = boundingBox
         return this
     }
@@ -184,13 +184,13 @@ class VoiceBuilder(
      */
     fun clipToPolygon(
         polygon: List<Coordinates>
-    ): VoiceBuilder {
+    ): VoiceBuilderWithCoordinates {
         clipToPolygon = if (polygon.isNotEmpty()) polygon.toTypedArray() else null
         return this
     }
 
     private fun createSocketUrl(): String {
-        var url = VoiceApi.BASE_URL
+        var url = VoiceApi.BASE_URL_WITH_COORDINATES
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
         url += "&n-results=$nResults"
