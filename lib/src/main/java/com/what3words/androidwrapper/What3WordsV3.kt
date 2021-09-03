@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.google.common.io.BaseEncoding
-import com.what3words.androidwrapper.voice.*
+import com.what3words.androidwrapper.voice.Microphone
+import com.what3words.androidwrapper.voice.VoiceApi
+import com.what3words.androidwrapper.voice.VoiceBuilder
+import com.what3words.androidwrapper.voice.VoiceBuilderWithCoordinates
 import java.security.MessageDigest
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
@@ -17,6 +20,15 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         null
     ) {
         voiceApi = VoiceApi(apiKey)
+    }
+
+    internal constructor(apiKey: String, voiceApi: VoiceApi) : super(
+        apiKey,
+        "com.what3words.androidwrapper",
+        "",
+        emptyMap()
+    ) {
+        this@What3WordsV3.voiceApi = voiceApi
     }
 
     constructor(apiKey: String, context: Context, headers: Map<String, String>) : super(

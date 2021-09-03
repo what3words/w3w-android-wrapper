@@ -30,10 +30,6 @@ class VoiceBuilder(
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
 
-    init {
-        api.voiceApi.listener = this
-    }
-
     fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
         this.onSuggestionsCallback = callback
         return this
@@ -77,7 +73,8 @@ class VoiceBuilder(
         api.voiceApi.open(
             RECORDING_RATE,
             url = createSocketUrl(),
-            withCoordinates = false
+            withCoordinates = false,
+            listener = this
         )
         return this
     }

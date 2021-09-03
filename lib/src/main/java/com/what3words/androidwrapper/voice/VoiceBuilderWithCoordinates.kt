@@ -77,7 +77,8 @@ class VoiceBuilderWithCoordinates(
         api.voiceApi.open(
             RECORDING_RATE,
             url = createSocketUrl(),
-            withCoordinates = true
+            withCoordinates = true,
+            listener = this
         )
         return this
     }
