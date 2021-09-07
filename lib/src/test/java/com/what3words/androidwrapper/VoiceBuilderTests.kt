@@ -9,7 +9,6 @@ import com.what3words.androidwrapper.voice.VoiceApiListenerWithCoordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
-import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
@@ -39,7 +38,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `startListening then manual stopListening`() {
-        //given
+        // given
         val voiceApi = mockk<VoiceApi>()
         val socket = mockk<WebSocket>()
         val microphone = mockk<Microphone>()
@@ -59,19 +58,19 @@ class VoiceBuilderTests {
         builder.onSuggestions(suggestionsCallback)
         builder.onError(errorCallback)
 
-        //when startListening and connected successfully
+        // when startListening and connected successfully
         builder.startListening()
         builder.connected(socket)
 
-        //then
+        // then
         assertThat(builder.isListening()).isTrue()
         verify(exactly = 1) { voiceApi.open(any(), any(), any(), false, builder) }
         verify(exactly = 1) { microphone.startRecording(socket) }
 
-        //when forced stop
+        // when forced stop
         builder.stopListening()
 
-        //then
+        // then
         assertThat(builder.isListening()).isFalse()
         verify(exactly = 1) { voiceApi.forceStop() }
         verify(exactly = 1) { microphone.stopRecording() }
@@ -79,10 +78,9 @@ class VoiceBuilderTests {
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 
-
     @Test
     fun `startListening then error occurs`() {
-        //given
+        // given
         val voiceApi = mockk<VoiceApi>()
         val socket = mockk<WebSocket>()
         val microphone = mockk<Microphone>()
@@ -104,19 +102,19 @@ class VoiceBuilderTests {
         builder.onSuggestions(suggestionsCallback)
         builder.onError(errorCallback)
 
-        //when startListening and connected successfully
+        // when startListening and connected successfully
         builder.startListening()
         builder.connected(socket)
 
-        //then
+        // then
         assertThat(builder.isListening()).isTrue()
         verify(exactly = 1) { voiceApi.open(any(), any(), any(), false, builder) }
         verify(exactly = 1) { microphone.startRecording(socket) }
 
-        //when
+        // when
         builder.error(APIError())
 
-        //then
+        // then
         assertThat(builder.isListening()).isFalse()
         verify(exactly = 0) { voiceApi.forceStop() }
         verify(exactly = 1) { microphone.stopRecording() }

@@ -8,9 +8,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.*
+import com.what3words.androidwrapper.voice.Microphone
+import com.what3words.androidwrapper.voice.VoiceBuilder
 import com.what3words.javawrapper.request.Coordinates
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.buttonAutoSuggest
+import kotlinx.android.synthetic.main.activity_main.buttonAutoSuggestVoice
+import kotlinx.android.synthetic.main.activity_main.buttonConvertTo3wa
+import kotlinx.android.synthetic.main.activity_main.buttonConvertToCoordinates
+import kotlinx.android.synthetic.main.activity_main.resultAutoSuggest
+import kotlinx.android.synthetic.main.activity_main.resultAutoSuggestVoice
+import kotlinx.android.synthetic.main.activity_main.resultConvertTo3wa
+import kotlinx.android.synthetic.main.activity_main.resultConvertToCoordinates
+import kotlinx.android.synthetic.main.activity_main.textInputAutoSuggest
+import kotlinx.android.synthetic.main.activity_main.textInputConvertTo3wa
+import kotlinx.android.synthetic.main.activity_main.textInputConvertToCoordinates
+import kotlinx.android.synthetic.main.activity_main.volumeAutoSuggestVoice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //convert-to-3wa sample
+        // convert-to-3wa sample
         buttonConvertTo3wa.setOnClickListener {
             val latLong = textInputConvertTo3wa.text?.replace("\\s".toRegex(), "")?.split(",")
                 ?.filter { it.isNotEmpty() }
@@ -36,10 +48,10 @@ class MainActivity : AppCompatActivity() {
             val long = latLong?.getOrNull(1)?.toDoubleOrNull()
             if (lat != null && long != null) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    //use wrapper.convertTo3wa() with Dispatcher.IO - background thread
+                    // use wrapper.convertTo3wa() with Dispatcher.IO - background thread
                     val result = wrapper.convertTo3wa(Coordinates(lat, long)).execute()
                     CoroutineScope(Dispatchers.Main).launch {
-                        //use Dispatcher.Main to update your views with the results - Main thread
+                        // use Dispatcher.Main to update your views with the results - Main thread
                         if (result.isSuccessful) {
                             resultConvertTo3wa.text = "3 word address: ${result.words}"
                         } else {
@@ -52,15 +64,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //convert-to-coordinates sample
+        // convert-to-coordinates sample
         buttonConvertToCoordinates.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                //use wrapper.convertToCoordinates() with Dispatcher.IO - background thread
+                // use wrapper.convertToCoordinates() with Dispatcher.IO - background thread
                 val result =
                     wrapper.convertToCoordinates(textInputConvertToCoordinates.text.toString())
                         .execute()
                 CoroutineScope(Dispatchers.Main).launch {
-                    //use Dispatcher.Main to update your views with the results - Main thread
+                    // use Dispatcher.Main to update your views with the results - Main thread
                     if (result.isSuccessful) {
                         resultConvertToCoordinates.text =
                             "Coordinates: ${result.coordinates.lat}, ${result.coordinates.lng}"
@@ -71,13 +83,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //text autosuggest sample
+        // text autosuggest sample
         buttonAutoSuggest.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                //use wrapper.autosuggest() with Dispatcher.IO - background thread
+                // use wrapper.autosuggest() with Dispatcher.IO - background thread
                 val result = wrapper.autosuggest(textInputAutoSuggest.text.toString()).execute()
                 CoroutineScope(Dispatchers.Main).launch {
-                    //use Dispatcher.Main to update your views with the results - Main thread
+                    // use Dispatcher.Main to update your views with the results - Main thread
                     if (result.isSuccessful) {
                         resultAutoSuggest.text = if (result.suggestions.count() != 0)
                             "Suggestions: ${result.suggestions.joinToString { it.words }}"
@@ -99,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             resultAutoSuggestVoice.text = it
         }
 
-        //voice autosuggest sample
+        // voice autosuggest sample
         builder = wrapper.autosuggest(microphone, "en")
             .focus(Coordinates(51.457269, -0.074788))
             .onSuggestions { suggestions ->
@@ -116,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                 buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 builder?.stopListening()
             } else {
-                //Check if RECORD_AUDIO permission is granted
+                // Check if RECORD_AUDIO permission is granted
                 val permission =
                     PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 
@@ -124,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                     buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
                     builder?.startListening()
                 } else {
-                    //request RECORD_AUDIO permission
+                    // request RECORD_AUDIO permission
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.RECORD_AUDIO),

@@ -63,8 +63,10 @@ class Microphone {
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
                             val dB =
-                                VoiceSignalParser.transform(buffer.map { abs(it.toDouble()) }
-                                    .sum())
+                                VoiceSignalParser.transform(
+                                    buffer.map { abs(it.toDouble()) }
+                                        .sum()
+                                )
                             CoroutineScope(Dispatchers.Main).launch {
                                 onListeningCallback?.accept(dB)
                             }

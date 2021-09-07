@@ -80,7 +80,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns suggestions`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -93,7 +93,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -106,7 +106,7 @@ class VoiceApiTests {
         mockWebSocket.send("voiceEnd")
         mockWebSocket.close(1000, "closed by server")
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 1) { listener.suggestions(any()) }
         verify(exactly = 0) { listener.error(any()) }
@@ -115,7 +115,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest-with-coordinates returns suggestions`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -130,7 +130,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -143,7 +143,7 @@ class VoiceApiTests {
         mockWebSocket.send("voiceEnd")
         mockWebSocket.close(1000, "closed by server")
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 1) {
             listener.suggestionsWithCoordinates(any())
@@ -154,7 +154,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns invalid api key error`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -167,7 +167,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -176,7 +176,7 @@ class VoiceApiTests {
         )
         mockWebSocket.close(1003, jsonError)
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
@@ -185,7 +185,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns missing api key error`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -198,7 +198,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -207,7 +207,7 @@ class VoiceApiTests {
         )
         mockWebSocket.close(1003, jsonError)
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
@@ -216,7 +216,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns badfocus error`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -229,7 +229,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -242,7 +242,7 @@ class VoiceApiTests {
         mockWebSocket.send("voiceEnd")
         mockWebSocket.close(1000, "closed by server")
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
@@ -251,7 +251,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns json syntax error`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -264,7 +264,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -277,7 +277,7 @@ class VoiceApiTests {
         mockWebSocket.send("voiceEnd")
         mockWebSocket.close(1000, "closed by server")
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
@@ -286,7 +286,7 @@ class VoiceApiTests {
 
     @Test
     fun `autosuggest returns streaming error`() {
-        //given
+        // given
         mockClient = mockk()
         mockWebSocket = mockk()
         val jsonStart = ClassLoader.getSystemResource("started.json").readText()
@@ -299,7 +299,7 @@ class VoiceApiTests {
 
         val api = VoiceApi("any", mockClient)
 
-        //when
+        // when
         api.open(
             Microphone.RECORDING_RATE,
             url = BASE_URL,
@@ -312,7 +312,7 @@ class VoiceApiTests {
         mockWebSocket.send("voiceEnd")
         mockWebSocket.close(1000, "closed by server")
 
-        //then
+        // then
         verify(exactly = 1) { listener.connected(mockWebSocket) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
