@@ -70,24 +70,22 @@ internal class VoiceApi {
 
     fun open(
         sampleRate: Int,
-        encoding: String = "pcm_s16le",
+        encoding: String,
         url: String,
-        withCoordinates: Boolean = false,
         listener: VoiceApiListener
     ) {
         this.listener = listener
-        open(sampleRate, encoding, url, withCoordinates)
+        open(sampleRate, encoding, url)
     }
 
     fun open(
         sampleRate: Int,
-        encoding: String = "pcm_s16le",
+        encoding: String,
         url: String,
-        withCoordinates: Boolean = false,
         listener: VoiceApiListenerWithCoordinates
     ) {
         this.listenerWithCoordinates = listener
-        open(sampleRate, encoding, url, withCoordinates)
+        open(sampleRate, encoding, url)
     }
 
     /**
@@ -99,8 +97,7 @@ internal class VoiceApi {
     private fun open(
         sampleRate: Int,
         encoding: String = "pcm_s16le",
-        url: String,
-        withCoordinates: Boolean = false
+        url: String
     ) {
         if (socket != null) throw Exception("socket already open")
         val urlWithKey = "$url&key=$apiKey"
@@ -127,79 +124,72 @@ internal class VoiceApi {
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     super.onMessage(webSocket, text)
                     try {
-                        val socketMessage = Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
+                        val socketMessage =
+                            Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
                         if (socketMessage.message == BaseVoiceMessagePayload.RecognitionStarted) {
-                            if (withCoordinates) {
-                                listenerWithCoordinates?.connected(webSocket)
-                            } else {
-                                listener?.connected(webSocket)
-                            }
+                            listenerWithCoordinates?.connected(webSocket)
+                            listener?.connected(webSocket)
                         }
 
                         if (socketMessage.message == BaseVoiceMessagePayload.Suggestions) {
-                            if (withCoordinates) {
+                            listenerWithCoordinates?.let {
                                 val result =
-                                    Gson().fromJson(text, SuggestionsWithCoordinatesPayload::class.java)
-                                listenerWithCoordinates?.suggestionsWithCoordinates(result.suggestions)
-                            } else {
+                                    Gson().fromJson(
+                                        text,
+                                        SuggestionsWithCoordinatesPayload::class.java
+                                    )
+                                it.suggestionsWithCoordinates(result.suggestions)
+                            }
+                            listener?.let {
                                 val result = Gson().fromJson(text, SuggestionsPayload::class.java)
-                                listener?.suggestions(result.suggestions)
+                                it.suggestions(result.suggestions)
                             }
                         }
 
                         if (socketMessage.message == BaseVoiceMessagePayload.Error) {
                             val result = Gson().fromJson(text, ErrorPayload::class.java)
-                            if (withCoordinates) {
-                                listenerWithCoordinates?.error(
-                                    APIError().apply {
-                                        code = result.code?.toString() ?: "StreamingError"
-                                        this.message = "${result.type} - ${result.reason}"
-                                    }
-                                )
-                            } else {
-                                listener?.error(
-                                    APIError().apply {
-                                        code = result.code?.toString() ?: "StreamingError"
-                                        this.message = "${result.type} - ${result.reason}"
-                                    }
-                                )
-                            }
+                            listenerWithCoordinates?.error(
+                                APIError().apply {
+                                    code = result.code?.toString() ?: "StreamingError"
+                                    this.message = "${result.type} - ${result.reason}"
+                                }
+                            )
+                            listener?.error(
+                                APIError().apply {
+                                    code = result.code?.toString() ?: "StreamingError"
+                                    this.message = "${result.type} - ${result.reason}"
+                                }
+                            )
                         }
 
                         if (socketMessage.message == BaseVoiceMessagePayload.W3WError) {
                             val result = Gson().fromJson(text, W3WErrorPayload::class.java)
-                            if (withCoordinates) {
-                                listenerWithCoordinates?.error(
-                                    APIError().apply {
-                                        code = result.error.code
-                                        this.message = result.error.message
-                                    }
-                                )
-                            } else {
-                                listener?.error(
-                                    APIError().apply {
-                                        code = result.error.code
-                                        this.message = result.error.message
-                                    }
-                                )
-                            }
-                        }
-                    } catch (ex: JsonSyntaxException) {
-                        if (withCoordinates) {
                             listenerWithCoordinates?.error(
                                 APIError().apply {
-                                    code = "JsonSyntaxError"
-                                    this.message = ex.message
+                                    code = result.error.code
+                                    this.message = result.error.message
                                 }
                             )
-                        } else {
                             listener?.error(
                                 APIError().apply {
-                                    code = "JsonSyntaxError"
-                                    this.message = ex.message
+                                    code = result.error.code
+                                    this.message = result.error.message
                                 }
                             )
                         }
+                    } catch (ex: JsonSyntaxException) {
+                        listenerWithCoordinates?.error(
+                            APIError().apply {
+                                code = "JsonSyntaxError"
+                                this.message = ex.message
+                            }
+                        )
+                        listener?.error(
+                            APIError().apply {
+                                code = "JsonSyntaxError"
+                                this.message = ex.message
+                            }
+                        )
                     }
                 }
 
@@ -209,54 +199,45 @@ internal class VoiceApi {
                     response: Response?
                 ) {
                     if (socket != null) t.message?.let {
-                        if (withCoordinates) {
-                            listenerWithCoordinates?.error(
-                                APIError().apply {
-                                    code = "NetworkError"
-                                    message = it
-                                }
-                            )
-                        } else {
-                            listener?.error(
-                                APIError().apply {
-                                    code = "NetworkError"
-                                    message = it
-                                }
-                            )
-                        }
+                        listenerWithCoordinates?.error(
+                            APIError().apply {
+                                code = "NetworkError"
+                                message = it
+                            }
+                        )
+                        listener?.error(
+                            APIError().apply {
+                                code = "NetworkError"
+                                message = it
+                            }
+                        )
                     }
                     socket = null
                 }
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                     if (code != 1000) {
-                        if (withCoordinates) {
-                            try {
-                                listenerWithCoordinates?.error(
-                                    Gson().fromJson(
-                                        reason,
-                                        APIError::class.java
-                                    )
+                        try {
+                            listenerWithCoordinates?.error(
+                                Gson().fromJson(
+                                    reason,
+                                    APIError::class.java
                                 )
-                            } catch (e: JsonSyntaxException) {
-                                listenerWithCoordinates?.error(
-                                    APIError().apply {
-                                        this.code = "UnknownError"
-                                        this.message = reason
-                                    }
-                                )
-                            }
-                        } else {
-                            try {
-                                listener?.error(Gson().fromJson(reason, APIError::class.java))
-                            } catch (e: JsonSyntaxException) {
-                                listener?.error(
-                                    APIError().apply {
-                                        this.code = "UnknownError"
-                                        this.message = reason
-                                    }
-                                )
-                            }
+                            )
+                            listener?.error(Gson().fromJson(reason, APIError::class.java))
+                        } catch (e: JsonSyntaxException) {
+                            listenerWithCoordinates?.error(
+                                APIError().apply {
+                                    this.code = "UnknownError"
+                                    this.message = reason
+                                }
+                            )
+                            listener?.error(
+                                APIError().apply {
+                                    this.code = "UnknownError"
+                                    this.message = reason
+                                }
+                            )
                         }
                     }
                     socket = null
