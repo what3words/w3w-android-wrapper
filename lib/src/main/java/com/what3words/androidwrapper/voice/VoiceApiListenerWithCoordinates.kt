@@ -1,0 +1,22 @@
+package com.what3words.androidwrapper.voice
+
+import com.what3words.javawrapper.response.APIError
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
+import okhttp3.WebSocket
+
+interface VoiceApiListenerWithCoordinates {
+    /**
+     * When WebSocket successfully does the handshake with VoiceAPI
+     */
+    fun connected(socket: WebSocket)
+
+    /**
+     * When VoiceAPI receive the recording, processed it and retrieved what3word addresses with coordinates
+     */
+    fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>)
+
+    /**
+     * When there's an error with the VoiceAPI connection, please find all errors at: https://developer.what3words.com/voice-api/docs#error-handling
+     */
+    fun error(message: APIError)
+}

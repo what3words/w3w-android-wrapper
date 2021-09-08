@@ -3,8 +3,10 @@ package com.what3words.androidwrapper
 import androidx.core.util.Consumer
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
-import com.what3words.androidwrapper.voice.*
+import com.what3words.androidwrapper.voice.Microphone
+import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL
+import com.what3words.androidwrapper.voice.VoiceApiListener
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
@@ -22,7 +24,6 @@ import okhttp3.WebSocket
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.util.*
 
 @ExperimentalCoroutinesApi
 class VoiceBuilderTests {
@@ -235,7 +236,7 @@ class VoiceBuilderTests {
             .onError(errorCallback)
 
         // when
-        builder.clipToCircle(Coordinates(51.1,-0.152)).startListening()
+        builder.clipToCircle(Coordinates(51.1, -0.152)).startListening()
 
         // then
         assertThat(builder.isListening()).isTrue()
@@ -252,7 +253,7 @@ class VoiceBuilderTests {
             .onError(errorCallback)
 
         // when
-        builder.clipToCircle(Coordinates(51.1,-0.152), 100.0).startListening()
+        builder.clipToCircle(Coordinates(51.1, -0.152), 100.0).startListening()
 
         // then
         assertThat(builder.isListening()).isTrue()

@@ -3,8 +3,6 @@ package com.what3words.androidwrapper.voice
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.what3words.javawrapper.response.APIError
-import com.what3words.javawrapper.response.Suggestion
-import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -12,49 +10,10 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
 
-/**
- * Implement this listener to receive the callbacks from VoiceApi
- */
-interface VoiceApiListener {
-    /**
-     * When WebSocket successfully does the handshake with VoiceAPI
-     */
-    fun connected(socket: WebSocket)
-
-    /**
-     * When VoiceAPI receive the recording, processed it and retrieved what3word addresses
-     */
-    fun suggestions(suggestions: List<Suggestion>)
-
-    /**
-     * When there's an error with the VoiceAPI connection, please find all errors at: https://developer.what3words.com/voice-api/docs#error-handling
-     */
-    fun error(message: APIError)
-}
-
-interface VoiceApiListenerWithCoordinates {
-    /**
-     * When WebSocket successfully does the handshake with VoiceAPI
-     */
-    fun connected(socket: WebSocket)
-
-    /**
-     * When VoiceAPI receive the recording, processed it and retrieved what3word addresses with coordinates
-     */
-    fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>)
-
-    /**
-     * When there's an error with the VoiceAPI connection, please find all errors at: https://developer.what3words.com/voice-api/docs#error-handling
-     */
-    fun error(message: APIError)
-}
-
-internal class VoiceApi {
-
-    constructor(apiKey: String, client: OkHttpClient = OkHttpClient()) {
-        this.apiKey = apiKey
-        this.client = client
-    }
+internal class VoiceApi(
+    private var apiKey: String,
+    private var client: OkHttpClient = OkHttpClient()
+) {
 
     companion object {
         const val BASE_URL = "wss://voiceapi.what3words.com/v1/autosuggest"
@@ -62,8 +21,6 @@ internal class VoiceApi {
             "wss://voiceapi.what3words.com/v1/autosuggest-with-coordinates"
     }
 
-    private var client: OkHttpClient
-    private var apiKey: String
     internal var socket: WebSocket? = null
     private var listener: VoiceApiListener? = null
     var listenerWithCoordinates: VoiceApiListenerWithCoordinates? = null
@@ -96,7 +53,7 @@ internal class VoiceApi {
      */
     private fun open(
         sampleRate: Int,
-        encoding: String = "pcm_s16le",
+        encoding: String,
         url: String
     ) {
         if (socket != null) throw Exception("socket already open")
@@ -126,56 +83,57 @@ internal class VoiceApi {
                     try {
                         val socketMessage =
                             Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
-                        if (socketMessage.message == BaseVoiceMessagePayload.RecognitionStarted) {
-                            listenerWithCoordinates?.connected(webSocket)
-                            listener?.connected(webSocket)
-                        }
 
-                        if (socketMessage.message == BaseVoiceMessagePayload.Suggestions) {
-                            listenerWithCoordinates?.let {
-                                val result =
-                                    Gson().fromJson(
-                                        text,
-                                        SuggestionsWithCoordinatesPayload::class.java
-                                    )
-                                it.suggestionsWithCoordinates(result.suggestions)
+                        when (socketMessage.message) {
+                            BaseVoiceMessagePayload.RecognitionStarted -> {
+                                listenerWithCoordinates?.connected(webSocket)
+                                listener?.connected(webSocket)
                             }
-                            listener?.let {
-                                val result = Gson().fromJson(text, SuggestionsPayload::class.java)
-                                it.suggestions(result.suggestions)
+                            BaseVoiceMessagePayload.Suggestions -> {
+                                listenerWithCoordinates?.let {
+                                    val result =
+                                        Gson().fromJson(
+                                            text,
+                                            SuggestionsWithCoordinatesPayload::class.java
+                                        )
+                                    it.suggestionsWithCoordinates(result.suggestions)
+                                }
+                                listener?.let {
+                                    val result =
+                                        Gson().fromJson(text, SuggestionsPayload::class.java)
+                                    it.suggestions(result.suggestions)
+                                }
                             }
-                        }
-
-                        if (socketMessage.message == BaseVoiceMessagePayload.Error) {
-                            val result = Gson().fromJson(text, ErrorPayload::class.java)
-                            listenerWithCoordinates?.error(
-                                APIError().apply {
-                                    code = result.code?.toString() ?: "StreamingError"
-                                    this.message = "${result.type} - ${result.reason}"
-                                }
-                            )
-                            listener?.error(
-                                APIError().apply {
-                                    code = result.code?.toString() ?: "StreamingError"
-                                    this.message = "${result.type} - ${result.reason}"
-                                }
-                            )
-                        }
-
-                        if (socketMessage.message == BaseVoiceMessagePayload.W3WError) {
-                            val result = Gson().fromJson(text, W3WErrorPayload::class.java)
-                            listenerWithCoordinates?.error(
-                                APIError().apply {
-                                    code = result.error.code
-                                    this.message = result.error.message
-                                }
-                            )
-                            listener?.error(
-                                APIError().apply {
-                                    code = result.error.code
-                                    this.message = result.error.message
-                                }
-                            )
+                            BaseVoiceMessagePayload.Error -> {
+                                val result = Gson().fromJson(text, ErrorPayload::class.java)
+                                listenerWithCoordinates?.error(
+                                    APIError().apply {
+                                        code = result.code?.toString() ?: "StreamingError"
+                                        this.message = "${result.type} - ${result.reason}"
+                                    }
+                                )
+                                listener?.error(
+                                    APIError().apply {
+                                        code = result.code?.toString() ?: "StreamingError"
+                                        this.message = "${result.type} - ${result.reason}"
+                                    }
+                                )
+                            }
+                            BaseVoiceMessagePayload.W3WError -> {
+                                val result = Gson().fromJson(text, W3WErrorPayload::class.java)
+                                listenerWithCoordinates?.error(
+                                    APIError().apply {
+                                        code = result.error.code
+                                        this.message = result.error.message
+                                    }
+                                )
+                                listener?.error(
+                                    APIError().apply {
+                                        code = result.error.code
+                                        this.message = result.error.message
+                                    }
+                                )
+                            }
                         }
                     } catch (ex: JsonSyntaxException) {
                         listenerWithCoordinates?.error(
