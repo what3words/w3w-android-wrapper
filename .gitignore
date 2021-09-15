@@ -14,7 +14,6 @@ bin/
 gen/
 
 # Gradle files
-.gradle/
 build/
 
 # Local configuration file (sdk path, etc)
@@ -71,7 +70,6 @@ trestle.keystore
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 
