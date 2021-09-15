@@ -5,7 +5,7 @@ sonarqube {
         property "sonar.host.url", "http://localhost:9000/"
         property "sonar.projectKey", "w3w-android-wrapper"
         property "sonar.projectName", "w3w-android-wrapper"
-        property "sonar.login", "a5c96853de5722018c5febd8a69e1914f5b90a0f"
+        property "sonar.login", "b16c8ad6e5ac7ea97787d55439afc3cebb1eb592"
         property "sonar.tests", "src/test/java"
         property "sonar.test.inclusions", "**/*Test*/**"
         property "sonar.sourceEncoding", "UTF-8"

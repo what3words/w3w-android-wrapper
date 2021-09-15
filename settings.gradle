@@ -2,3 +2,4 @@ include ':sample-java'
 include ':lib'
 include ':sample'
 rootProject.name = "androidwrapper"
+include ':sample-multi-autosuggest-providers'
