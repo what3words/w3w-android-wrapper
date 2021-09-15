@@ -83,9 +83,10 @@ class AutosuggestHelper(private val api: What3WordsV3) {
                 suggestion.rank,
                 SourceApi.TEXT
             )
+            val builderConvert = api.convertToCoordinates(suggestion.words)
             applyFilters(builder)
             builder.execute()
-            val res = api.convertToCoordinates(suggestion.words).execute()
+            val res = builderConvert.execute()
             CoroutineScope(Dispatchers.Main).launch {
                 if (res.isSuccessful) {
                     onSuccessListener.accept(res)

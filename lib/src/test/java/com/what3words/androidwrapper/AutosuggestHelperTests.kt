@@ -11,6 +11,7 @@ import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
 import com.what3words.javawrapper.response.Suggestion
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
@@ -56,6 +57,7 @@ class AutosuggestHelperTests {
             suggestionsCallback.accept(any())
             errorCallback.accept(any())
             suggestionCallback.accept(any())
+            convertCallback.accept(any())
             api.autosuggestionSelection(any(), any(), any(), any()).execute()
         }
     }
@@ -268,6 +270,7 @@ class AutosuggestHelperTests {
     @Test
     fun `selected suggestion with coordinates`() {
         // given
+
         val helper = AutosuggestHelper(api)
         val suggestion = mockk<Suggestion>()
         val convert = mockk<ConvertToCoordinates>()
