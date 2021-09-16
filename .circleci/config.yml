@@ -27,8 +27,10 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
       - run:
           name: Run Tests
-          command: ./gradlew test
+          command: ./gradlew test jacocoTestReport sonarqube
 workflows:
   checkout-build-test:
     jobs:
+      - build:
+          context: SonarCloud
       - foobar
