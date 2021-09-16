@@ -31,6 +31,4 @@ jobs:
 workflows:
   checkout-build-test:
     jobs:
-      - build:
-          context: SonarCloud
       - foobar
