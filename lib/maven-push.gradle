@@ -73,5 +73,5 @@ afterEvaluate {
 
 signing {
     useInMemoryPgpKeys(signingKey, signingKeyPwd)
-    sign configurations.archives
+    sign publishing.publications
 }
