@@ -63,9 +63,9 @@ jobs:
 workflows:
   build-test-sonar:
     jobs:
-      - build-test-sonar:
-          context: SonarCloud
+#      - build-test-sonar:
+#          context: SonarCloud
       - deploy-to-sonatype:
           name: Deploy to Sonatype
-          requires:
-            - build-test-sonar
+#          requires:
+#            - build-test-sonar
