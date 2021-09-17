@@ -3,7 +3,7 @@ orbs:
   gradle: circleci/gradle@2.2.0
 
 jobs:
-  foobar:
+  build-test-sonar:
     docker:
       - image: circleci/android:api-30
     environment:
@@ -28,8 +28,28 @@ jobs:
       - run:
           name: Run Tests
           command: ./gradlew testDebugUnitTest jacocoTestReport sonarqube
+  deploy-to-sonatype:
+    docker:
+      - image: circleci/android:api-30
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run:
+          name: Inject Maven signing key
+          command: |
+            echo $GPG_SIGNING_KEY \
+              | awk 'NR == 1 { print "SIGNING_KEY=" } 1' ORS='\\n' \
+              >> gradle.properties
+      - run:
+          name: Publish to Maven
+          command: ./gradlew assemble publishToSonatype
 workflows:
-  checkout-build-test:
+  build-test-sonar:
     jobs:
-      - foobar:
+      - build-test-sonar:
           context: SonarCloud
+      - deploy-to-sonatype:
+          name: Deploy to Sonatype
+          requires:
+            - build-test-sonar

@@ -11,27 +11,13 @@ buildscript {
     }
     dependencies {
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.1.0"
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:7.0.2'
         classpath "org.jacoco:org.jacoco.core:0.8.7"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
-
-group = "com.what3words"
-version = findProperty('LIBRARY_VERSION') ? findProperty('LIBRARY_VERSION')  : "3.1.12-snapshot" //Hardcoding snapshot version if none exist in environment variable
-
-//nexusPublishing {
-//    repositories {
-//        sonatype {  //only for users registered in Sonatype after 24 Feb 2021
-//            nexusUrl.set(uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/"))
-//            snapshotRepositoryUrl.set(uri("https://oss.sonatype.org/content/repositories/snapshots/"))
-//            username = findProperty('NEXUS_USERNAME')
-//            password = findProperty('NEXUS_PASSWORD')
-//        }
-//    }
-//}
 
 allprojects {
     apply plugin: "org.jlleitschuh.gradle.ktlint"
