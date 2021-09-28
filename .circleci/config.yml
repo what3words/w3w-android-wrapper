@@ -70,6 +70,10 @@ workflows:
     jobs:
       - build-test-sonar:
           context: SonarCloud
+          filters:
+            branches:
+              only:
+                - dev
       - deploy-to-sonatype:
           name: Deploy to Sonatype
           requires:
