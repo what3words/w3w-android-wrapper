@@ -11,7 +11,6 @@ import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
 import com.what3words.javawrapper.response.Suggestion
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
@@ -340,21 +339,26 @@ class AutosuggestHelperTests {
 
         // when
         runBlocking {
-            helper.selectedWithCoordinates("index.home.r", suggestion, convertCallback, errorCallback)
+            helper.selectedWithCoordinates(
+                "index.home.r",
+                suggestion,
+                convertCallback,
+                errorCallback
+            )
         }
 
         // then
-        verify(exactly = 1) {
-            api.convertToCoordinates(
-                "index.home.raft",
-            )
-        }
         verify(exactly = 1) {
             api.autosuggestionSelection(
                 "index.home.r",
                 "index.home.raft",
                 1,
                 SourceApi.TEXT
+            )
+        }
+        verify(exactly = 1) {
+            api.convertToCoordinates(
+                "index.home.raft",
             )
         }
         verify(exactly = 1) { convertCallback.accept(convert) }
@@ -432,7 +436,12 @@ class AutosuggestHelperTests {
         }
 
         runBlocking {
-            helper.selectedWithCoordinates("index.home.r", suggestion, convertCallback, errorCallback)
+            helper.selectedWithCoordinates(
+                "index.home.r",
+                suggestion,
+                convertCallback,
+                errorCallback
+            )
         }
 
         // then
