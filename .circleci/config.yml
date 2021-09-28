@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Run Tests
           command: ./gradlew testDebugUnitTest jacocoTestReport sonarqube
-  deploy-to-maven:
+  deploy-to-sonatype:
     docker:
       - image: circleci/android:api-30
     environment:
@@ -66,13 +66,13 @@ workflows:
       - build-test-sonar:
           name: Build, run tests, upload to sonar
           context: SonarCloud
-  build-publish-staging:
+  build-test-sonar-publish:
     jobs:
       - build-test-sonar:
           name: Build, run tests, upload to sonar
           context: SonarCloud
-      - deploy-to-maven:
-          name: Deploy to maven staging
+      - deploy-to-sonatype:
+          name: Deploy to Sonatype
           requires:
             - build-test-sonar
           filters:
