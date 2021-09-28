@@ -69,7 +69,6 @@ workflows:
   build-test-sonar-publish:
     jobs:
       - build-test-sonar:
-          name: Build, run tests, upload to sonar
           context: SonarCloud
       - deploy-to-sonatype:
           name: Deploy to Sonatype
