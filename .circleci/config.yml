@@ -68,6 +68,9 @@ workflows:
           context: SonarCloud
   build-publish-staging:
     jobs:
+      - build-test-sonar:
+          name: Build, run tests, upload to sonar
+          context: SonarCloud
       - deploy-to-maven:
           name: Deploy to maven staging
           requires:
