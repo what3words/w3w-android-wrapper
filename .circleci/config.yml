@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Run Tests
           command: ./gradlew testDebugUnitTest jacocoTestReport sonarqube
-  deploy-to-sonatype:
+  deploy-to-maven:
     docker:
       - image: circleci/android:api-30
     environment:
