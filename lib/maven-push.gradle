@@ -4,15 +4,6 @@ def signingKey = findProperty('SIGNING_KEY')
 def signingKeyPwd = findProperty('SIGNING_KEY_PWD')
 def libVersion = findProperty('LIBRARY_VERSION') ? findProperty('LIBRARY_VERSION') : "1.0.13-snapshot"
 
-println("signingkey")
-println(signingKey)
-
-println("signingKeyPwd")
-println(signingKeyPwd)
-
-println("libVersion")
-println(libVersion)
-
 task androidSourcesJar(type: Jar) {
     archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs

@@ -66,11 +66,13 @@ workflows:
       - build-test-sonar:
           name: Build, run tests, upload to sonar
           context: SonarCloud
-  build-test-sonar-publish:
+  build-publish-staging:
     jobs:
-      - build-test-sonar:
-          context: SonarCloud
-      - deploy-to-sonatype:
-          name: Deploy to Sonatype
+      - deploy-to-maven:
+          name: Deploy to maven staging
           requires:
             - build-test-sonar
+          filters:
+            branches:
+              only:
+                - dev
