@@ -69,7 +69,11 @@ jobs:
           name: Assemble sample-multi-autosuggest release build
           command: ./gradlew sample-multi-autosuggest-providers:assembleRelease
       - store_artifacts:
-          path: app/build/outputs/apk/release
+          path: sample/build/outputs/apk/release
+      - store_artifacts:
+          path: sample-java/build/outputs/apk/release
+      - store_artifacts:
+          path: sample-multi-autosuggest-providers/build/outputs/apk/release
 
 workflows:
   build-test-sonar:
