@@ -201,7 +201,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         focus?.let {
             builder.focus(it)
             if (nFocusResults != null) {
-                builder.nResults(nFocusResults!!)
+                builder.nFocusResults(nFocusResults!!)
             }
         }
         clipToCountry?.let {

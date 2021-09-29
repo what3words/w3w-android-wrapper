@@ -91,7 +91,7 @@ class VoiceApiTests {
         every {
             mockClient.newWebSocket(any(), any())
         }.answers {
-            //todo
+            // todo
             val wsl =
                 this.arg<WebSocketListener>(1)
 

@@ -3,6 +3,7 @@ package com.what3words.androidwrapper
 import androidx.core.util.Consumer
 import com.google.gson.Gson
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
+import com.what3words.javawrapper.request.AutosuggestRequest
 import com.what3words.javawrapper.request.AutosuggestSelectionRequest
 import com.what3words.javawrapper.request.ConvertToCoordinatesRequest
 import com.what3words.javawrapper.request.SourceApi
@@ -120,7 +121,7 @@ class AutosuggestHelperTests {
             helper.update("index.home.r", suggestionsCallback, errorCallback)
             delay(150)
             helper.update("index.home.ra", suggestionsCallback, errorCallback)
-            delay(350)
+            delay(500)
         }
 
         // then
@@ -166,7 +167,7 @@ class AutosuggestHelperTests {
             helper.update("index.home.r", suggestionsCallback, errorCallback)
             delay(150)
             helper.update("index.home.ra", suggestionsCallback, errorCallback)
-            delay(350)
+            delay(500)
         }
 
         // then
@@ -211,6 +212,7 @@ class AutosuggestHelperTests {
             helper.update("index.home.r", suggestionsCallback, null)
             delay(150)
             helper.update("index.home.ra", suggestionsCallback, null)
+            delay(500)
         }
 
         // then
@@ -460,5 +462,94 @@ class AutosuggestHelperTests {
         }
         verify(exactly = 0) { convertCallback.accept(any()) }
         verify(exactly = 1) { errorCallback.accept(APIResponse.What3WordsError.BAD_WORDS) }
+    }
+
+    @Test
+    fun `filters are set expect autosuggestBuilder filters to be called`() {
+        val helper = AutosuggestHelper(api)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+        val autosuggestRequestBuilder = mockk<AutosuggestRequest.Builder>()
+        val focus = com.what3words.javawrapper.request.Coordinates(51.2, 0.234)
+        val countries = listOf("GB", "FR")
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            autosuggestRequestBuilder.focus(any())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.nFocusResults(any())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.nResults(any())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.clipToCircle(any(), any())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.clipToCountry(*countries.toTypedArray())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            api.autosuggest("index.home.ra")
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.focus(focus).nFocusResults(5).nResults(3).clipToCountry(countries).clipToCircle(
+                focus
+            )
+
+            helper.update("index", suggestionsCallback, errorCallback)
+            helper.update("index.home", suggestionsCallback, errorCallback)
+            helper.update("index.home.ra", suggestionsCallback, errorCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 1) { autosuggestRequestBuilder.focus(focus) }
+        verify(exactly = 1) { autosuggestRequestBuilder.nResults(3) }
+        verify(exactly = 1) { autosuggestRequestBuilder.nFocusResults(5) }
+        verify(exactly = 1) { autosuggestRequestBuilder.clipToCountry(*countries.toTypedArray()) }
+        verify(exactly = 1) { autosuggestRequestBuilder.clipToCircle(focus, 1.0) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
     }
 }
