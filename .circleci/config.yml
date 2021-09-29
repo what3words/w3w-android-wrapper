@@ -27,7 +27,9 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
       - run:
           name: Run Tests
-          command: ./gradlew testDebugUnitTest jacocoTestReport sonarqube
+          command: ./gradlew lib:testDebugUnitTest jacocoTestReport sonarqube
+      - store_test_results:
+          path: lib/build/test-results/testDebugUnitTest
   deploy-to-sonatype:
     docker:
       - image: circleci/android:api-30
