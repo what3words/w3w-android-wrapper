@@ -80,7 +80,7 @@ workflows:
   build-test-sonar-publish:
     jobs:
       - build-test-sonar:
-#          context: SonarCloud
+         context: SonarCloud
 #          filters:
 #            branches:
 #              only:
