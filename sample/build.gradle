@@ -16,15 +16,31 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        buildConfigField 'String', 'W3W_API_KEY', findProperty('W3W_API_KEY') ? findProperty('W3W_API_KEY') : "\"YOUR_API_KEY_HERE\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../.signing/release.jks")
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+
+            // Optional, specify signing versions used
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -47,7 +63,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
 
-   // implementation "com.what3words:w3w-android-wrapper:3.1.12"
+    //you should use:
+    //implementation "com.what3words:w3w-android-wrapper:3.x.x"
     implementation "com.what3words:w3w-java-wrapper:3.1.9"
     implementation project(":lib")
     implementation 'com.android.support:multidex:1.0.3'

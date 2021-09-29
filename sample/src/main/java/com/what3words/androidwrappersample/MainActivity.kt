@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var builder: VoiceBuilder? = null
     private val wrapper by lazy {
-        What3WordsV3("YOUR_API_KEY_HERE", this)
+        What3WordsV3(BuildConfig.W3W_API_KEY, this)
     }
 
     @SuppressLint("SetTextI18n")

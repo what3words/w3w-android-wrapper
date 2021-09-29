@@ -27,11 +27,12 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.list_suggestions)
 
         // what3words setup with static filters
-        val what3words = What3WordsV3("YOUR_WHAT3WORDS_API_KEY_HERE", this)
-        val autosuggestHelper = AutosuggestHelper(what3words).focus(Coordinates(51.2, 41.2))
+        val what3words = What3WordsV3(BuildConfig.W3W_API_KEY, this)
+        val autosuggestHelper =
+            AutosuggestHelper(what3words).focus(Coordinates(51.5209433, -0.1962334))
 
         // google place setup
-        Places.initialize(applicationContext, "YOUR_GOOGLE_PLACES_ANDROID_SDK_KEY_HERE")
+        Places.initialize(applicationContext, BuildConfig.PLACES_KEY)
         val placesClient = Places.createClient(this)
 
         // setup recycler view
@@ -73,9 +74,9 @@ class MainActivity : AppCompatActivity() {
             // if you don't want to mix providers in the same list please use our regex, i.e:
             //
             //    if(text.toString().isPossible3wa()) {
-            //        autosuggestHelper.update()
+            //        autosuggestHelper.update()...
             //    } else {
-            //        call others providers
+            //        call others providers...
             //    }
             autosuggestHelper.update(
                 text.toString(),
