@@ -7,6 +7,7 @@ import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL
 import com.what3words.androidwrapper.voice.VoiceApiListener
+import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
@@ -254,6 +255,45 @@ class VoiceBuilderTests {
 
         // when
         builder.clipToCircle(Coordinates(51.1, -0.152), 100.0).startListening()
+
+        // then
+        assertThat(builder.isListening()).isTrue()
+        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+    }
+
+    @Test
+    fun `clipToBoundingBox is set expect param url`() {
+        // given
+        val expectedUrl = "$BASE_URL?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
+        val what3WordsV3 = What3WordsV3("key", voiceApi)
+        val builder = what3WordsV3.autosuggest(microphone, "en")
+            .onSuggestions(suggestionsCallback)
+            .onError(errorCallback)
+
+        // when
+        builder.clipToBoundingBox(
+            BoundingBox(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
+        ).startListening()
+
+        // then
+        assertThat(builder.isListening()).isTrue()
+        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+    }
+
+    @Test
+    fun `clipToPolygon is set expect param url`() {
+        // given
+        val expectedUrl =
+            "$BASE_URL?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152"
+        val what3WordsV3 = What3WordsV3("key", voiceApi)
+        val builder = what3WordsV3.autosuggest(microphone, "en")
+            .onSuggestions(suggestionsCallback)
+            .onError(errorCallback)
+
+        // when
+        builder.clipToPolygon(
+            listOf(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
+        ).startListening()
 
         // then
         assertThat(builder.isListening()).isTrue()

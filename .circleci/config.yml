@@ -75,7 +75,7 @@ workflows:
               only:
                 - dev
       - deploy-to-sonatype:
-          name: Deploy to Sonatype
+          name: Build, run tests, sonar and push to maven staging
           requires:
             - build-test-sonar
           filters:

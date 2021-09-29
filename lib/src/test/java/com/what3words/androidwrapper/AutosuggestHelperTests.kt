@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.javawrapper.request.AutosuggestRequest
 import com.what3words.javawrapper.request.AutosuggestSelectionRequest
+import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.ConvertToCoordinatesRequest
 import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.APIResponse
@@ -475,6 +476,8 @@ class AutosuggestHelperTests {
         val autosuggestRequestBuilder = mockk<AutosuggestRequest.Builder>()
         val focus = com.what3words.javawrapper.request.Coordinates(51.2, 0.234)
         val countries = listOf("GB", "FR")
+        val boundingBox = BoundingBox(focus,focus)
+        val polygon = listOf(focus,focus)
 
         every {
             autosuggest.isSuccessful
@@ -519,6 +522,18 @@ class AutosuggestHelperTests {
         }
 
         every {
+            autosuggestRequestBuilder.clipToBoundingBox(boundingBox)
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
+            autosuggestRequestBuilder.clipToPolygon(*polygon.toTypedArray())
+        } answers {
+            autosuggestRequestBuilder
+        }
+
+        every {
             api.autosuggest("index.home.ra")
         } answers {
             autosuggestRequestBuilder
@@ -534,7 +549,7 @@ class AutosuggestHelperTests {
         runBlocking {
             helper.focus(focus).nFocusResults(5).nResults(3).clipToCountry(countries).clipToCircle(
                 focus
-            )
+            ).clipToBoundingBox(BoundingBox(focus, focus)).clipToPolygon(listOf(focus, focus))
 
             helper.update("index", suggestionsCallback, errorCallback)
             helper.update("index.home", suggestionsCallback, errorCallback)
@@ -550,6 +565,8 @@ class AutosuggestHelperTests {
         verify(exactly = 1) { autosuggestRequestBuilder.nFocusResults(5) }
         verify(exactly = 1) { autosuggestRequestBuilder.clipToCountry(*countries.toTypedArray()) }
         verify(exactly = 1) { autosuggestRequestBuilder.clipToCircle(focus, 1.0) }
+        verify(exactly = 1) { autosuggestRequestBuilder.clipToBoundingBox(boundingBox) }
+        verify(exactly = 1) { autosuggestRequestBuilder.clipToPolygon(*polygon.toTypedArray()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 }
