@@ -2,7 +2,8 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.Microphone.Companion.RECORDING_RATE
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_ENCODING
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -75,9 +76,10 @@ class VoiceBuilderWithCoordinates(
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
         api.voiceApi.open(
-            RECORDING_RATE,
+            DEFAULT_RECORDING_RATE,
+            DEFAULT_ENCODING,
             url = createSocketUrl(),
-            withCoordinates = true
+            listener = this
         )
         return this
     }

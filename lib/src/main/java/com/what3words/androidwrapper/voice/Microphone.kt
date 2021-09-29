@@ -14,7 +14,8 @@ import kotlin.math.abs
 
 class Microphone {
     companion object {
-        const val RECORDING_RATE = 44100
+        const val DEFAULT_RECORDING_RATE = 44100
+        const val DEFAULT_ENCODING = "pcm_s16le"
         const val CHANNEL = AudioFormat.CHANNEL_IN_MONO
         const val FORMAT = AudioFormat.ENCODING_PCM_16BIT
     }
@@ -23,7 +24,7 @@ class Microphone {
     private var onErrorCallback: Consumer<String>? = null
 
     private val bufferSize = AudioRecord.getMinBufferSize(
-        RECORDING_RATE, CHANNEL, FORMAT
+        DEFAULT_RECORDING_RATE, CHANNEL, FORMAT
     )
 
     private var recorder: AudioRecord? = null
@@ -47,7 +48,7 @@ class Microphone {
     internal fun startRecording(socket: WebSocket) {
         recorder = AudioRecord(
             MediaRecorder.AudioSource.MIC,
-            RECORDING_RATE,
+            DEFAULT_RECORDING_RATE,
             CHANNEL,
             FORMAT,
             bufferSize
@@ -63,8 +64,10 @@ class Microphone {
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
                             val dB =
-                                VoiceSignalParser.transform(buffer.map { abs(it.toDouble()) }
-                                    .sum())
+                                VoiceSignalParser.transform(
+                                    buffer.map { abs(it.toDouble()) }
+                                        .sum()
+                                )
                             CoroutineScope(Dispatchers.Main).launch {
                                 onListeningCallback?.accept(dB)
                             }

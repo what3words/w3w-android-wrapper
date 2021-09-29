@@ -2,7 +2,8 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.Microphone.Companion.RECORDING_RATE
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_ENCODING
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -25,14 +26,10 @@ class VoiceBuilder(
     private var clipToCountry: Array<String>? = null
     private var nFocusResults: Int? = null
     private var focus: Coordinates? = null
-    private var nResults: Int = 3
+    private var nResults: Int? = null
     private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
-
-    init {
-        api.voiceApi.listener = this
-    }
 
     fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
         this.onSuggestionsCallback = callback
@@ -75,9 +72,10 @@ class VoiceBuilder(
     fun startListening(): VoiceBuilder {
         isListening = true
         api.voiceApi.open(
-            RECORDING_RATE,
+            DEFAULT_RECORDING_RATE,
+            DEFAULT_ENCODING,
             url = createSocketUrl(),
-            withCoordinates = false
+            listener = this
         )
         return this
     }
@@ -112,7 +110,7 @@ class VoiceBuilder(
      * @return a {@link VoiceBuilder} instance
      */
     fun nResults(n: Int?): VoiceBuilder {
-        nResults = n ?: 3
+        nResults = n
         return this
     }
 
@@ -140,7 +138,7 @@ class VoiceBuilder(
      */
     fun clipToCircle(
         centre: Coordinates?,
-        radius: Double?
+        radius: Double? = 1.0
     ): VoiceBuilder {
         clipToCircle = centre
         clipToCircleRadius = radius
@@ -193,7 +191,9 @@ class VoiceBuilder(
         var url = VoiceApi.BASE_URL
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
-        url += "&n-results=$nResults"
+        nResults?.let {
+            url += "&n-results=$nResults"
+        }
         focus?.let {
             url += "&focus=${focus!!.lat},${focus!!.lng}"
             if (nFocusResults != null) {
@@ -207,7 +207,7 @@ class VoiceBuilder(
             url += "&clip-to-circle=${it.lat},${it.lng},${clipToCircleRadius ?: 1}"
         }
         clipToPolygon?.let {
-            url += "&clip-to-polygon=${it.joinToString(",") { "${it.lat},${it.lng}" }}"
+            url += "&clip-to-polygon=${it.joinToString(",") { coordinates -> "${coordinates.lat},${coordinates.lng}" }}"
         }
         clipToBoundingBox?.let {
             url += "&clip-to-bounding-box=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
