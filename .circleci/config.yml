@@ -60,7 +60,7 @@ jobs:
             >> gradle.properties
       - run:
           name: Publish to Maven
-          command: ./gradlew assemble publish
+          command: ./gradlew assembleRelease publish
       - run:
           name: Assemble sample release build
           command: ./gradlew sample:assembleRelease
