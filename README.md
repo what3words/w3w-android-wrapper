@@ -162,7 +162,7 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
 
 ## UX Guidelines
 
-![alt text](https://github.com/what3words/w3w-android-wrapper/blob/dev/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
+![alt text](https://github.com/what3words/w3w-android-wrapper/blob/master/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
 
 - Once the user has entered the first letter of the 3rd word the autosuggest feature should be displayed
 - For simplicity, we recommend only displaying 3 suggested results
