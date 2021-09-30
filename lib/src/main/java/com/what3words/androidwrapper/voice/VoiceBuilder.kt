@@ -31,11 +31,24 @@ class VoiceBuilder(
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
 
+    /**
+     * onSuggestions callback will be called when VoiceAPI returns a set of suggestion after
+     * receiving the voice data, this can be empty in case of no suggestions available for the provided voice record.
+     *
+     * @param callback with a list of {@link Suggestion} returned by our VoiceAPI
+     * @return a {@link VoiceBuilder} instance
+     */
     fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
         this.onSuggestionsCallback = callback
         return this
     }
 
+    /**
+     * onError callback will be called when some API error occurs on the VoiceAPI
+     *
+     * @param callback will be called when an {@link APIResponse.What3WordsError} occurs
+     * @return a {@link VoiceBuilder} instance
+     */
     fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilder {
         this.onErrorCallback = callback
         return this
@@ -69,6 +82,11 @@ class VoiceBuilder(
         }
     }
 
+    /**
+     * startListening() starts the {@link Microphone} recording and starts sending voice data to our VoiceAPI.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun startListening(): VoiceBuilder {
         isListening = true
         api.voiceApi.open(
@@ -80,10 +98,20 @@ class VoiceBuilder(
         return this
     }
 
+    /**
+     * isListening() can be used to check if is currently in recording state.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun isListening(): Boolean {
         return isListening
     }
 
+    /**
+     * stopListening() forces the {@link Microphone} to stop recording and closes the socket with our VoiceAPI.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun stopListening() {
         isListening = false
         mic.stopRecording()

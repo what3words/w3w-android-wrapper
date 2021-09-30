@@ -476,8 +476,8 @@ class AutosuggestHelperTests {
         val autosuggestRequestBuilder = mockk<AutosuggestRequest.Builder>()
         val focus = com.what3words.javawrapper.request.Coordinates(51.2, 0.234)
         val countries = listOf("GB", "FR")
-        val boundingBox = BoundingBox(focus,focus)
-        val polygon = listOf(focus,focus)
+        val boundingBox = BoundingBox(focus, focus)
+        val polygon = listOf(focus, focus)
 
         every {
             autosuggest.isSuccessful

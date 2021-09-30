@@ -91,6 +91,14 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         }
     }
 
+    /**
+     * The what3words Voice API allows a user to say three words into any application or service, with it returning a list of suggested what3words addresses, through a single API call.
+     * Utilising WebSockets for realtime audio steaming, and powered by the Speechmatics WebSocket Speech API, the fast and simple interface provides a powerful AutoSuggest function, which can validate and autocorrect user input and limit it to certain geographic areas.
+     *
+     * @param microphone with a {@link Microphone} where developer can subscribe to onListening() and get microphone volume while recording, allowing custom inputs too as recording rates and encodings.
+     * @param voiceLanguage  request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
+     * @return a {@link VoiceBuilder} instance, use {@link VoiceBuilder.startListening()} to start recording and sending voice data to our API.
+     */
     fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
@@ -98,6 +106,14 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         return VoiceBuilder(this, microphone, voiceLanguage)
     }
 
+    /**
+     * The what3words Voice API allows a user to say three words into any application or service, with it returning a list of suggested what3words addresses with coordinates, through a single API call.
+     * Utilising WebSockets for realtime audio steaming, and powered by the Speechmatics WebSocket Speech API, the fast and simple interface provides a powerful AutoSuggest function, which can validate and autocorrect user input and limit it to certain geographic areas.
+     *
+     * @param microphone with a {@link Microphone} where developer can subscribe to onListening() and get microphone volume while recording, allowing custom inputs too as recording rates and encodings.
+     * @param voiceLanguage request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
+     * @return a {@link VoiceBuilder} instance, use {@link VoiceBuilder.startListening()} to start recording and sending voice data to our API.
+     */
     fun autosuggestWithCoordinates(
         microphone: Microphone,
         voiceLanguage: String
