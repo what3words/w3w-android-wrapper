@@ -15,6 +15,7 @@ import androidx.core.content.PermissionChecker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.what3words.androidwrapper.What3WordsV3;
+import com.what3words.androidwrapper.voice.Microphone;
 import com.what3words.androidwrapper.voice.VoiceBuilder;
 import com.what3words.javawrapper.request.Coordinates;
 import com.what3words.javawrapper.response.Suggestion;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        What3WordsV3 wrapper = new What3WordsV3("YOUR_API_KEY_HERE", this);
+        What3WordsV3 wrapper = new What3WordsV3(BuildConfig.W3W_API_KEY, this);
 
         MaterialButton buttonConvertTo3wa = findViewById(R.id.buttonConvertTo3wa);
         TextInputEditText textInputConvertTo3wa = findViewById(R.id.textInputConvertTo3wa);
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         resultAutoSuggestVoice = findViewById(R.id.resultAutoSuggestVoice);
 
         //voice autosuggest sample
-        VoiceBuilder.Microphone microphone = new VoiceBuilder.Microphone().onListening(volume -> {
+        Microphone microphone = new Microphone().onListening(volume -> {
             if (volume != null) {
                 volumeAutoSuggestVoice.setText(String.format("volume: %s", Math.round(volume * 100)));
             }

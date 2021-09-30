@@ -8,9 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.*
+import com.what3words.androidwrapper.voice.Microphone
+import com.what3words.androidwrapper.voice.VoiceBuilder
+import com.what3words.androidwrappersample.databinding.ActivityMainBinding
+import com.what3words.androidwrappersample.databinding.ActivityMainBinding.inflate
 import com.what3words.javawrapper.request.Coordinates
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,72 +20,74 @@ import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
     private var builder: VoiceBuilder? = null
     private val wrapper by lazy {
-        What3WordsV3("YOUR_API_KEY_HERE", this)
+        What3WordsV3(BuildConfig.W3W_API_KEY, this)
     }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        //convert-to-3wa sample
-        buttonConvertTo3wa.setOnClickListener {
-            val latLong = textInputConvertTo3wa.text?.replace("\\s".toRegex(), "")?.split(",")
+        binding = inflate(layoutInflater)
+
+        // convert-to-3wa sample
+        binding.buttonConvertTo3wa.setOnClickListener {
+            val latLong = binding.textInputConvertTo3wa.text?.replace("\\s".toRegex(), "")?.split(",")
                 ?.filter { it.isNotEmpty() }
             val lat = latLong?.getOrNull(0)?.toDoubleOrNull()
             val long = latLong?.getOrNull(1)?.toDoubleOrNull()
             if (lat != null && long != null) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    //use wrapper.convertTo3wa() with Dispatcher.IO - background thread
+                    // use wrapper.convertTo3wa() with Dispatcher.IO - background thread
                     val result = wrapper.convertTo3wa(Coordinates(lat, long)).execute()
                     CoroutineScope(Dispatchers.Main).launch {
-                        //use Dispatcher.Main to update your views with the results - Main thread
+                        // use Dispatcher.Main to update your views with the results - Main thread
                         if (result.isSuccessful) {
-                            resultConvertTo3wa.text = "3 word address: ${result.words}"
+                            binding.resultConvertTo3wa.text = "3 word address: ${result.words}"
                         } else {
-                            resultConvertTo3wa.text = result.error.message
+                            binding.resultConvertTo3wa.text = result.error.message
                         }
                     }
                 }
             } else {
-                resultConvertTo3wa.text = "invalid lat,long"
+                binding.resultConvertTo3wa.text = "invalid lat,long"
             }
         }
 
-        //convert-to-coordinates sample
-        buttonConvertToCoordinates.setOnClickListener {
+        // convert-to-coordinates sample
+        binding.buttonConvertToCoordinates.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                //use wrapper.convertToCoordinates() with Dispatcher.IO - background thread
+                // use wrapper.convertToCoordinates() with Dispatcher.IO - background thread
                 val result =
-                    wrapper.convertToCoordinates(textInputConvertToCoordinates.text.toString())
+                    wrapper.convertToCoordinates(binding.textInputConvertToCoordinates.text.toString())
                         .execute()
                 CoroutineScope(Dispatchers.Main).launch {
-                    //use Dispatcher.Main to update your views with the results - Main thread
+                    // use Dispatcher.Main to update your views with the results - Main thread
                     if (result.isSuccessful) {
-                        resultConvertToCoordinates.text =
+                        binding.resultConvertToCoordinates.text =
                             "Coordinates: ${result.coordinates.lat}, ${result.coordinates.lng}"
                     } else {
-                        resultConvertToCoordinates.text = result.error.message
+                        binding.resultConvertToCoordinates.text = result.error.message
                     }
                 }
             }
         }
 
-        //text autosuggest sample
-        buttonAutoSuggest.setOnClickListener {
+        // text autosuggest sample
+        binding.buttonAutoSuggest.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                //use wrapper.autosuggest() with Dispatcher.IO - background thread
-                val result = wrapper.autosuggest(textInputAutoSuggest.text.toString()).execute()
+                // use wrapper.autosuggest() with Dispatcher.IO - background thread
+                val result = wrapper.autosuggest(binding.textInputAutoSuggest.text.toString()).execute()
                 CoroutineScope(Dispatchers.Main).launch {
-                    //use Dispatcher.Main to update your views with the results - Main thread
+                    // use Dispatcher.Main to update your views with the results - Main thread
                     if (result.isSuccessful) {
-                        resultAutoSuggest.text = if (result.suggestions.count() != 0)
+                        binding.resultAutoSuggest.text = if (result.suggestions.count() != 0)
                             "Suggestions: ${result.suggestions.joinToString { it.words }}"
                         else "No suggestions available"
                     } else {
-                        resultAutoSuggest.text = result.error.message
+                        binding.resultAutoSuggest.text = result.error.message
                     }
                 }
             }
@@ -91,40 +95,40 @@ class MainActivity : AppCompatActivity() {
 
         val microphone = Microphone().onListening {
             it?.let { volume ->
-                volumeAutoSuggestVoice.text =
+                binding.volumeAutoSuggestVoice.text =
                     "volume: ${(volume.times(100).roundToInt())}"
             }
         }.onError {
-            buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
-            resultAutoSuggestVoice.text = it
+            binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
+            binding.resultAutoSuggestVoice.text = it
         }
 
-        //voice autosuggest sample
+        // voice autosuggest sample
         builder = wrapper.autosuggest(microphone, "en")
             .focus(Coordinates(51.457269, -0.074788))
             .onSuggestions { suggestions ->
-                buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
-                resultAutoSuggestVoice.text =
+                binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
+                binding.resultAutoSuggestVoice.text =
                     "Suggestions: ${suggestions.joinToString { it.words }}"
             }.onError { error ->
-                buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
-                resultAutoSuggestVoice.text = "${error.key}, ${error.message}"
+                binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
+                binding.resultAutoSuggestVoice.text = "${error.key}, ${error.message}"
             }
 
-        buttonAutoSuggestVoice.setOnClickListener {
+        binding.buttonAutoSuggestVoice.setOnClickListener {
             if (builder?.isListening() == true) {
-                buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
+                binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_record)
                 builder?.stopListening()
             } else {
-                //Check if RECORD_AUDIO permission is granted
+                // Check if RECORD_AUDIO permission is granted
                 val permission =
                     PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 
                 if (permission == PermissionChecker.PERMISSION_GRANTED) {
-                    buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
+                    binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
                     builder?.startListening()
                 } else {
-                    //request RECORD_AUDIO permission
+                    // request RECORD_AUDIO permission
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.RECORD_AUDIO),
@@ -133,6 +137,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        setContentView(binding.root)
     }
 
     @SuppressLint("SetTextI18n")
@@ -143,10 +149,10 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1 && grantResults.count() == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
+            binding.buttonAutoSuggestVoice.setIconResource(R.drawable.ic_stop)
             builder?.startListening()
         } else {
-            resultAutoSuggestVoice.text = "record audio permission required"
+            binding.resultAutoSuggestVoice.text = "record audio permission required"
         }
     }
 }

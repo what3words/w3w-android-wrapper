@@ -13,7 +13,7 @@ The artifact is available through [![Maven Central](https://img.shields.io/maven
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.12'
+implementation 'com.what3words:w3w-android-wrapper:3.1.13'
 ```
 
 ## Documentation
@@ -159,3 +159,11 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
 ```Kotlin
     val wrapper = What3Words("YOUR_API_KEY_HERE", "https://api.yourserver.com")  
 ```
+
+## UX Guidelines
+
+![alt text](https://github.com/what3words/w3w-android-wrapper/blob/dev/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
+
+- Once the user has entered the first letter of the 3rd word the autosuggest feature should be displayed
+- For simplicity, we recommend only displaying 3 suggested results
+- Every address should be accompanied by it’s nearest location.

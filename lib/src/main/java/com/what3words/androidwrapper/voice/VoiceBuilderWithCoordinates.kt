@@ -2,7 +2,8 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.Microphone.Companion.RECORDING_RATE
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_ENCODING
+import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -25,20 +26,29 @@ class VoiceBuilderWithCoordinates(
     private var clipToCountry: Array<String>? = null
     private var nFocusResults: Int? = null
     private var focus: Coordinates? = null
-    private var nResults: Int = 3
+    private var nResults: Int? = null
     private var onSuggestionsCallback: Consumer<List<SuggestionWithCoordinates>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
 
-    init {
-        api.voiceApi.listenerWithCoordinates = this
-    }
-
+    /**
+     * onSuggestions callback will be called when VoiceAPI returns a set of suggestion with coordinates after
+     * receiving the voice data, this can be empty in case of no suggestions available for the provided voice record.
+     *
+     * @param callback with a list of {@link SuggestionWithCoordinates} returned by our VoiceAPI
+     * @return a {@link VoiceBuilder} instance
+     */
     fun onSuggestions(callback: Consumer<List<SuggestionWithCoordinates>>): VoiceBuilderWithCoordinates {
         this.onSuggestionsCallback = callback
         return this
     }
 
+    /**
+     * onError callback will be called when some API error occurs on the VoiceAPI
+     *
+     * @param callback will be called when an {@link APIResponse.What3WordsError} occurs
+     * @return a {@link VoiceBuilder} instance
+     */
     fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilderWithCoordinates {
         this.onErrorCallback = callback
         return this
@@ -72,20 +82,36 @@ class VoiceBuilderWithCoordinates(
         }
     }
 
+    /**
+     * startListening() starts the {@link Microphone} recording and starts sending voice data to our VoiceAPI.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
         api.voiceApi.open(
-            RECORDING_RATE,
+            DEFAULT_RECORDING_RATE,
+            DEFAULT_ENCODING,
             url = createSocketUrl(),
-            withCoordinates = true
+            listener = this
         )
         return this
     }
 
+    /**
+     * isListening() can be used to check if is currently in recording state.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun isListening(): Boolean {
         return isListening
     }
 
+    /**
+     * stopListening() forces the {@link Microphone} to stop recording and closes the socket with our VoiceAPI.
+     *
+     * @return a {@link VoiceBuilder} instance
+     */
     fun stopListening() {
         isListening = false
         mic.stopRecording()
@@ -140,7 +166,7 @@ class VoiceBuilderWithCoordinates(
      */
     fun clipToCircle(
         centre: Coordinates?,
-        radius: Double?
+        radius: Double? = 1.0
     ): VoiceBuilderWithCoordinates {
         clipToCircle = centre
         clipToCircleRadius = radius
@@ -193,7 +219,9 @@ class VoiceBuilderWithCoordinates(
         var url = VoiceApi.BASE_URL_WITH_COORDINATES
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
-        url += "&n-results=$nResults"
+        nResults?.let {
+            url += "&n-results=$nResults"
+        }
         focus?.let {
             url += "&focus=${focus!!.lat},${focus!!.lng}"
             if (nFocusResults != null) {
