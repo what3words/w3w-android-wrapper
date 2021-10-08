@@ -12,7 +12,9 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
+import com.what3words.javawrapper.response.Square
 import com.what3words.javawrapper.response.Suggestion
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
@@ -43,7 +45,7 @@ class AutosuggestHelperTests {
     private var suggestionCallback = mockk<Consumer<Suggestion>>()
 
     @MockK
-    private var convertCallback = mockk<Consumer<ConvertToCoordinates>>()
+    private var convertCallback = mockk<Consumer<SuggestionWithCoordinates>>()
 
     @MockK
     private var errorCallback = mockk<Consumer<APIResponse.What3WordsError>>()
@@ -128,6 +130,106 @@ class AutosuggestHelperTests {
         // then
         verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
         verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
+
+    @Test
+    fun `did you mean 3wa returns suggestions`() {
+        // given
+        val helper = AutosuggestHelper(api).allowDidYouMean(true)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            api.autosuggest("index.home.r").execute()
+        } answers {
+            autosuggest
+        }
+
+        every {
+            api.autosuggest("index.home.ra").execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.update("index", suggestionsCallback, errorCallback)
+            helper.update("index home", suggestionsCallback, errorCallback)
+            helper.update("index home r", suggestionsCallback, errorCallback)
+            delay(150)
+            helper.update("index home ra", suggestionsCallback, errorCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
+
+    @Test
+    fun `did you mean off 3wa returns suggestions`() {
+        // given
+        val helper = AutosuggestHelper(api).allowDidYouMean(false)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            api.autosuggest("index.home.r").execute()
+        } answers {
+            autosuggest
+        }
+
+        every {
+            api.autosuggest("index.home.ra").execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.update("index", suggestionsCallback, errorCallback)
+            helper.update("index home", suggestionsCallback, errorCallback)
+            helper.update("index home r", suggestionsCallback, errorCallback)
+            delay(150)
+            helper.update("index home ra", suggestionsCallback, errorCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 4) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 0) { suggestionsCallback.accept(suggestions) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 
@@ -272,7 +374,6 @@ class AutosuggestHelperTests {
     @Test
     fun `selected suggestion with coordinates`() {
         // given
-
         val helper = AutosuggestHelper(api)
         val suggestion = mockk<Suggestion>()
         val convert = mockk<ConvertToCoordinates>()
@@ -284,6 +385,30 @@ class AutosuggestHelperTests {
             suggestion.words
         } answers {
             "index.home.raft"
+        }
+
+        every {
+            suggestion.country
+        } answers {
+            "UK"
+        }
+
+        every {
+            suggestion.distanceToFocusKm
+        } answers {
+            1
+        }
+
+        every {
+            suggestion.nearestPlace
+        } answers {
+            "Bayswater, London"
+        }
+
+        every {
+            suggestion.language
+        } answers {
+            "en-GB"
         }
 
         every {
@@ -314,6 +439,18 @@ class AutosuggestHelperTests {
             convert.isSuccessful
         } answers {
             true
+        }
+
+        every {
+            convert.map
+        } answers {
+            "map"
+        }
+
+        every {
+            convert.square
+        } answers {
+            Square()
         }
 
         every {
@@ -364,7 +501,7 @@ class AutosuggestHelperTests {
                 "index.home.raft",
             )
         }
-        verify(exactly = 1) { convertCallback.accept(convert) }
+        verify(exactly = 1) { convertCallback.accept(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 

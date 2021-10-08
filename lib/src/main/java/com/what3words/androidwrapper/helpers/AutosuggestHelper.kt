@@ -8,8 +8,8 @@ import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.APIResponse
-import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Suggestion
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AutosuggestHelper(private val api: What3WordsV3) {
+    private var isDYMallowed: Boolean = false
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null
     private var clipToCircle: Coordinates? = null
@@ -32,13 +33,18 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         onSuccessListener: Consumer<List<Suggestion>>,
         onFailureListener: Consumer<APIResponse.What3WordsError>? = null
     ) {
-        if (!searchText.isPossible3wa()) {
+        val searchFiltered: String? = when {
+            searchText.isPossible3wa() -> searchText
+            isDYMallowed && searchText.didYouMean3wa() -> searchText.split(split_regex, 3).joinToString(".")
+            else -> null
+        }
+        if (searchFiltered == null) {
             onSuccessListener.accept(emptyList())
         } else {
             searchJob?.cancel()
             searchJob = CoroutineScope(Dispatchers.IO).launch {
                 delay(300)
-                val builder = api.autosuggest(searchText)
+                val builder = api.autosuggest(searchFiltered)
                 applyFilters(builder)
                 val res = builder.execute()
                 CoroutineScope(Dispatchers.Main).launch {
@@ -73,7 +79,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
     fun selectedWithCoordinates(
         rawString: String,
         suggestion: Suggestion,
-        onSuccessListener: Consumer<ConvertToCoordinates>,
+        onSuccessListener: Consumer<SuggestionWithCoordinates>,
         onFailureListener: Consumer<APIResponse.What3WordsError>? = null
     ) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -89,7 +95,8 @@ class AutosuggestHelper(private val api: What3WordsV3) {
             val res = builderConvert.execute()
             CoroutineScope(Dispatchers.Main).launch {
                 if (res.isSuccessful) {
-                    onSuccessListener.accept(res)
+                    val newSuggestion = SuggestionWithCoordinates(suggestion, res)
+                    onSuccessListener.accept(newSuggestion)
                 } else {
                     onFailureListener?.accept(res.error)
                 }
@@ -106,6 +113,17 @@ class AutosuggestHelper(private val api: What3WordsV3) {
      */
     fun focus(coordinates: Coordinates): AutosuggestHelper {
         focus = coordinates
+        return this
+    }
+
+    /**
+     * Did you mean feature allows our regex to be less precise on separators, this means that "filled count soa" or "filled,count,soa" will be parsed to "filled.count.soa" and send to our autosuggest API.
+     *
+     * @param boolean is did you mean feature enabled (false by default)
+     * @return a {@link W3WAutoSuggestEditText} instance
+     */
+    fun allowDidYouMean(boolean: Boolean): AutosuggestHelper {
+        isDYMallowed = boolean
         return this
     }
 
