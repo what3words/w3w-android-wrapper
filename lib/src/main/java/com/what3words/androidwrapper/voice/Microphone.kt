@@ -30,7 +30,7 @@ class Microphone {
         )
     }
 
-    constructor(recordingRate: Int, encoding: String, channel: Int, format: Int){
+    constructor(recordingRate: Int, encoding: String, channel: Int, format: Int) {
         this.recordingRate = recordingRate
         this.encoding = encoding
         this.channel = channel
@@ -80,43 +80,63 @@ class Microphone {
     }
 
     internal fun startRecording(socket: WebSocket) {
-        recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            recordingRate,
-            channel,
-            format,
-            bufferSize
-        ).also { audioRecord ->
-            if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
-                continueRecording = true
-                CoroutineScope(Dispatchers.IO).launch {
-                    val buffer = ByteArray(bufferSize)
-                    var oldTimestamp = System.currentTimeMillis()
-                    audioRecord.startRecording()
-                    while (continueRecording) {
-                        audioRecord.read(buffer, 0, buffer.size)
-                        if ((System.currentTimeMillis() - oldTimestamp) > 100) {
-                            oldTimestamp = System.currentTimeMillis()
-                            val dB =
-                                VoiceSignalParser.transform(
-                                    buffer.map { abs(it.toDouble()) }
-                                        .sum()
-                                )
-                            CoroutineScope(Dispatchers.Main).launch {
-                                onListeningCallback?.accept(dB)
+        try {
+            recorder = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                recordingRate,
+                channel,
+                format,
+                bufferSize
+            ).also { audioRecord ->
+                try {
+                    if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
+                        continueRecording = true
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val buffer = ByteArray(bufferSize)
+                            var oldTimestamp = System.currentTimeMillis()
+                            audioRecord.startRecording()
+                            while (continueRecording) {
+                                audioRecord.read(buffer, 0, buffer.size)
+                                if ((System.currentTimeMillis() - oldTimestamp) > 100) {
+                                    oldTimestamp = System.currentTimeMillis()
+                                    val dB =
+                                        VoiceSignalParser.transform(
+                                            buffer.map { abs(it.toDouble()) }
+                                                .sum()
+                                        )
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        onListeningCallback?.accept(dB)
+                                    }
+                                }
+                                socket.send(ByteString.of(*buffer))
                             }
                         }
-                        socket.send(ByteString.of(*buffer))
+                    } else {
+                        Log.e(
+                            "VoiceBuilder",
+                            "Failed to initialize AudioRecord, please request AUDIO_RECORD permission."
+                        )
+                        CoroutineScope(Dispatchers.Main).launch {
+                            onErrorCallback?.accept("Failed to initialize AudioRecord, please request AUDIO_RECORD permission.")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(
+                        "VoiceBuilder",
+                        e.message.toString()
+                    )
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onErrorCallback?.accept(e.message)
                     }
                 }
-            } else {
-                Log.e(
-                    "VoiceBuilder",
-                    "Failed to initialize AudioRecord, please request AUDIO_RECORD permission."
-                )
-                CoroutineScope(Dispatchers.Main).launch {
-                    onErrorCallback?.accept("Failed to initialize AudioRecord, please request AUDIO_RECORD permission.")
-                }
+            }
+        } catch (e: Exception) {
+            Log.e(
+                "VoiceBuilder",
+                e.message.toString()
+            )
+            CoroutineScope(Dispatchers.Main).launch {
+                onErrorCallback?.accept(e.message)
             }
         }
     }
