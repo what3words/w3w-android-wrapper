@@ -16,16 +16,38 @@ class Microphone {
     companion object {
         const val DEFAULT_RECORDING_RATE = 44100
         const val DEFAULT_ENCODING = "pcm_s16le"
-        const val CHANNEL = AudioFormat.CHANNEL_IN_MONO
+        const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
         const val FORMAT = AudioFormat.ENCODING_PCM_16BIT
     }
 
+    constructor() {
+        recordingRate = DEFAULT_RECORDING_RATE
+        encoding = DEFAULT_ENCODING
+        channel = CHANNEL
+        format = FORMAT
+        bufferSize = AudioRecord.getMinBufferSize(
+            recordingRate, channel, format
+        )
+    }
+
+    constructor(recordingRate: Int, encoding: String, channel: Int, format: Int){
+        this.recordingRate = recordingRate
+        this.encoding = encoding
+        this.channel = channel
+        this.format = format
+        bufferSize = AudioRecord.getMinBufferSize(
+            recordingRate, channel, format
+        )
+    }
+
+    private var format: Int = FORMAT
+    private var channel: Int = CHANNEL
     private var onListeningCallback: Consumer<Float?>? = null
     private var onErrorCallback: Consumer<String>? = null
+    private var recordingRate: Int = DEFAULT_RECORDING_RATE
+    private var encoding: String = DEFAULT_ENCODING
 
-    private val bufferSize = AudioRecord.getMinBufferSize(
-        DEFAULT_RECORDING_RATE, CHANNEL, FORMAT
-    )
+    private var bufferSize: Int = 0
 
     private var recorder: AudioRecord? = null
     private var continueRecording: Boolean = false
@@ -60,9 +82,9 @@ class Microphone {
     internal fun startRecording(socket: WebSocket) {
         recorder = AudioRecord(
             MediaRecorder.AudioSource.MIC,
-            DEFAULT_RECORDING_RATE,
-            CHANNEL,
-            FORMAT,
+            recordingRate,
+            channel,
+            format,
             bufferSize
         ).also { audioRecord ->
             if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
