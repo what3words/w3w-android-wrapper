@@ -12,7 +12,6 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
-import com.what3words.javawrapper.response.Square
 import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
@@ -50,6 +49,9 @@ class AutosuggestHelperTests {
     @MockK
     private var errorCallback = mockk<Consumer<APIResponse.What3WordsError>>()
 
+    @MockK
+    private var didYouMeanCallback = mockk<Consumer<Suggestion>>()
+
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
@@ -61,6 +63,7 @@ class AutosuggestHelperTests {
             errorCallback.accept(any())
             suggestionCallback.accept(any())
             convertCallback.accept(any())
+            didYouMeanCallback.accept(any())
             api.autosuggestionSelection(any(), any(), any(), any()).execute()
         }
     }
@@ -119,24 +122,25 @@ class AutosuggestHelperTests {
 
         // when
         runBlocking {
-            helper.update("index", suggestionsCallback, errorCallback)
-            helper.update("index.home", suggestionsCallback, errorCallback)
-            helper.update("index.home.r", suggestionsCallback, errorCallback)
+            helper.update("index", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("index.home", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("index.home.r", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(150)
-            helper.update("index.home.ra", suggestionsCallback, errorCallback)
+            helper.update("index.home.ra", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(500)
         }
 
         // then
         verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
         verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { didYouMeanCallback.accept(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 
     @Test
     fun `did you mean 3wa returns suggestions`() {
         // given
-        val helper = AutosuggestHelper(api).allowDidYouMean(true)
+        val helper = AutosuggestHelper(api)
         val suggestionsJson =
             ClassLoader.getSystemResource("suggestions.json").readText()
         val suggestions =
@@ -156,80 +160,81 @@ class AutosuggestHelperTests {
         }
 
         every {
-            api.autosuggest("index.home.r").execute()
+            api.autosuggest("star.words.f").execute()
         } answers {
             autosuggest
         }
 
         every {
-            api.autosuggest("index.home.ra").execute()
+            api.autosuggest("star.words.forced").execute()
         } answers {
             autosuggest
         }
 
         // when
         runBlocking {
-            helper.update("index", suggestionsCallback, errorCallback)
-            helper.update("index home", suggestionsCallback, errorCallback)
-            helper.update("index home r", suggestionsCallback, errorCallback)
+            helper.update("star", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words f", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(150)
-            helper.update("index home ra", suggestionsCallback, errorCallback)
+            helper.update("star words forced", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 1) { didYouMeanCallback.accept(suggestions.first()) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
+
+    @Test
+    fun `allowFlexibleDelimiters is true returns suggestions`() {
+        // given
+        val helper = AutosuggestHelper(api).allowFlexibleDelimiters(true)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            api.autosuggest("star.words.f").execute()
+        } answers {
+            autosuggest
+        }
+
+        every {
+            api.autosuggest("star.words.forced").execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.update("star", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words f", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(150)
+            helper.update("star words forced", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(500)
         }
 
         // then
         verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
         verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
-        verify(exactly = 0) { errorCallback.accept(any()) }
-    }
-
-    @Test
-    fun `did you mean off 3wa returns suggestions`() {
-        // given
-        val helper = AutosuggestHelper(api).allowDidYouMean(false)
-        val suggestionsJson =
-            ClassLoader.getSystemResource("suggestions.json").readText()
-        val suggestions =
-            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-        val autosuggest = mockk<Autosuggest>()
-
-        every {
-            autosuggest.isSuccessful
-        } answers {
-            true
-        }
-
-        every {
-            autosuggest.suggestions
-        } answers {
-            suggestions
-        }
-
-        every {
-            api.autosuggest("index.home.r").execute()
-        } answers {
-            autosuggest
-        }
-
-        every {
-            api.autosuggest("index.home.ra").execute()
-        } answers {
-            autosuggest
-        }
-
-        // when
-        runBlocking {
-            helper.update("index", suggestionsCallback, errorCallback)
-            helper.update("index home", suggestionsCallback, errorCallback)
-            helper.update("index home r", suggestionsCallback, errorCallback)
-            delay(150)
-            helper.update("index home ra", suggestionsCallback, errorCallback)
-            delay(500)
-        }
-
-        // then
-        verify(exactly = 4) { suggestionsCallback.accept(emptyList()) }
-        verify(exactly = 0) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { didYouMeanCallback.accept(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 

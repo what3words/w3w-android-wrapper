@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper
 
+import android.media.AudioFormat
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL
@@ -127,7 +128,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -156,7 +157,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )
@@ -185,7 +186,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -208,7 +209,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )
@@ -231,7 +232,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -254,7 +255,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )
@@ -277,7 +278,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -304,7 +305,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )
@@ -331,7 +332,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -358,7 +359,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )
@@ -385,7 +386,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listener
         )
@@ -412,7 +413,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            Microphone.DEFAULT_ENCODING,
+            AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
             listenerWithCoordinates
         )

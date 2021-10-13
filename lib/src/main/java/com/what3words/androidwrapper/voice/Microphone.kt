@@ -15,40 +15,70 @@ import kotlin.math.abs
 class Microphone {
     companion object {
         const val DEFAULT_RECORDING_RATE = 44100
-        const val DEFAULT_ENCODING = "pcm_s16le"
         const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
-        const val FORMAT = AudioFormat.ENCODING_PCM_16BIT
+        const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
     }
 
     constructor() {
-        recordingRate = DEFAULT_RECORDING_RATE
-        encoding = DEFAULT_ENCODING
+        recordingRate = getMinSupportedSampleRate()
         channel = CHANNEL
-        format = FORMAT
+        encoding = ENCODING
         bufferSize = AudioRecord.getMinBufferSize(
-            recordingRate, channel, format
+            recordingRate, channel, encoding
         )
     }
 
-    constructor(recordingRate: Int, encoding: String, channel: Int, format: Int) {
+    private fun getMinSupportedSampleRate(): Int {
+        /*
+     * Valid Audio Sample rates
+     *
+     * @see <a
+     * href="http://en.wikipedia.org/wiki/Sampling_%28signal_processing%29"
+     * >Wikipedia</a>
+     */
+        val validSampleRates = intArrayOf(
+            8000, 11025, 16000, 22050, 44100, 48000
+        )
+        val list = mutableListOf<Int>()
+        /*
+     * Selecting default audio input source for recording since
+     * AudioFormat.CHANNEL_CONFIGURATION_DEFAULT is deprecated and selecting
+     * default encoding format.
+     */for (i in validSampleRates.indices) {
+            val result = AudioRecord.getMinBufferSize(
+                validSampleRates[i],
+                AudioFormat.CHANNEL_IN_DEFAULT,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+            if (result != AudioRecord.ERROR && result != AudioRecord.ERROR_BAD_VALUE && result > 0) {
+                // return the mininum supported audio sample rate
+                list.add(validSampleRates[i])
+            }
+        }
+        // If none of the sample rates are supported return -1 handle it in
+        // calling method
+        return if (list.isEmpty())
+            -1
+        else list.maxOrNull()!!
+    }
+
+    constructor(recordingRate: Int, encoding: Int, channel: Int) {
         this.recordingRate = recordingRate
         this.encoding = encoding
         this.channel = channel
-        this.format = format
         bufferSize = AudioRecord.getMinBufferSize(
-            recordingRate, channel, format
+            recordingRate, channel, encoding
         )
     }
 
-    private var format: Int = FORMAT
+    internal var recordingRate: Int = DEFAULT_RECORDING_RATE
+    internal var encoding: Int = ENCODING
+    private var bufferSize: Int = 0
     private var channel: Int = CHANNEL
+
+
     private var onListeningCallback: Consumer<Float?>? = null
     private var onErrorCallback: Consumer<String>? = null
-    private var recordingRate: Int = DEFAULT_RECORDING_RATE
-    private var encoding: String = DEFAULT_ENCODING
-
-    private var bufferSize: Int = 0
-
     private var recorder: AudioRecord? = null
     private var continueRecording: Boolean = false
 
@@ -85,7 +115,7 @@ class Microphone {
                 MediaRecorder.AudioSource.MIC,
                 recordingRate,
                 channel,
-                format,
+                encoding,
                 bufferSize
             ).also { audioRecord ->
                 try {

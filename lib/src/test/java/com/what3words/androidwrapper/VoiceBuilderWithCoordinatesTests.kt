@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper
 
+import android.media.AudioFormat
 import androidx.core.util.Consumer
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
@@ -12,6 +13,7 @@ import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
 import io.mockk.mockk
@@ -61,6 +63,18 @@ class VoiceBuilderWithCoordinatesTests {
             microphone.stopRecording()
             suggestionsCallback.accept(any())
             errorCallback.accept(any())
+        }
+
+        every {
+            microphone.recordingRate
+        } answers  {
+            44000
+        }
+
+        every {
+            microphone.encoding
+        } answers  {
+            AudioFormat.ENCODING_DEFAULT
         }
     }
 
