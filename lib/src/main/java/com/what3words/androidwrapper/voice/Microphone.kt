@@ -10,7 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import okio.ByteString
-import kotlin.math.abs
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import kotlin.math.log10
 
 class Microphone {
     companion object {
@@ -122,23 +124,36 @@ class Microphone {
                     if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
                         continueRecording = true
                         CoroutineScope(Dispatchers.IO).launch {
-                            val buffer = ByteArray(bufferSize)
+                            val buffer = ShortArray(bufferSize)
                             var oldTimestamp = System.currentTimeMillis()
                             audioRecord.startRecording()
                             while (continueRecording) {
-                                audioRecord.read(buffer, 0, buffer.size)
+                                val readCount = audioRecord.read(buffer, 0, buffer.size)
+                                var v: Long = 0
+                                for (i in 0 until readCount) {
+                                    v += buffer[i] * buffer[i]
+                                }
+                                val amplitude =
+                                    if (readCount != 0) (v / readCount).toDouble() else 0.0
+                                var volume = 0.0
+                                if (amplitude > 0) {
+                                    volume = 10 * log10(amplitude)
+                                }
+                                val bufferBytes: ByteBuffer =
+                                    ByteBuffer.allocate(readCount * 2) // 2 bytes per short
+                                bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
+                                bufferBytes.asShortBuffer().put(buffer, 0, readCount)
                                 if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                                     oldTimestamp = System.currentTimeMillis()
                                     val dB =
                                         VoiceSignalParser.transform(
-                                            buffer.map { abs(it.toDouble()) }
-                                                .sum()
+                                            volume
                                         )
                                     CoroutineScope(Dispatchers.Main).launch {
                                         onListeningCallback?.accept(dB)
                                     }
                                 }
-                                socket.send(ByteString.of(*buffer))
+                                socket.send(ByteString.of(*bufferBytes.array()))
                             }
                         }
                     } else {
