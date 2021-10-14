@@ -28,6 +28,7 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
+        Log.i("VoiceFlow", "default constructor, recording: ${getMinSupportedSampleRate()}, channel: $channel, encoding: $encoding, bufferSize: $bufferSize")
     }
 
     private fun getMinSupportedSampleRate(): Int {
@@ -59,6 +60,7 @@ class Microphone {
         }
         // If none of the sample rates are supported return -1 handle it in
         // calling method
+        Log.i("VoiceFlow", "supportedRates: ${list.joinToString(",") { it.toString() }}")
         return if (list.isEmpty())
             -1
         else list.maxOrNull()!!
@@ -71,6 +73,8 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
+        Log.i("VoiceFlow", "custom constructor, recording: ${recordingRate}, channel: $channel, encoding: $encoding, bufferSize: $bufferSize")
+        Log.i("VoiceFlow", "force available rates! ${getMinSupportedSampleRate()}")
     }
 
     internal var recordingRate: Int = DEFAULT_RECORDING_RATE
@@ -85,9 +89,9 @@ class Microphone {
     private var continueRecording: Boolean = false
 
     /**
-     * onListening() callback will return the volume of the microphone while recording from 0-100 (0 min, 100 max volume)
+     * onListening() callback will return the volume of the microphone while recording from 0.0-1.0, i.e: 0.5, 50% (0.0 min, 1.0 max volume)
      *
-     * @param callback with a float 0.0-100.0 with the microphone volume, useful for animations, etc.
+     * @param callback with a float 0.0-1.0 with the microphone volume, useful for animations, etc.
      * @return a {@link Microphone} instance
      */
     fun onListening(callback: Consumer<Float?>): Microphone {
@@ -127,6 +131,7 @@ class Microphone {
                             val buffer = ShortArray(bufferSize)
                             var oldTimestamp = System.currentTimeMillis()
                             audioRecord.startRecording()
+                            Log.i("VoiceFlow", "internal recording started")
                             while (continueRecording) {
                                 val readCount = audioRecord.read(buffer, 0, buffer.size)
                                 var v: Long = 0
@@ -149,6 +154,7 @@ class Microphone {
                                         VoiceSignalParser.transform(
                                             volume
                                         )
+                                    Log.i("VoiceFlow", "volume $dB")
                                     CoroutineScope(Dispatchers.Main).launch {
                                         onListeningCallback?.accept(dB)
                                     }
@@ -158,7 +164,7 @@ class Microphone {
                         }
                     } else {
                         Log.e(
-                            "VoiceBuilder",
+                            "VoiceFlow",
                             "Failed to initialize AudioRecord, please request AUDIO_RECORD permission."
                         )
                         CoroutineScope(Dispatchers.Main).launch {
@@ -167,7 +173,7 @@ class Microphone {
                     }
                 } catch (e: Exception) {
                     Log.e(
-                        "VoiceBuilder",
+                        "VoiceFlow",
                         e.message.toString()
                     )
                     CoroutineScope(Dispatchers.Main).launch {
@@ -177,7 +183,7 @@ class Microphone {
             }
         } catch (e: Exception) {
             Log.e(
-                "VoiceBuilder",
+                "VoiceFlow",
                 e.message.toString()
             )
             CoroutineScope(Dispatchers.Main).launch {

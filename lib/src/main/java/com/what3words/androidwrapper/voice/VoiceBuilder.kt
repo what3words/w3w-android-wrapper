@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+import android.util.Log
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.javawrapper.request.BoundingBox
@@ -86,11 +87,13 @@ class VoiceBuilder(
      * @return a {@link VoiceBuilder} instance
      */
     fun startListening(): VoiceBuilder {
+        val url = createSocketUrl()
+        Log.i("VoiceFlow", "webSocket url: $url")
         isListening = true
         api.voiceApi.open(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrl(),
+            url = url,
             listener = this
         )
         return this
