@@ -2,7 +2,6 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
-import com.what3words.androidwrapper.voice.Microphone.Companion.DEFAULT_RECORDING_RATE
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError

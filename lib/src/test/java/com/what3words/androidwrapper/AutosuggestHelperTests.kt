@@ -12,6 +12,7 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
+import com.what3words.javawrapper.response.Square
 import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
@@ -376,139 +377,140 @@ class AutosuggestHelperTests {
         verify(exactly = 1) { suggestionCallback.accept(suggestion) }
     }
 
-//TODO: flaky    @Test
-//    fun `selected suggestion with coordinates`() {
-//        // given
-//        val helper = AutosuggestHelper(api)
-//        val suggestion = mockk<Suggestion>()
-//        val convert = mockk<ConvertToCoordinates>()
-//        val coordinates = mockk<Coordinates>()
-//        val selectionBuilder = mockk<AutosuggestSelectionRequest.Builder>()
-//        val convertBuilder = mockk<ConvertToCoordinatesRequest.Builder>()
-//
-//        every {
-//            suggestion.words
-//        } answers {
-//            "index.home.raft"
-//        }
-//
-//        every {
-//            suggestion.country
-//        } answers {
-//            "UK"
-//        }
-//
-//        every {
-//            suggestion.distanceToFocusKm
-//        } answers {
-//            1
-//        }
-//
-//        every {
-//            suggestion.nearestPlace
-//        } answers {
-//            "Bayswater, London"
-//        }
-//
-//        every {
-//            suggestion.language
-//        } answers {
-//            "en-GB"
-//        }
-//
-//        every {
-//            suggestion.rank
-//        } answers {
-//            1
-//        }
-//
-//        every {
-//            coordinates.lat
-//        } answers {
-//            51.2
-//        }
-//
-//        every {
-//            coordinates.lng
-//        } answers {
-//            -0.15
-//        }
-//
-//        every {
-//            convert.coordinates
-//        } answers {
-//            coordinates
-//        }
-//
-//        every {
-//            convert.isSuccessful
-//        } answers {
-//            true
-//        }
-//
-//        every {
-//            convert.map
-//        } answers {
-//            "map"
-//        }
-//
-//        every {
-//            convert.square
-//        } answers {
-//            Square()
-//        }
-//
-//        every {
-//            api.autosuggestionSelection(any(), any(), any(), any())
-//        } answers {
-//            selectionBuilder
-//        }
-//
-//        every {
-//            api.convertToCoordinates("index.home.raft")
-//        } answers {
-//            convertBuilder
-//        }
-//
-//        every {
-//            convertBuilder.execute()
-//        } answers {
-//            convert
-//        }
-//
-//        every {
-//            selectionBuilder.execute()
-//        } answers {
-//            mockk()
-//        }
-//
-//        // when
-//        runBlocking {
-//            helper.selectedWithCoordinates(
-//                "index.home.r",
-//                suggestion,
-//                convertCallback,
-//                errorCallback
-//            )
-//        }
-//
-//        // then
-//        verify(exactly = 1) {
-//            api.autosuggestionSelection(
-//                "index.home.r",
-//                "index.home.raft",
-//                1,
-//                SourceApi.TEXT
-//            )
-//        }
-//        verify(exactly = 1) {
-//            api.convertToCoordinates(
-//                "index.home.raft",
-//            )
-//        }
-//        verify(exactly = 1) { convertCallback.accept(any()) }
-//        verify(exactly = 0) { errorCallback.accept(any()) }
-//    }
+    @Test
+    fun `selected suggestion with coordinates`() {
+        // given
+        val helper = AutosuggestHelper(api)
+        val suggestion = mockk<Suggestion>()
+        val convert = mockk<ConvertToCoordinates>()
+        val coordinates = mockk<Coordinates>()
+        val selectionBuilder = mockk<AutosuggestSelectionRequest.Builder>()
+        val convertBuilder = mockk<ConvertToCoordinatesRequest.Builder>()
+
+        every {
+            suggestion.words
+        } answers {
+            "index.home.raft"
+        }
+
+        every {
+            suggestion.country
+        } answers {
+            "UK"
+        }
+
+        every {
+            suggestion.distanceToFocusKm
+        } answers {
+            1
+        }
+
+        every {
+            suggestion.nearestPlace
+        } answers {
+            "Bayswater, London"
+        }
+
+        every {
+            suggestion.language
+        } answers {
+            "en-GB"
+        }
+
+        every {
+            suggestion.rank
+        } answers {
+            1
+        }
+
+        every {
+            coordinates.lat
+        } answers {
+            51.2
+        }
+
+        every {
+            coordinates.lng
+        } answers {
+            -0.15
+        }
+
+        every {
+            convert.coordinates
+        } answers {
+            coordinates
+        }
+
+        every {
+            convert.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            convert.map
+        } answers {
+            "map"
+        }
+
+        every {
+            convert.square
+        } answers {
+            Square()
+        }
+
+        every {
+            api.autosuggestionSelection(any(), any(), any(), any())
+        } answers {
+            selectionBuilder
+        }
+
+        every {
+            api.convertToCoordinates("index.home.raft")
+        } answers {
+            convertBuilder
+        }
+
+        every {
+            convertBuilder.execute()
+        } answers {
+            convert
+        }
+
+        every {
+            selectionBuilder.execute()
+        } answers {
+            mockk()
+        }
+
+        // when
+        runBlocking {
+            helper.selectedWithCoordinates(
+                "index.home.r",
+                suggestion,
+                convertCallback,
+                errorCallback
+            )
+            delay(300)
+        }
+
+        // then
+        verify(exactly = 1) {
+            api.autosuggestionSelection(
+                "index.home.r",
+                "index.home.raft",
+                1,
+                SourceApi.TEXT
+            )
+        }
+        verify(exactly = 1) {
+            api.convertToCoordinates(
+                "index.home.raft",
+            )
+        }
+        verify(exactly = 1) { convertCallback.accept(any()) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
 
     @Test
     fun `selectedWithCoordinates returns error`() {

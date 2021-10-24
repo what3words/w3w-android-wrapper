@@ -67,13 +67,13 @@ class VoiceBuilderWithCoordinatesTests {
 
         every {
             microphone.recordingRate
-        } answers  {
+        } answers {
             44000
         }
 
         every {
             microphone.encoding
-        } answers  {
+        } answers {
             AudioFormat.ENCODING_DEFAULT
         }
     }

@@ -3,6 +3,7 @@ package com.what3words.androidwrappersample
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.media.AudioFormat
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -34,8 +35,9 @@ class MainActivity : AppCompatActivity() {
 
         // convert-to-3wa sample
         binding.buttonConvertTo3wa.setOnClickListener {
-            val latLong = binding.textInputConvertTo3wa.text?.replace("\\s".toRegex(), "")?.split(",")
-                ?.filter { it.isNotEmpty() }
+            val latLong =
+                binding.textInputConvertTo3wa.text?.replace("\\s".toRegex(), "")?.split(",")
+                    ?.filter { it.isNotEmpty() }
             val lat = latLong?.getOrNull(0)?.toDoubleOrNull()
             val long = latLong?.getOrNull(1)?.toDoubleOrNull()
             if (lat != null && long != null) {
@@ -79,7 +81,8 @@ class MainActivity : AppCompatActivity() {
         binding.buttonAutoSuggest.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 // use wrapper.autosuggest() with Dispatcher.IO - background thread
-                val result = wrapper.autosuggest(binding.textInputAutoSuggest.text.toString()).execute()
+                val result =
+                    wrapper.autosuggest(binding.textInputAutoSuggest.text.toString()).execute()
                 CoroutineScope(Dispatchers.Main).launch {
                     // use Dispatcher.Main to update your views with the results - Main thread
                     if (result.isSuccessful) {
@@ -93,7 +96,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val microphone = Microphone().onListening {
+        val microphone = Microphone(
+            16000,
+            AudioFormat.ENCODING_PCM_16BIT,
+            AudioFormat.CHANNEL_IN_MONO
+        ).onListening {
             it?.let { volume ->
                 binding.volumeAutoSuggestVoice.text =
                     "volume: ${(volume.times(100).roundToInt())}"

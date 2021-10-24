@@ -76,7 +76,7 @@ internal class VoiceApi(
                             )
                         )
                     )
-                    Log.i("VoiceFlow", "onOpen, encoding: ${encoding}, w3wencoding: ${encoding.toW3Wencoding()}, samplerate: $sampleRate")
+                    Log.i("VoiceFlow", "onOpen, encoding: $encoding, w3wencoding: ${encoding.toW3Wencoding()}, samplerate: $sampleRate")
                     webSocket.send(message.toString())
                 }
 

@@ -33,7 +33,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         onSuccessListener: Consumer<List<Suggestion>>,
         onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
         onDidYouMeanListener: Consumer<Suggestion>? = null
-        ) {
+    ) {
         var isDidYouMean = false
         val searchFiltered: String? = when {
             searchText.isPossible3wa() -> searchText
@@ -50,24 +50,40 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         if (searchFiltered == null) {
             onSuccessListener.accept(emptyList())
         } else {
-            searchJob?.cancel()
-            searchJob = CoroutineScope(Dispatchers.IO).launch {
-                delay(300)
-                val builder = api.autosuggest(searchFiltered)
-                applyFilters(builder)
-                val res = builder.execute()
-                CoroutineScope(Dispatchers.Main).launch {
-                    if (res.isSuccessful) {
-                        if (isDidYouMean) {
-                            res.suggestions.firstOrNull { it.words == searchFiltered }?.let {
-                                onDidYouMeanListener?.accept(it)
-                            }
-                        } else {
-                            onSuccessListener.accept(res.suggestions)
+            performAutosuggest(
+                searchFiltered,
+                isDidYouMean,
+                onSuccessListener,
+                onFailureListener,
+                onDidYouMeanListener
+            )
+        }
+    }
+
+    private fun performAutosuggest(
+        finalQuery: String,
+        isDidYouMean: Boolean,
+        onSuccessListener: Consumer<List<Suggestion>>,
+        onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
+        onDidYouMeanListener: Consumer<Suggestion>? = null
+    ) {
+        searchJob?.cancel()
+        searchJob = CoroutineScope(Dispatchers.IO).launch {
+            delay(300)
+            val builder = api.autosuggest(finalQuery)
+            applyFilters(builder)
+            val res = builder.execute()
+            CoroutineScope(Dispatchers.Main).launch {
+                if (res.isSuccessful) {
+                    if (isDidYouMean) {
+                        res.suggestions.firstOrNull { it.words == finalQuery }?.let {
+                            onDidYouMeanListener?.accept(it)
                         }
                     } else {
-                        onFailureListener?.accept(res.error)
+                        onSuccessListener.accept(res.suggestions)
                     }
+                } else {
+                    onFailureListener?.accept(res.error)
                 }
             }
         }
