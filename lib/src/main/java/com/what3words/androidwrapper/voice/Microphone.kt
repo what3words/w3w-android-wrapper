@@ -158,7 +158,7 @@ class Microphone {
         socket.send(ByteString.of(*bufferBytes.array()))
     }
 
-    private fun calculateVolume(readCount: Int, buffer: ShortArray): Double {
+    internal fun calculateVolume(readCount: Int, buffer: ShortArray): Double {
         var v: Long = 0
         for (i in 0 until readCount) {
             v += buffer[i] * buffer[i]
