@@ -150,7 +150,7 @@ class Microphone {
         }
     }
 
-    private fun sendData(readCount: Int, buffer: ShortArray, socket: WebSocket) {
+    internal fun sendData(readCount: Int, buffer: ShortArray, socket: WebSocket) {
         val bufferBytes: ByteBuffer =
             ByteBuffer.allocate(readCount * 2) // 2 bytes per short
         bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer

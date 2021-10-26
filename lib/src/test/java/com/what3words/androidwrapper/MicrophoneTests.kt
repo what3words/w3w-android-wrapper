@@ -1,9 +1,30 @@
 package com.what3words.androidwrapper
 
 import com.what3words.androidwrapper.voice.Microphone
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
+import okhttp3.WebSocket
+import okio.ByteString
+import org.junit.Before
 import org.junit.Test
 
 class MicrophoneTests {
+
+    @MockK
+    private lateinit var socket: WebSocket
+
+    @Before
+    fun setup() {
+        socket = mockk()
+        every {
+            socket.send(any<ByteString>())
+        } answers {
+            true
+        }
+    }
 
     @Test
     fun `microphone calculateVolume no sound`() {
@@ -51,5 +72,24 @@ class MicrophoneTests {
             )
         )
         assert(volume > 50.0)
+    }
+
+    @Test
+    fun `sendData success`() {
+        val microphone = Microphone()
+        val array = shortArrayOf(
+            500,
+            500,
+            500,
+            500,
+            500
+        )
+
+        microphone.sendData(
+            array.count(),
+            array,
+            socket
+        )
+        verify(exactly = 1) { socket.send(any<ByteString>()) }
     }
 }
