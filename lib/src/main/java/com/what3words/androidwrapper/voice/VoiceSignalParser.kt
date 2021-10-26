@@ -1,11 +1,9 @@
 package com.what3words.androidwrapper.voice
 
-import kotlin.math.log10
-
 object VoiceSignalParser {
 
-    private const val MIN_SIGNAL_LEVEL = 9
-    private const val MAX_SIGNAL_LEVEL = 14
+    private const val MIN_SIGNAL_LEVEL = 20
+    private const val MAX_SIGNAL_LEVEL = 80
 
     private const val MIN_SCALED_LEVEL = 0f
     private const val MAX_SCALED_LEVEL = 1f
@@ -26,18 +24,17 @@ object VoiceSignalParser {
      */
 
     fun transform(rawValue: Double): Float {
-        val dBValue = (20 * log10(rawValue / 32767)).toFloat()
         return when {
-            dBValue < MIN_SIGNAL_LEVEL -> MIN_SCALED_LEVEL
-            dBValue > MAX_SIGNAL_LEVEL -> MAX_SCALED_LEVEL
+            rawValue < MIN_SIGNAL_LEVEL -> MIN_SCALED_LEVEL
+            rawValue > MAX_SIGNAL_LEVEL -> MAX_SCALED_LEVEL
             getScaledSignal(
-                dBValue
+                rawValue.toFloat()
             ) < MIN_SCALED_LEVEL -> MIN_SCALED_LEVEL
             getScaledSignal(
-                dBValue
+                rawValue.toFloat()
             ) > MAX_SCALED_LEVEL -> MAX_SCALED_LEVEL
             else -> getScaledSignal(
-                dBValue
+                rawValue.toFloat()
             )
         }
     }

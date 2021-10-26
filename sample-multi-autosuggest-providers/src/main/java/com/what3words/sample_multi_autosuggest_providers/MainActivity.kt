@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         // what3words setup with static filters
         val what3words = What3WordsV3(BuildConfig.W3W_API_KEY, this)
         val autosuggestHelper =
-            AutosuggestHelper(what3words).focus(Coordinates(51.5209433, -0.1962334))
+            AutosuggestHelper(what3words).focus(Coordinates(51.5209433, -0.1962334)).allowFlexibleDelimiters(true)
 
         // google place setup
         Places.initialize(applicationContext, BuildConfig.PLACES_KEY)
