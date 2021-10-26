@@ -76,13 +76,13 @@ internal class VoiceApi(
                             )
                         )
                     )
-                    Log.i("VoiceFlow", "onOpen, encoding: $encoding, w3wencoding: ${encoding.toW3Wencoding()}, samplerate: $sampleRate")
+                    // Log.i("VoiceFlow", "onOpen, encoding: $encoding, w3wencoding: ${encoding.toW3Wencoding()}, samplerate: $sampleRate")
                     webSocket.send(message.toString())
                 }
 
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     super.onMessage(webSocket, text)
-                    Log.i("VoiceFlow", "onMessage: $text")
+                    //  Log.i("VoiceFlow", "onMessage: $text")
                     try {
                         val socketMessage =
                             Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
@@ -178,7 +178,7 @@ internal class VoiceApi(
                 }
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.i("VoiceFlow", "onClosing: code - $code, reason - $reason")
+                    //  Log.i("VoiceFlow", "onClosing: code - $code, reason - $reason")
                     if (code != 1000 && reason.isNotEmpty()) {
                         try {
                             listenerWithCoordinates?.error(
@@ -210,7 +210,7 @@ internal class VoiceApi(
     }
 
     fun forceStop() {
-        Log.i("VoiceFlow", "forceStop: Aborted by user")
+        //  Log.i("VoiceFlow", "forceStop: Aborted by user")
         socket?.close(1000, "Aborted by user")
     }
 }

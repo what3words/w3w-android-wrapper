@@ -65,7 +65,7 @@ dependencies {
 
     //you should use:
     //implementation "com.what3words:w3w-android-wrapper:3.x.x"
-    implementation "com.what3words:w3w-java-wrapper:3.1.9"
+    implementation "com.what3words:w3w-java-wrapper:3.1.10"
     implementation project(":lib")
     implementation 'com.android.support:multidex:1.0.3'
 }

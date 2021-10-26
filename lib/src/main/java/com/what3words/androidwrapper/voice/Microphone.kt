@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import okio.ByteString
+import timber.log.Timber
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.log10
@@ -29,7 +30,6 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
-
     }
 
     private fun getSupportedSampleRates(): List<Int> {
@@ -47,7 +47,7 @@ class Microphone {
                 list.add(it)
             }
         }
-        Log.i("VoiceFlow", "supportedRates: ${list.joinToString(",") { it.toString() }}")
+        // Log.i("VoiceFlow", "supportedRates: ${list.joinToString(",") { it.toString() }}")
         return list
     }
 
@@ -62,7 +62,7 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
-        Log.i(
+        Timber.i(
             "VoiceFlow",
             "custom constructor, recording: $recordingRate, channel: $channel, encoding: $encoding, bufferSize: $bufferSize"
         )

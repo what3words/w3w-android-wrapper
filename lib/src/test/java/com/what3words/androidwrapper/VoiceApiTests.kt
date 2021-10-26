@@ -74,7 +74,6 @@ class VoiceApiTests {
             true
         }
 
-
         every {
             mockWebSocket.send("voice3")
         }.answers {
@@ -82,7 +81,6 @@ class VoiceApiTests {
         }
 
         // any other send() i.e onOpen json
-
 
         every {
             mockWebSocket.send(any<String>())
@@ -146,7 +144,6 @@ class VoiceApiTests {
                 wsl.onFailure(mockWebSocket, Exception(failureMessage), null)
                 true
             }
-
 
             mockWebSocket
         }
@@ -463,7 +460,6 @@ class VoiceApiTests {
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
     }
-
 
     @Test
     fun `autosuggest returns a failure`() {
