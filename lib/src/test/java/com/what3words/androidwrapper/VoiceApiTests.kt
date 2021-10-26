@@ -16,6 +16,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.junit.Before
 import org.junit.Test
+import java.lang.Exception
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -73,7 +74,16 @@ class VoiceApiTests {
             true
         }
 
+
+        every {
+            mockWebSocket.send("voice3")
+        }.answers {
+            true
+        }
+
         // any other send() i.e onOpen json
+
+
         every {
             mockWebSocket.send(any<String>())
         }.answers {
@@ -92,7 +102,6 @@ class VoiceApiTests {
         every {
             mockClient.newWebSocket(any(), any())
         }.answers {
-            // todo
             val wsl =
                 this.arg<WebSocketListener>(1)
 
@@ -114,6 +123,31 @@ class VoiceApiTests {
                 wsl.onClosing(mockWebSocket, closeCode, closeReason)
                 true
             }
+            mockWebSocket
+        }
+    }
+
+    private fun mockWebSocketFailure(
+        message: String,
+        failureMessage: String
+    ) {
+        every {
+            mockClient.newWebSocket(any(), any())
+        }.answers {
+            val wsl =
+                this.arg<WebSocketListener>(1)
+
+            wsl.onOpen(mockWebSocket, mockk())
+            wsl.onMessage(mockWebSocket, message)
+
+            every {
+                mockWebSocket.send("voice2")
+            }.answers {
+                wsl.onFailure(mockWebSocket, Exception(failureMessage), null)
+                true
+            }
+
+
             mockWebSocket
         }
     }
@@ -332,7 +366,7 @@ class VoiceApiTests {
         // when
         voiceApi.open(
             Microphone.DEFAULT_RECORDING_RATE,
-            AudioFormat.ENCODING_PCM_16BIT,
+            6,
             BASE_URL,
             listener
         )
@@ -427,6 +461,86 @@ class VoiceApiTests {
         verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
+        assert(voiceApi.socket == null)
+    }
+
+
+    @Test
+    fun `autosuggest returns a failure`() {
+        // given
+        val jsonStart = ClassLoader.getSystemResource("started.json").readText()
+        val webSocketError = "websocket error"
+        mockWebSocketFailure(jsonStart, webSocketError)
+
+        // when
+        voiceApi.open(
+            Microphone.DEFAULT_RECORDING_RATE,
+            AudioFormat.ENCODING_PCM_FLOAT,
+            BASE_URL,
+            listener
+        )
+
+        mockWebSocket.send("voice1")
+        mockWebSocket.send("voice2")
+
+        // then
+        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 0) { listener.suggestions(any()) }
+        verify(exactly = 1) { listener.error(any()) }
+        assert(voiceApi.socket == null)
+    }
+
+    @Test
+    fun `autosuggest-with-coordinates returns a failure`() {
+        // given
+        val jsonStart = ClassLoader.getSystemResource("started.json").readText()
+        val webSocketError = "websocket error"
+        mockWebSocketFailure(jsonStart, webSocketError)
+
+        // when
+        voiceApi.open(
+            Microphone.DEFAULT_RECORDING_RATE,
+            AudioFormat.ENCODING_PCM_8BIT,
+            BASE_URL,
+            listenerWithCoordinates
+        )
+
+        mockWebSocket.send("voice1")
+        mockWebSocket.send("voice2")
+
+        // then
+        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
+        verify(exactly = 1) { listenerWithCoordinates.error(any()) }
+        assert(voiceApi.socket == null)
+    }
+
+    @Test
+    fun `autosuggest forceStop`() {
+        // given
+        val jsonStart = ClassLoader.getSystemResource("started.json").readText()
+        val jsonSuggestions =
+            ClassLoader.getSystemResource("voice-suggestions.json").readText()
+        mockWebSocket(jsonStart, jsonSuggestions, 1000, "Aborted by user")
+
+        // when
+        voiceApi.open(
+            Microphone.DEFAULT_RECORDING_RATE,
+            AudioFormat.ENCODING_PCM_16BIT,
+            BASE_URL,
+            listener
+        )
+        mockWebSocket.send("voice1")
+        mockWebSocket.send("voice2")
+        mockWebSocket.send("voice3")
+        voiceApi.forceStop()
+
+        // then
+        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 0) {
+            listener.suggestions(any())
+        }
+        verify(exactly = 0) { listener.error(any()) }
         assert(voiceApi.socket == null)
     }
 }
