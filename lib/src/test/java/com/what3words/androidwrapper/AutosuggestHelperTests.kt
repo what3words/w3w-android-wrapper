@@ -12,7 +12,9 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Autosuggest
 import com.what3words.javawrapper.response.ConvertToCoordinates
 import com.what3words.javawrapper.response.Coordinates
+import com.what3words.javawrapper.response.Square
 import com.what3words.javawrapper.response.Suggestion
+import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
@@ -43,10 +45,13 @@ class AutosuggestHelperTests {
     private var suggestionCallback = mockk<Consumer<Suggestion>>()
 
     @MockK
-    private var convertCallback = mockk<Consumer<ConvertToCoordinates>>()
+    private var convertCallback = mockk<Consumer<SuggestionWithCoordinates>>()
 
     @MockK
     private var errorCallback = mockk<Consumer<APIResponse.What3WordsError>>()
+
+    @MockK
+    private var didYouMeanCallback = mockk<Consumer<Suggestion>>()
 
     @Before
     fun setup() {
@@ -59,6 +64,7 @@ class AutosuggestHelperTests {
             errorCallback.accept(any())
             suggestionCallback.accept(any())
             convertCallback.accept(any())
+            didYouMeanCallback.accept(any())
             api.autosuggestionSelection(any(), any(), any(), any()).execute()
         }
     }
@@ -117,17 +123,119 @@ class AutosuggestHelperTests {
 
         // when
         runBlocking {
-            helper.update("index", suggestionsCallback, errorCallback)
-            helper.update("index.home", suggestionsCallback, errorCallback)
-            helper.update("index.home.r", suggestionsCallback, errorCallback)
+            helper.update("index", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("index.home", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("index.home.r", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(150)
-            helper.update("index.home.ra", suggestionsCallback, errorCallback)
+            helper.update("index.home.ra", suggestionsCallback, errorCallback, didYouMeanCallback)
             delay(500)
         }
 
         // then
         verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
         verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { didYouMeanCallback.accept(any()) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
+
+    @Test
+    fun `did you mean 3wa returns suggestions`() {
+        // given
+        val helper = AutosuggestHelper(api)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            api.autosuggest("star.words.f").execute()
+        } answers {
+            autosuggest
+        }
+
+        every {
+            api.autosuggest("star.words.forced").execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.update("star", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words f", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(150)
+            helper.update("star words forced", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 1) { didYouMeanCallback.accept(suggestions.first()) }
+        verify(exactly = 0) { errorCallback.accept(any()) }
+    }
+
+    @Test
+    fun `allowFlexibleDelimiters is true returns suggestions`() {
+        // given
+        val helper = AutosuggestHelper(api).allowFlexibleDelimiters(true)
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+        val suggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+        val autosuggest = mockk<Autosuggest>()
+
+        every {
+            autosuggest.isSuccessful
+        } answers {
+            true
+        }
+
+        every {
+            autosuggest.suggestions
+        } answers {
+            suggestions
+        }
+
+        every {
+            api.autosuggest("star.words.f").execute()
+        } answers {
+            autosuggest
+        }
+
+        every {
+            api.autosuggest("star.words.forced").execute()
+        } answers {
+            autosuggest
+        }
+
+        // when
+        runBlocking {
+            helper.update("star", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("star words f", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(150)
+            helper.update("star words forced", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(500)
+        }
+
+        // then
+        verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+        verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+        verify(exactly = 0) { didYouMeanCallback.accept(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 
@@ -272,7 +380,6 @@ class AutosuggestHelperTests {
     @Test
     fun `selected suggestion with coordinates`() {
         // given
-
         val helper = AutosuggestHelper(api)
         val suggestion = mockk<Suggestion>()
         val convert = mockk<ConvertToCoordinates>()
@@ -284,6 +391,30 @@ class AutosuggestHelperTests {
             suggestion.words
         } answers {
             "index.home.raft"
+        }
+
+        every {
+            suggestion.country
+        } answers {
+            "UK"
+        }
+
+        every {
+            suggestion.distanceToFocusKm
+        } answers {
+            1
+        }
+
+        every {
+            suggestion.nearestPlace
+        } answers {
+            "Bayswater, London"
+        }
+
+        every {
+            suggestion.language
+        } answers {
+            "en-GB"
         }
 
         every {
@@ -314,6 +445,18 @@ class AutosuggestHelperTests {
             convert.isSuccessful
         } answers {
             true
+        }
+
+        every {
+            convert.map
+        } answers {
+            "map"
+        }
+
+        every {
+            convert.square
+        } answers {
+            Square()
         }
 
         every {
@@ -348,6 +491,7 @@ class AutosuggestHelperTests {
                 convertCallback,
                 errorCallback
             )
+            delay(300)
         }
 
         // then
@@ -364,7 +508,7 @@ class AutosuggestHelperTests {
                 "index.home.raft",
             )
         }
-        verify(exactly = 1) { convertCallback.accept(convert) }
+        verify(exactly = 1) { convertCallback.accept(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 

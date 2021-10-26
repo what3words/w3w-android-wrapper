@@ -1,7 +1,8 @@
 package com.what3words.androidwrapper.voice
 
+import android.media.AudioFormat
+import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
 import com.what3words.javawrapper.response.APIError
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -25,9 +26,9 @@ internal class VoiceApi(
     private var listener: VoiceApiListener? = null
     var listenerWithCoordinates: VoiceApiListenerWithCoordinates? = null
 
-    fun open(
+    internal fun open(
         sampleRate: Int,
-        encoding: String,
+        encoding: Int,
         url: String,
         listener: VoiceApiListener
     ) {
@@ -35,9 +36,9 @@ internal class VoiceApi(
         open(sampleRate, encoding, url)
     }
 
-    fun open(
+    internal fun open(
         sampleRate: Int,
-        encoding: String,
+        encoding: Int,
         url: String,
         listener: VoiceApiListenerWithCoordinates
     ) {
@@ -53,7 +54,7 @@ internal class VoiceApi(
      */
     private fun open(
         sampleRate: Int,
-        encoding: String,
+        encoding: Int,
         url: String
     ) {
         if (socket != null) throw Exception("socket already open")
@@ -70,16 +71,18 @@ internal class VoiceApi(
                             "message" to "StartRecognition",
                             "audio_format" to mapOf(
                                 "type" to "raw",
-                                "encoding" to encoding,
+                                "encoding" to encoding.toW3Wencoding(),
                                 "sample_rate" to sampleRate
                             )
                         )
                     )
+                    // Log.i("VoiceFlow", "onOpen, encoding: $encoding, w3wencoding: ${encoding.toW3Wencoding()}, samplerate: $sampleRate")
                     webSocket.send(message.toString())
                 }
 
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     super.onMessage(webSocket, text)
+                    //  Log.i("VoiceFlow", "onMessage: $text")
                     try {
                         val socketMessage =
                             Gson().fromJson(text, BaseVoiceMessagePayload::class.java)
@@ -135,16 +138,16 @@ internal class VoiceApi(
                                 )
                             }
                         }
-                    } catch (ex: JsonSyntaxException) {
+                    } catch (ex: Exception) {
                         listenerWithCoordinates?.error(
                             APIError().apply {
-                                code = "JsonSyntaxError"
+                                code = "UnknownError"
                                 this.message = ex.message
                             }
                         )
                         listener?.error(
                             APIError().apply {
-                                code = "JsonSyntaxError"
+                                code = "UnknownError"
                                 this.message = ex.message
                             }
                         )
@@ -156,6 +159,7 @@ internal class VoiceApi(
                     t: Throwable,
                     response: Response?
                 ) {
+                    Log.e("VoiceFlow", "onFailure: ${t.message}")
                     if (socket != null) t.message?.let {
                         listenerWithCoordinates?.error(
                             APIError().apply {
@@ -174,7 +178,8 @@ internal class VoiceApi(
                 }
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                    if (code != 1000) {
+                    //  Log.i("VoiceFlow", "onClosing: code - $code, reason - $reason")
+                    if (code != 1000 && reason.isNotEmpty()) {
                         try {
                             listenerWithCoordinates?.error(
                                 Gson().fromJson(
@@ -183,7 +188,7 @@ internal class VoiceApi(
                                 )
                             )
                             listener?.error(Gson().fromJson(reason, APIError::class.java))
-                        } catch (e: JsonSyntaxException) {
+                        } catch (e: Exception) {
                             listenerWithCoordinates?.error(
                                 APIError().apply {
                                     this.code = "UnknownError"
@@ -205,6 +210,16 @@ internal class VoiceApi(
     }
 
     fun forceStop() {
+        //  Log.i("VoiceFlow", "forceStop: Aborted by user")
         socket?.close(1000, "Aborted by user")
+    }
+}
+
+private fun Int.toW3Wencoding(): String {
+    return when (this) {
+        AudioFormat.ENCODING_PCM_16BIT -> "pcm_s16le"
+        AudioFormat.ENCODING_PCM_FLOAT -> "pcm_f32le"
+        AudioFormat.ENCODING_PCM_8BIT -> "mulaw"
+        else -> "pcm_s16le"
     }
 }
