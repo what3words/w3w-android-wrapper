@@ -64,8 +64,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
 
-    implementation "com.github.ajalt:timberkt:1.5.1"
-
     api "com.what3words:w3w-java-wrapper:3.1.10"
     api group: 'com.google.guava', name: 'guava', version: '24.1-jre'
 }

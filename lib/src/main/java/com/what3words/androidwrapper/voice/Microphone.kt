@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import okio.ByteString
-import timber.log.Timber
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.log10
@@ -20,6 +19,7 @@ class Microphone {
         const val DEFAULT_RECORDING_RATE = 44100
         const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
+        const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
     }
 
     constructor() {
@@ -27,9 +27,11 @@ class Microphone {
             getSupportedSampleRates().maxOrNull() ?: -1
         channel = CHANNEL
         encoding = ENCODING
+        audioSource = AUDIO_SOURCE
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
+        Log.i("VoiceFlow", "default ,recordingRate:$recordingRate, channel:$channel, encoding:$encoding, audioSource:$audioSource, bufferSize:$bufferSize")
     }
 
     private fun getSupportedSampleRates(): List<Int> {
@@ -47,7 +49,6 @@ class Microphone {
                 list.add(it)
             }
         }
-        // Log.i("VoiceFlow", "supportedRates: ${list.joinToString(",") { it.toString() }}")
         return list
     }
 
@@ -55,23 +56,22 @@ class Microphone {
         return getSupportedSampleRates().contains(sampleRate)
     }
 
-    constructor(recordingRate: Int, encoding: Int, channel: Int) {
+    constructor(recordingRate: Int, encoding: Int, channel: Int, audioSource: Int) {
         this.recordingRate = recordingRate
         this.encoding = encoding
         this.channel = channel
+        this.audioSource = audioSource
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
-        Timber.i(
-            "VoiceFlow",
-            "custom constructor, recording: $recordingRate, channel: $channel, encoding: $encoding, bufferSize: $bufferSize"
-        )
+        Log.i("VoiceFlow", "custom ,recordingRate:$recordingRate, channel:$channel, encoding:$encoding, audioSource:$audioSource, bufferSize:$bufferSize")
     }
 
     internal var recordingRate: Int = DEFAULT_RECORDING_RATE
     internal var encoding: Int = ENCODING
     private var bufferSize: Int = 0
     private var channel: Int = CHANNEL
+    private var audioSource: Int = MediaRecorder.AudioSource.MIC
 
     private var onListeningCallback: Consumer<Float?>? = null
     private var onErrorCallback: Consumer<String>? = null
@@ -111,7 +111,7 @@ class Microphone {
             return
         }
         recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
+            audioSource,
             recordingRate,
             channel,
             encoding,
@@ -128,9 +128,11 @@ class Microphone {
                         sendData(readCount, buffer, socket)
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
+                            val volume = calculateVolume(readCount, buffer)
+                            Log.i("VoiceFlow", "volume: $volume")
                             val dB =
                                 VoiceSignalParser.transform(
-                                    calculateVolume(readCount, buffer)
+                                    volume
                                 )
                             CoroutineScope(Dispatchers.Main).launch {
                                 onListeningCallback?.accept(dB)
