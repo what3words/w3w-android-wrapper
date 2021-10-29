@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper.helpers
 
 import androidx.core.util.Consumer
+import com.what3words.androidwrapper.IWhat3WordsV3
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.javawrapper.request.AutosuggestRequest
 import com.what3words.javawrapper.request.AutosuggestSelectionRequest
@@ -16,7 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AutosuggestHelper(private val api: What3WordsV3) {
+class AutosuggestHelper(private val api: IWhat3WordsV3) {
     private var allowFlexibleDelimiters: Boolean = false
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null

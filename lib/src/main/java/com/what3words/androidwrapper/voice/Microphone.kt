@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -105,6 +106,7 @@ class Microphone {
         recorder?.release()
     }
 
+    @SuppressLint("MissingPermission")
     internal fun startRecording(socket: WebSocket) {
         if (!isSampleRateValid(recordingRate)) {
             onErrorCallback?.accept("Invalid sample rate, please use one of the following: ${getSupportedSampleRates().joinToString { it.toString() }}")
