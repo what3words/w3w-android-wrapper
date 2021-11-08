@@ -3,6 +3,7 @@ package com.what3words.androidwrapper
 import androidx.core.util.Consumer
 import com.google.gson.Gson
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
+import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.AutosuggestRequest
 import com.what3words.javawrapper.request.AutosuggestSelectionRequest
 import com.what3words.javawrapper.request.BoundingBox
@@ -622,6 +623,11 @@ class AutosuggestHelperTests {
         val countries = listOf("GB", "FR")
         val boundingBox = BoundingBox(focus, focus)
         val polygon = listOf(focus, focus)
+        val autosuggestOptions = AutosuggestOptions()
+        autosuggestOptions.focus = focus
+        autosuggestOptions.clipToCountry = countries
+        autosuggestOptions.clipToBoundingBox = boundingBox
+        autosuggestOptions.clipToPolygon = polygon
 
         every {
             autosuggest.isSuccessful
@@ -636,43 +642,7 @@ class AutosuggestHelperTests {
         }
 
         every {
-            autosuggestRequestBuilder.focus(any())
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.nFocusResults(any())
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.nResults(any())
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.clipToCircle(any(), any())
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.clipToCountry(*countries.toTypedArray())
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.clipToBoundingBox(boundingBox)
-        } answers {
-            autosuggestRequestBuilder
-        }
-
-        every {
-            autosuggestRequestBuilder.clipToPolygon(*polygon.toTypedArray())
+            autosuggestRequestBuilder.options(any())
         } answers {
             autosuggestRequestBuilder
         }
@@ -691,10 +661,7 @@ class AutosuggestHelperTests {
 
         // when
         runBlocking {
-            helper.focus(focus).nFocusResults(5).nResults(3).clipToCountry(countries).clipToCircle(
-                focus
-            ).clipToBoundingBox(BoundingBox(focus, focus)).clipToPolygon(listOf(focus, focus))
-
+            helper.options(autosuggestOptions)
             helper.update("index", suggestionsCallback, errorCallback)
             helper.update("index.home", suggestionsCallback, errorCallback)
             helper.update("index.home.ra", suggestionsCallback, errorCallback)
@@ -704,13 +671,7 @@ class AutosuggestHelperTests {
         // then
         verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
         verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
-        verify(exactly = 1) { autosuggestRequestBuilder.focus(focus) }
-        verify(exactly = 1) { autosuggestRequestBuilder.nResults(3) }
-        verify(exactly = 1) { autosuggestRequestBuilder.nFocusResults(5) }
-        verify(exactly = 1) { autosuggestRequestBuilder.clipToCountry(*countries.toTypedArray()) }
-        verify(exactly = 1) { autosuggestRequestBuilder.clipToCircle(focus, 1.0) }
-        verify(exactly = 1) { autosuggestRequestBuilder.clipToBoundingBox(boundingBox) }
-        verify(exactly = 1) { autosuggestRequestBuilder.clipToPolygon(*polygon.toTypedArray()) }
+        verify(exactly = 1) { autosuggestRequestBuilder.options(any()) }
         verify(exactly = 0) { errorCallback.accept(any()) }
     }
 }
