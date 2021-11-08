@@ -15,6 +15,7 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
+import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.Suggestion
 
@@ -28,8 +29,10 @@ class MainActivity : AppCompatActivity() {
 
         // what3words setup with static filters
         val what3words = What3WordsV3(BuildConfig.W3W_API_KEY, this)
+        val autosuggestOptions = AutosuggestOptions()
+        autosuggestOptions.focus = Coordinates(51.5209433, -0.1962334)
         val autosuggestHelper =
-            AutosuggestHelper(what3words).focus(Coordinates(51.5209433, -0.1962334)).allowFlexibleDelimiters(true)
+            AutosuggestHelper(what3words).options(autosuggestOptions).allowFlexibleDelimiters(true)
 
         // google place setup
         Places.initialize(applicationContext, BuildConfig.PLACES_KEY)
