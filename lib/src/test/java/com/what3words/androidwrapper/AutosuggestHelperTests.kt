@@ -491,7 +491,6 @@ class AutosuggestHelperTests {
             )
             delay(300)
 
-
             // then
             verify(exactly = 1) {
                 api.autosuggestionSelection(

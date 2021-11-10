@@ -26,7 +26,10 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         voiceApi = VoiceApi(apiKey)
     }
 
-    internal constructor(apiKey: String, voiceApi: VoiceApi, dispatchers: DispatcherProvider = DefaultDispatcherProvider()
+    internal constructor(
+        apiKey: String,
+        voiceApi: VoiceApi,
+        dispatchers: DispatcherProvider = DefaultDispatcherProvider()
     ) : super(
         apiKey,
         "com.what3words.androidwrapper",
