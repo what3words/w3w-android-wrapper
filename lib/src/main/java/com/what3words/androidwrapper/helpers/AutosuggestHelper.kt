@@ -8,12 +8,14 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AutosuggestHelper(private val api: What3WordsV3) {
+class AutosuggestHelper(
+    private val api: What3WordsV3,
+    private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
+) {
     private var allowFlexibleDelimiters: Boolean = false
     private var options: AutosuggestOptions? = null
     private var searchJob: Job? = null
@@ -58,12 +60,12 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         onDidYouMeanListener: Consumer<Suggestion>? = null
     ) {
         searchJob?.cancel()
-        searchJob = CoroutineScope(Dispatchers.IO).launch {
-            delay(300)
+        searchJob = CoroutineScope(dispatchers.io()).launch {
+            delay(250)
             val builder = api.autosuggest(finalQuery)
             if (options != null) builder.options(options)
             val res = builder.execute()
-            CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(dispatchers.main()).launch {
                 if (res.isSuccessful) {
                     if (isDidYouMean) {
                         res.suggestions.firstOrNull { it.words == finalQuery }?.let {
@@ -84,7 +86,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         suggestion: Suggestion,
         onSuccessListener: Consumer<Suggestion>
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatchers.io()).launch {
             val builder = api.autosuggestionSelection(
                 rawString,
                 suggestion.words,
@@ -103,7 +105,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
         onSuccessListener: Consumer<SuggestionWithCoordinates>,
         onFailureListener: Consumer<APIResponse.What3WordsError>? = null
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatchers.io()).launch {
             val builder = api.autosuggestionSelection(
                 rawString,
                 suggestion.words,
@@ -114,7 +116,7 @@ class AutosuggestHelper(private val api: What3WordsV3) {
             val builderConvert = api.convertToCoordinates(suggestion.words)
             builder.execute()
             val res = builderConvert.execute()
-            CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(dispatchers.main()).launch {
                 if (res.isSuccessful) {
                     val newSuggestion = SuggestionWithCoordinates(suggestion, res)
                     onSuccessListener.accept(newSuggestion)

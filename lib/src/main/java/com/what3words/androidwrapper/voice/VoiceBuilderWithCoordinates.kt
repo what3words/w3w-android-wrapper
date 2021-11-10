@@ -2,6 +2,8 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
+import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
+import com.what3words.androidwrapper.helpers.DispatcherProvider
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -15,7 +17,8 @@ import okhttp3.WebSocket
 class VoiceBuilderWithCoordinates(
     private val api: What3WordsV3,
     private val mic: Microphone,
-    private val voiceLanguage: String
+    private val voiceLanguage: String,
+    private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 ) : VoiceApiListenerWithCoordinates {
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null
@@ -59,7 +62,7 @@ class VoiceBuilderWithCoordinates(
     override fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>) {
         mic.stopRecording()
         isListening = false
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(dispatchers.main()).launch {
             onSuggestionsCallback?.accept(suggestions)
         }
     }
@@ -75,7 +78,7 @@ class VoiceBuilderWithCoordinates(
             errorEnum = APIResponse.What3WordsError.UNKNOWN_ERROR
         }
         errorEnum.message = message.message
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(dispatchers.main()).launch {
             onErrorCallback?.accept(errorEnum)
         }
     }

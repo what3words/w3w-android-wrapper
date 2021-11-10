@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper
 
 import android.media.AudioFormat
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.util.Consumer
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
@@ -18,19 +19,21 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.WebSocket
-import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 @ExperimentalCoroutinesApi
 class VoiceBuilderWithCoordinatesTests {
-    private val dispatcher = TestCoroutineDispatcher()
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
+
+    @get:Rule
+    val testInstantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
     @MockK
     private lateinit var socket: WebSocket
@@ -49,7 +52,6 @@ class VoiceBuilderWithCoordinatesTests {
 
     @Before
     fun setup() {
-        Dispatchers.setMain(dispatcher)
         voiceApi = mockk()
         socket = mockk()
         microphone = mockk()
@@ -78,239 +80,255 @@ class VoiceBuilderWithCoordinatesTests {
         }
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
+    @Test
+    fun `startListening then force stopListening`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+            builder.onSuggestions(suggestionsCallback)
+            builder.onError(errorCallback)
+
+            // when startListening and connected successfully
+            builder.startListening()
+            builder.connected(socket)
+
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(socket) }
+
+            // when forced stop
+            builder.stopListening()
+
+            // then
+            assertThat(builder.isListening()).isFalse()
+            verify(exactly = 1) { voiceApi.forceStop() }
+            verify(exactly = 1) { microphone.stopRecording() }
+            verify(exactly = 0) { suggestionsCallback.accept(any()) }
+            verify(exactly = 0) { errorCallback.accept(any()) }
+        }
 
     @Test
-    fun `startListening then force stopListening`() {
-        // given
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-        builder.onSuggestions(suggestionsCallback)
-        builder.onError(errorCallback)
+    fun `startListening then error occurs`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+            builder.onSuggestions(suggestionsCallback)
+            builder.onError(errorCallback)
 
-        // when startListening and connected successfully
-        builder.startListening()
-        builder.connected(socket)
+            // when startListening and connected successfully
+            builder.startListening()
+            builder.connected(socket)
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-        verify(exactly = 1) { microphone.startRecording(socket) }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(socket) }
 
-        // when forced stop
-        builder.stopListening()
+            // when
+            builder.error(APIError())
 
-        // then
-        assertThat(builder.isListening()).isFalse()
-        verify(exactly = 1) { voiceApi.forceStop() }
-        verify(exactly = 1) { microphone.stopRecording() }
-        verify(exactly = 0) { suggestionsCallback.accept(any()) }
-        verify(exactly = 0) { errorCallback.accept(any()) }
-    }
-
-    @Test
-    fun `startListening then error occurs`() {
-        // given
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-        builder.onSuggestions(suggestionsCallback)
-        builder.onError(errorCallback)
-
-        // when startListening and connected successfully
-        builder.startListening()
-        builder.connected(socket)
-
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-        verify(exactly = 1) { microphone.startRecording(socket) }
-
-        // when
-        builder.error(APIError())
-
-        // then
-        assertThat(builder.isListening()).isFalse()
-        verify(exactly = 0) { voiceApi.forceStop() }
-        verify(exactly = 1) { microphone.stopRecording() }
-        verify(exactly = 0) { suggestionsCallback.accept(any()) }
-        verify(exactly = 1) { errorCallback.accept(any()) }
-    }
+            // then
+            assertThat(builder.isListening()).isFalse()
+            verify(exactly = 0) { voiceApi.forceStop() }
+            verify(exactly = 1) { microphone.stopRecording() }
+            verify(exactly = 0) { suggestionsCallback.accept(any()) }
+            verify(exactly = 1) { errorCallback.accept(any()) }
+        }
 
     @Test
-    fun `startListening then returns suggestions`() {
-        // given
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-        builder.onSuggestions(suggestionsCallback)
-        builder.onError(errorCallback)
+    fun `startListening then returns suggestions`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+            builder.onSuggestions(suggestionsCallback)
+            builder.onError(errorCallback)
 
-        // when startListening and connected successfully
-        builder.startListening()
-        builder.connected(socket)
+            // when startListening and connected successfully
+            builder.startListening()
+            builder.connected(socket)
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-        verify(exactly = 1) { microphone.startRecording(socket) }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(socket) }
 
-        val suggestionsJson =
-            ClassLoader.getSystemResource("suggestions-with-coordinates.json").readText()
-        val suggestions =
-            Gson().fromJson(suggestionsJson, Array<SuggestionWithCoordinates>::class.java).toList()
+            val suggestionsJson =
+                ClassLoader.getSystemResource("suggestions-with-coordinates.json").readText()
+            val suggestions =
+                Gson().fromJson(suggestionsJson, Array<SuggestionWithCoordinates>::class.java)
+                    .toList()
 
-        // when
-        builder.suggestionsWithCoordinates(suggestions)
+            // when
+            builder.suggestionsWithCoordinates(suggestions)
 
-        // then
-        assertThat(builder.isListening()).isFalse()
-        verify(exactly = 0) { voiceApi.forceStop() }
-        verify(exactly = 1) { microphone.stopRecording() }
-        verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
-        verify(exactly = 0) { errorCallback.accept(any()) }
-    }
-
-    @Test
-    fun `focus is set expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
-
-        // when
-        builder.focus(Coordinates(51.1, -0.152))
-            .startListening()
-
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
-
-    fun `focus is set with nFocusResults expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152&n-focus-results=3"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
-
-        // when
-        builder.focus(Coordinates(51.1, -0.152)).nFocusResults(3)
-            .startListening()
-
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
+            // then
+            assertThat(builder.isListening()).isFalse()
+            verify(exactly = 0) { voiceApi.forceStop() }
+            verify(exactly = 1) { microphone.stopRecording() }
+            verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+            verify(exactly = 0) { errorCallback.accept(any()) }
+        }
 
     @Test
-    fun `nResults is set expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&n-results=3"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
+    fun `focus is set expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
 
-        // when
-        builder.nResults(3).startListening()
+            // when
+            builder.focus(Coordinates(51.1, -0.152))
+                .startListening()
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
-
-    @Test
-    fun `clipToCountry is set expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-country=GB,FR"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
-
-        // when
-        builder.clipToCountry(listOf("GB", "FR")).startListening()
-
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
 
     @Test
-    fun `clipToCircle is set without radius expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,1.0"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
+    fun `focus is set with nFocusResults expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl =
+                "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152&n-focus-results=3"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
 
-        // when
-        builder.clipToCircle(Coordinates(51.1, -0.152)).startListening()
+            // when
+            builder.focus(Coordinates(51.1, -0.152)).nFocusResults(3)
+                .startListening()
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
-
-    @Test
-    fun `clipToCircle is set with radius expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,100.0"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
-
-        // when
-        builder.clipToCircle(Coordinates(51.1, -0.152), 100.0).startListening()
-
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
 
     @Test
-    fun `clipToBoundingBox is set expect param url`() {
-        // given
-        val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
+    fun `nResults is set expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&n-results=3"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
 
-        // when
-        builder.clipToBoundingBox(
-            BoundingBox(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
-        ).startListening()
+            // when
+            builder.nResults(3).startListening()
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
 
     @Test
-    fun `clipToPolygon is set expect param url`() {
-        // given
-        val expectedUrl =
-            "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152"
-        val what3WordsV3 = What3WordsV3("key", voiceApi)
-        val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            .onSuggestions(suggestionsCallback)
-            .onError(errorCallback)
+    fun `clipToCountry is set expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-country=GB,FR"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
 
-        // when
-        builder.clipToPolygon(
-            listOf(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
-        ).startListening()
+            // when
+            builder.clipToCountry(listOf("GB", "FR")).startListening()
 
-        // then
-        assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
-    }
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `clipToCircle is set without radius expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl =
+                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,1.0"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
+
+            // when
+            builder.clipToCircle(Coordinates(51.1, -0.152)).startListening()
+
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `clipToCircle is set with radius expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl =
+                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,100.0"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
+
+            // when
+            builder.clipToCircle(Coordinates(51.1, -0.152), 100.0).startListening()
+
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `clipToBoundingBox is set expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl =
+                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
+
+            // when
+            builder.clipToBoundingBox(
+                BoundingBox(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
+            ).startListening()
+
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `clipToPolygon is set expect param url`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val expectedUrl =
+                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152"
+            val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+                .onSuggestions(suggestionsCallback)
+                .onError(errorCallback)
+
+            // when
+            builder.clipToPolygon(
+                listOf(
+                    Coordinates(51.1, -0.152),
+                    Coordinates(51.1, -0.152),
+                    Coordinates(51.1, -0.152)
+                )
+            ).startListening()
+
+            // then
+            assertThat(builder.isListening()).isTrue()
+            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
 }

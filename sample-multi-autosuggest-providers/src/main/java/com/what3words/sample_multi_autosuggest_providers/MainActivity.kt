@@ -29,8 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         // what3words setup with static filters
         val what3words = What3WordsV3(BuildConfig.W3W_API_KEY, this)
-        val autosuggestOptions = AutosuggestOptions()
-        autosuggestOptions.focus = Coordinates(51.5209433, -0.1962334)
+        val autosuggestOptions = AutosuggestOptions().apply {
+            focus = Coordinates(51.5209433, -0.1962334)
+        }
         val autosuggestHelper =
             AutosuggestHelper(what3words).options(autosuggestOptions).allowFlexibleDelimiters(true)
 
