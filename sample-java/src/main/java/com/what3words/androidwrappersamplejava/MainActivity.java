@@ -15,6 +15,7 @@ import androidx.core.content.PermissionChecker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.what3words.androidwrapper.What3WordsV3;
+import com.what3words.androidwrapper.voice.IVoiceBuilder;
 import com.what3words.androidwrapper.voice.Microphone;
 import com.what3words.androidwrapper.voice.VoiceBuilder;
 import com.what3words.javawrapper.request.Coordinates;
@@ -29,7 +30,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
-    private VoiceBuilder voiceBuilder = null;
+    private IVoiceBuilder voiceBuilder = null;
     MaterialButton buttonAutoSuggestVoice;
     TextView volumeAutoSuggestVoice;
     TextView resultAutoSuggestVoice;

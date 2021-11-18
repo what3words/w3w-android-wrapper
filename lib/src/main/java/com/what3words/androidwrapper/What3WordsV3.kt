@@ -6,6 +6,7 @@ import android.content.pm.Signature
 import com.google.common.io.BaseEncoding
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.androidwrapper.voice.IVoiceBuilder
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceBuilder
@@ -114,7 +115,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
     fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
-    ): VoiceBuilder {
+    ): IVoiceBuilder {
         return VoiceBuilder(this, microphone, voiceLanguage)
     }
 
@@ -122,7 +123,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         microphone: Microphone,
         voiceLanguage: String,
         dispatchers: DispatcherProvider = DefaultDispatcherProvider()
-    ): VoiceBuilder {
+    ): IVoiceBuilder {
         return VoiceBuilder(this, microphone, voiceLanguage, dispatchers)
     }
 

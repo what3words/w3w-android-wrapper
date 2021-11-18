@@ -14,12 +14,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 
+
 class VoiceBuilder(
     private val api: What3WordsV3,
     private val mic: Microphone,
     private val voiceLanguage: String,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
-) : VoiceApiListener {
+) : IVoiceBuilder, VoiceApiListener {
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null
     private var clipToCircle: Coordinates? = null
@@ -39,7 +40,7 @@ class VoiceBuilder(
      * @param callback with a list of {@link Suggestion} returned by our VoiceAPI
      * @return a {@link VoiceBuilder} instance
      */
-    fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
+    override fun onSuggestions(callback: Consumer<List<Suggestion>>): IVoiceBuilder {
         this.onSuggestionsCallback = callback
         return this
     }
@@ -50,7 +51,7 @@ class VoiceBuilder(
      * @param callback will be called when an {@link APIResponse.What3WordsError} occurs
      * @return a {@link VoiceBuilder} instance
      */
-    fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilder {
+    override fun onError(callback: Consumer<APIResponse.What3WordsError>): IVoiceBuilder {
         this.onErrorCallback = callback
         return this
     }
@@ -88,7 +89,7 @@ class VoiceBuilder(
      *
      * @return a {@link VoiceBuilder} instance
      */
-    fun startListening(): VoiceBuilder {
+    override fun startListening(): IVoiceBuilder {
         val url = createSocketUrl()
         Log.i("VoiceFlow", "webSocket url: $url")
         isListening = true
@@ -106,7 +107,7 @@ class VoiceBuilder(
      *
      * @return a {@link VoiceBuilder} instance
      */
-    fun isListening(): Boolean {
+    override fun isListening(): Boolean {
         return isListening
     }
 
@@ -115,7 +116,7 @@ class VoiceBuilder(
      *
      * @return a {@link VoiceBuilder} instance
      */
-    fun stopListening() {
+    override fun stopListening() {
         isListening = false
         mic.stopRecording()
         api.voiceApi.forceStop()
@@ -128,7 +129,7 @@ class VoiceBuilder(
      * @param coordinates the focus to use
      * @return a {@link W3WAutoSuggestEditText} instance
      */
-    fun focus(coordinates: Coordinates?): VoiceBuilder {
+    override fun focus(coordinates: Coordinates?): IVoiceBuilder {
         focus = coordinates
         return this
     }
@@ -140,7 +141,7 @@ class VoiceBuilder(
      * @param n the number of AutoSuggest results to return
      * @return a {@link VoiceBuilder} instance
      */
-    fun nResults(n: Int?): VoiceBuilder {
+    override fun nResults(n: Int?): IVoiceBuilder {
         nResults = n
         return this
     }
@@ -154,7 +155,7 @@ class VoiceBuilder(
      * @param n number of results within the results set which will have a focus
      * @return a {@link VoiceBuilder} instance
      */
-    fun nFocusResults(n: Int?): VoiceBuilder {
+    override fun nFocusResults(n: Int?): IVoiceBuilder {
         nFocusResults = n
         return this
     }
@@ -167,10 +168,10 @@ class VoiceBuilder(
      * @param radius the radius of the circle in kilometres
      * @return a {@link VoiceBuilder} instance
      */
-    fun clipToCircle(
+    override fun clipToCircle(
         centre: Coordinates?,
-        radius: Double? = 1.0
-    ): VoiceBuilder {
+        radius: Double?
+    ): IVoiceBuilder {
         clipToCircle = centre
         clipToCircleRadius = radius
         return this
@@ -185,7 +186,7 @@ class VoiceBuilder(
      * @param countryCodes countries to clip results too
      * @return a {@link VoiceBuilder} instance
      */
-    fun clipToCountry(countryCodes: List<String>): VoiceBuilder {
+    override fun clipToCountry(countryCodes: List<String>): IVoiceBuilder {
         clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
         return this
     }
@@ -196,9 +197,9 @@ class VoiceBuilder(
      * @param boundingBox <code>BoundingBox</code> to clip results too
      * @return a {@link VoiceBuilder} instance
      */
-    fun clipToBoundingBox(
+    override fun clipToBoundingBox(
         boundingBox: BoundingBox?
-    ): VoiceBuilder {
+    ): IVoiceBuilder {
         clipToBoundingBox = boundingBox
         return this
     }
@@ -211,9 +212,9 @@ class VoiceBuilder(
      * @param polygon the polygon to clip results too
      * @return a {@link VoiceBuilder} instance
      */
-    fun clipToPolygon(
+    override fun clipToPolygon(
         polygon: List<Coordinates>
-    ): VoiceBuilder {
+    ): IVoiceBuilder {
         clipToPolygon = if (polygon.isNotEmpty()) polygon.toTypedArray() else null
         return this
     }
