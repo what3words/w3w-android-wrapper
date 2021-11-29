@@ -203,6 +203,7 @@ internal class VoiceApi(
                             )
                         }
                     }
+                    webSocket.close(1000, null);
                     socket = null
                 }
             }
