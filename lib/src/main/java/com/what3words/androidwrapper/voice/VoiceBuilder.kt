@@ -90,7 +90,6 @@ class VoiceBuilder(
      */
     fun startListening(): VoiceBuilder {
         val url = createSocketUrl()
-        Log.i("VoiceFlow", "webSocket url: $url")
         isListening = true
         api.voiceApi.open(
             mic.recordingRate,

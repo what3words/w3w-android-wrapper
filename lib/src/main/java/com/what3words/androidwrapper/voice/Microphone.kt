@@ -32,7 +32,6 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
-        Log.i("VoiceFlow", "default ,recordingRate:$recordingRate, channel:$channel, encoding:$encoding, audioSource:$audioSource, bufferSize:$bufferSize")
     }
 
     private fun getSupportedSampleRates(): List<Int> {
@@ -65,7 +64,6 @@ class Microphone {
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
-        Log.i("VoiceFlow", "custom ,recordingRate:$recordingRate, channel:$channel, encoding:$encoding, audioSource:$audioSource, bufferSize:$bufferSize")
     }
 
     internal var recordingRate: Int = DEFAULT_RECORDING_RATE
@@ -131,7 +129,6 @@ class Microphone {
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
                             val volume = calculateVolume(readCount, buffer)
-                            Log.i("VoiceFlow", "volume: $volume")
                             val dB =
                                 VoiceSignalParser.transform(
                                     volume
