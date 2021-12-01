@@ -49,8 +49,8 @@ Add the api and helper wherever you put your class variables and be sure to use 
 ```Kotlin
 val what3words = What3WordsV3("YOUR_API_KEY_HERE", this)
 val autosuggestOptions = AutosuggestOptions().apply {
-	// apply all clippings here (focus, clipToCountry, clipToCircle, etc.)
-	focus = Coordinates(51.5209433, -0.1962334)
+    // apply all clippings here (focus, clipToCountry, clipToCircle, etc.)
+    focus = Coordinates(51.5209433, -0.1962334)
 }
 
 val autosuggestHelper = AutosuggestHelper(what3words).options(autosuggestOptions)
@@ -63,18 +63,18 @@ editText.doOnTextChanged { text, _, _, _ ->
 	autosuggestHelper.options(autosuggestOptions).update(  
 	    text.toString(),  
 	    onSuccessListener = { suggestionResults ->  
-			suggestionResults.forEach { suggestion ->  
-			    //Add suggestion to existing RecyclerView adapter
-			    list.add(suggestion)
+		suggestionResults.forEach { suggestion ->  
+		    //Add suggestion to existing RecyclerView adapter
+	            list.add(suggestion)
 	            Log.i("MainActivity", suggestion.words)  
 	        } 
 	        //notify adapter that there's changes on the data. 
-			adapter.notifyDataSetChanged()  
+		adapter.notifyDataSetChanged()  
 	    },  
-		onFailureListener = {  
-		  //log any errors returned by what3words API.
-		  Log.e("MainActivity", it.message)  
-		}  
+	    onFailureListener = {  
+                //log any errors returned by what3words API.
+	        Log.e("MainActivity", it.message)  
+	    }  
 	)
 }
 ```
@@ -85,10 +85,10 @@ When user selects a row from the RecyclerView *autosuggestHelper.selected()* or 
 
 ```Kotlin
 autosuggestHelper.selectedWithCoordinates(  
-	query.text.toString(),  
+    query.text.toString(),  
     selectedSuggestion,  
     onSuccessListener = { w3wWithCoordinates ->
-		Toast.makeText(this,"suggestion selected from what3words, ${w3wWithCoordinates.words}, ${w3wWithCoordinates.coordinates.lat} ${w3wWithCoordinates.coordinates.lng}", Toast.LENGTH_LONG).show()  
+        Toast.makeText(this,"suggestion selected from what3words, ${w3wWithCoordinates.words}, ${w3wWithCoordinates.coordinates.lat} ${w3wWithCoordinates.coordinates.lng}", Toast.LENGTH_LONG).show()  
     },  
     onFailureListener = {  
 	    Log.e("MainActivity", it.message)  
