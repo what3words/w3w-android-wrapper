@@ -1,6 +1,5 @@
 package com.what3words.androidwrapper.voice
 
-import android.util.Log
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
