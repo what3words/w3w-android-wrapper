@@ -45,7 +45,7 @@ add the following ProGuard rules
 
 ### Using AutosuggestHelper class
 
-Add the api and helper wherever you put your class variables and be sure to use your API key:
+Add the api and helper wherever you put your class variables and be sure to use your [API key](https://what3words.com/select-plan):
 ```Kotlin
 val what3words = What3WordsV3("YOUR_API_KEY_HERE", this)
 val autosuggestOptions = AutosuggestOptions().apply {
