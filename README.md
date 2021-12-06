@@ -159,7 +159,7 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
     val wrapper = What3Words("YOUR_API_KEY_HERE", "https://api.yourserver.com")  
 ```
 
-### Add what3words autosuggest to an existing autosuggest field
+## Add what3words autosuggest to an existing autosuggest field
 
 If you want to add what3words support to your existing autosuggest field please check our [AutosuggestHelper tutorial](https://github.com/what3words/w3w-android-wrapper/blob/master/autosuggest-helper-tutorial.md) or our [AutosuggestHelper sample app](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers)
 
