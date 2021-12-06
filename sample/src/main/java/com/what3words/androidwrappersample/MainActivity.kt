@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.AudioFormat
+import android.media.MediaRecorder
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -99,7 +100,8 @@ class MainActivity : AppCompatActivity() {
         val microphone = Microphone(
             16000,
             AudioFormat.ENCODING_PCM_16BIT,
-            AudioFormat.CHANNEL_IN_MONO
+            AudioFormat.CHANNEL_IN_MONO,
+            MediaRecorder.AudioSource.MIC
         ).onListening {
             it?.let { volume ->
                 binding.volumeAutoSuggestVoice.text =

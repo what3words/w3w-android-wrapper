@@ -88,6 +88,12 @@ class VoiceApiTests {
             true
         }
 
+        every {
+            mockWebSocket.close(any(), any())
+        }.answers {
+            true
+        }
+
         voiceApi = VoiceApi("any", mockClient)
     }
 

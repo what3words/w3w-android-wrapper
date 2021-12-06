@@ -2,20 +2,22 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
+import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
+import com.what3words.androidwrapper.helpers.DispatcherProvider
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 
 class VoiceBuilderWithCoordinates(
     private val api: What3WordsV3,
     private val mic: Microphone,
-    private val voiceLanguage: String
+    private val voiceLanguage: String,
+    private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 ) : VoiceApiListenerWithCoordinates {
     private var clipToPolygon: Array<Coordinates>? = null
     private var clipToBoundingBox: BoundingBox? = null
@@ -30,11 +32,11 @@ class VoiceBuilderWithCoordinates(
     private var isListening = false
 
     /**
-     * onSuggestions callback will be called when VoiceAPI returns a set of suggestion with coordinates after
+     * onSuggestions callback will be called when VoiceAPI returns a set of [SuggestionWithCoordinates] with coordinates after
      * receiving the voice data, this can be empty in case of no suggestions available for the provided voice record.
      *
-     * @param callback with a list of {@link SuggestionWithCoordinates} returned by our VoiceAPI
-     * @return a {@link VoiceBuilder} instance
+     * @param callback with a list of [SuggestionWithCoordinates] returned by our VoiceAPI
+     * @return a [VoiceBuilder] instance
      */
     fun onSuggestions(callback: Consumer<List<SuggestionWithCoordinates>>): VoiceBuilderWithCoordinates {
         this.onSuggestionsCallback = callback
@@ -44,8 +46,8 @@ class VoiceBuilderWithCoordinates(
     /**
      * onError callback will be called when some API error occurs on the VoiceAPI
      *
-     * @param callback will be called when an {@link APIResponse.What3WordsError} occurs
-     * @return a {@link VoiceBuilder} instance
+     * @param callback will be called when an [APIResponse.What3WordsError] occurs
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilderWithCoordinates {
         this.onErrorCallback = callback
@@ -59,7 +61,7 @@ class VoiceBuilderWithCoordinates(
     override fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>) {
         mic.stopRecording()
         isListening = false
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(dispatchers.main()).launch {
             onSuggestionsCallback?.accept(suggestions)
         }
     }
@@ -75,15 +77,15 @@ class VoiceBuilderWithCoordinates(
             errorEnum = APIResponse.What3WordsError.UNKNOWN_ERROR
         }
         errorEnum.message = message.message
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(dispatchers.main()).launch {
             onErrorCallback?.accept(errorEnum)
         }
     }
 
     /**
-     * startListening() starts the {@link Microphone} recording and starts sending voice data to our VoiceAPI.
+     * [startListening] starts the [Microphone] recording and starts sending voice data to our VoiceAPI.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
@@ -97,18 +99,18 @@ class VoiceBuilderWithCoordinates(
     }
 
     /**
-     * isListening() can be used to check if is currently in recording state.
+     * [isListening] can be used to check if is currently in recording state.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun isListening(): Boolean {
         return isListening
     }
 
     /**
-     * stopListening() forces the {@link Microphone} to stop recording and closes the socket with our VoiceAPI.
+     * [stopListening] forces the [Microphone] to stop recording and closes the socket with our VoiceAPI.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun stopListening() {
         isListening = false
@@ -118,10 +120,10 @@ class VoiceBuilderWithCoordinates(
 
     /**
      * This is a location, specified as a latitude (often where the user making the query is). If specified, the results will be weighted to
-     * give preference to those near the <code>focus</code>. For convenience, longitude is allowed to wrap around the 180 line, so 361 is equivalent to 1.
+     * give preference to those near the focus. For convenience, longitude is allowed to wrap around the 180 line, so 361 is equivalent to 1.
      *
      * @param coordinates the focus to use
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun focus(coordinates: Coordinates?): VoiceBuilderWithCoordinates {
         focus = coordinates
@@ -132,8 +134,8 @@ class VoiceBuilderWithCoordinates(
      * Set the number of AutoSuggest results to return. A maximum of 100 results can be specified, if a number greater than this is requested,
      * this will be truncated to the maximum. The default is 3
      *
-     * @param n the number of AutoSuggest results to return
-     * @return a {@link VoiceBuilder} instance
+     * @param n the number of results to return
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun nResults(n: Int?): VoiceBuilderWithCoordinates {
         nResults = n ?: 3
@@ -141,13 +143,13 @@ class VoiceBuilderWithCoordinates(
     }
 
     /**
-     * Specifies the number of results (must be &lt;= nResults) within the results set which will have a focus. Defaults to <code>nResults</code>.
+     * Specifies the number of results within the results set which will have a focus. Defaults to [nResults].
      * This allows you to run autosuggest with a mix of focussed and unfocussed results, to give you a "blend" of the two. This is exactly what the old V2
-     * <code>standardblend</code> did, and <code>standardblend</code> behaviour can easily be replicated by passing <code>nFocusResults=1</code>,
+     * standardblend did, and standardblend behaviour can easily be replicated by passing [nFocusResults]=1,
      * which will return just one focussed result and the rest unfocussed.
      *
      * @param n number of results within the results set which will have a focus
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun nFocusResults(n: Int?): VoiceBuilderWithCoordinates {
         nFocusResults = n
@@ -155,12 +157,12 @@ class VoiceBuilderWithCoordinates(
     }
 
     /**
-     * Restrict autosuggest results to a circle, specified by <code>Coordinates</code> representing the centre of the circle, plus the
-     * <code>radius</code> in kilometres. For convenience, longitude is allowed to wrap around 180 degrees. For example 181 is equivalent to -179.
+     * Restrict autosuggest results to a circle, specified by [Coordinates] representing the centre of the circle, plus the
+     * [radius] in kilometres. For convenience, longitude is allowed to wrap around 180 degrees. For example 181 is equivalent to -179.
      *
      * @param centre the centre of the circle
      * @param radius the radius of the circle in kilometres
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun clipToCircle(
         centre: Coordinates?,
@@ -173,12 +175,12 @@ class VoiceBuilderWithCoordinates(
 
     /**
      * Restricts autosuggest to only return results inside the countries specified by comma-separated list of uppercase ISO 3166-1 alpha-2 country codes
-     * (for example, to restrict to Belgium and the UK, use <code>clipToCountry("GB", "BE")</code>. <code>clipToCountry</code> will also accept lowercase
+     * (for example, to restrict to Belgium and the UK, use [clipToCountry] ("GB", "BE"). [clipToCountry] will also accept lowercase
      * country codes. Entries must be two a-z letters. WARNING: If the two-letter code does not correspond to a country, there is no error: API simply
      * returns no results.
      *
      * @param countryCodes countries to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun clipToCountry(countryCodes: List<String>): VoiceBuilderWithCoordinates {
         clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
@@ -186,10 +188,10 @@ class VoiceBuilderWithCoordinates(
     }
 
     /**
-     * Restrict autosuggest results to a <code>BoundingBox</code>.
+     * Restrict autosuggest results to a [BoundingBox].
      *
-     * @param boundingBox <code>BoundingBox</code> to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @param boundingBox [BoundingBox] to clip results too
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun clipToBoundingBox(
         boundingBox: BoundingBox?
@@ -199,12 +201,12 @@ class VoiceBuilderWithCoordinates(
     }
 
     /**
-     * Restrict autosuggest results to a polygon, specified by a collection of <code>Coordinates</code>. The polygon should be closed,
+     * Restrict autosuggest results to a polygon, specified by a collection of [Coordinates]. The polygon should be closed,
      * i.e. the first element should be repeated as the last element; also the list should contain at least 4 entries. The API is currently limited to
      * accepting up to 25 pairs.
      *
-     * @param polygon the polygon to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @param polygon the list of [Coordinates] that form the polygon to clip results too
+     * @return a [VoiceBuilderWithCoordinates] instance
      */
     fun clipToPolygon(
         polygon: List<Coordinates>

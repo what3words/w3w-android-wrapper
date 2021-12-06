@@ -3,7 +3,6 @@ package com.what3words.androidwrapper
 import com.what3words.androidwrapper.voice.Microphone
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import okhttp3.WebSocket

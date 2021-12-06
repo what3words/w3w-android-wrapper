@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -10,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import okio.ByteString
-import timber.log.Timber
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.log10
@@ -20,6 +20,7 @@ class Microphone {
         const val DEFAULT_RECORDING_RATE = 44100
         const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
+        const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
     }
 
     constructor() {
@@ -27,6 +28,7 @@ class Microphone {
             getSupportedSampleRates().maxOrNull() ?: -1
         channel = CHANNEL
         encoding = ENCODING
+        audioSource = AUDIO_SOURCE
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
         )
@@ -47,7 +49,6 @@ class Microphone {
                 list.add(it)
             }
         }
-        // Log.i("VoiceFlow", "supportedRates: ${list.joinToString(",") { it.toString() }}")
         return list
     }
 
@@ -55,16 +56,13 @@ class Microphone {
         return getSupportedSampleRates().contains(sampleRate)
     }
 
-    constructor(recordingRate: Int, encoding: Int, channel: Int) {
+    constructor(recordingRate: Int, encoding: Int, channel: Int, audioSource: Int) {
         this.recordingRate = recordingRate
         this.encoding = encoding
         this.channel = channel
+        this.audioSource = audioSource
         bufferSize = AudioRecord.getMinBufferSize(
             recordingRate, channel, encoding
-        )
-        Timber.i(
-            "VoiceFlow",
-            "custom constructor, recording: $recordingRate, channel: $channel, encoding: $encoding, bufferSize: $bufferSize"
         )
     }
 
@@ -72,6 +70,7 @@ class Microphone {
     internal var encoding: Int = ENCODING
     private var bufferSize: Int = 0
     private var channel: Int = CHANNEL
+    private var audioSource: Int = MediaRecorder.AudioSource.MIC
 
     private var onListeningCallback: Consumer<Float?>? = null
     private var onErrorCallback: Consumer<String>? = null
@@ -79,10 +78,10 @@ class Microphone {
     var isListening: Boolean = false
 
     /**
-     * onListening() callback will return the volume of the microphone while recording from 0.0-1.0, i.e: 0.5, 50% (0.0 min, 1.0 max volume)
+     * [onListening] callback will return the volume of the microphone while recording from 0.0-1.0, i.e: 0.5, 50% (0.0 min, 1.0 max volume)
      *
      * @param callback with a float 0.0-1.0 with the microphone volume, useful for animations, etc.
-     * @return a {@link Microphone} instance
+     * @return a [Microphone] instance
      */
     fun onListening(callback: Consumer<Float?>): Microphone {
         this.onListeningCallback = callback
@@ -90,10 +89,10 @@ class Microphone {
     }
 
     /**
-     * onError() callback will be called if there's some issue starting the microphone, i.e: Permissions
+     * [onError] callback will be called if there's some issue starting the microphone, i.e: Permissions
      *
      * @param callback with a error message.
-     * @return a {@link Microphone} instance
+     * @return a [Microphone] instance
      */
     fun onError(callback: Consumer<String>): Microphone {
         this.onErrorCallback = callback
@@ -105,13 +104,14 @@ class Microphone {
         recorder?.release()
     }
 
+    @SuppressLint("MissingPermission")
     internal fun startRecording(socket: WebSocket) {
         if (!isSampleRateValid(recordingRate)) {
             onErrorCallback?.accept("Invalid sample rate, please use one of the following: ${getSupportedSampleRates().joinToString { it.toString() }}")
             return
         }
         recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
+            audioSource,
             recordingRate,
             channel,
             encoding,
@@ -128,9 +128,10 @@ class Microphone {
                         sendData(readCount, buffer, socket)
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
+                            val volume = calculateVolume(readCount, buffer)
                             val dB =
                                 VoiceSignalParser.transform(
-                                    calculateVolume(readCount, buffer)
+                                    volume
                                 )
                             CoroutineScope(Dispatchers.Main).launch {
                                 onListeningCallback?.accept(dB)

@@ -14,7 +14,7 @@ To obtain an API key, please visit [https://what3words.com/select-plan](https://
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.14'
+implementation 'com.what3words:w3w-android-wrapper:3.1.15'
 ```
 
 ## Documentation
@@ -131,8 +131,6 @@ wrapper.autosuggest(microphone, "en")
 ```
 **For a full working example with voice and AUDIO_RECORD permission request check our [sample](https://github.com/what3words/w3w-android-wrapper/blob/master/sample/src/main/java/com/what3words/androidwrappersample/MainActivity.kt "sample") and [sample-java](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-java/src/main/java/com/what3words/androidwrappersamplejava/MainActivity.java "sample-java")**
 
-*Note: Please bear in mind that the Android Emulator cannot record audio. Therefore, you will need to test on a real device that can record.*
-
 ### Other available wrapper calls and examples.
 
 - **wrapper.convertToCoordinates()** - Convert a 3 word address to a latitude and longitude
@@ -161,6 +159,10 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
     val wrapper = What3Words("YOUR_API_KEY_HERE", "https://api.yourserver.com")  
 ```
 
+## Add what3words autosuggest to an existing autosuggest field
+
+If you want to add what3words support to your existing autosuggest field please check our [AutosuggestHelper tutorial](https://github.com/what3words/w3w-android-wrapper/blob/master/autosuggest-helper-tutorial.md) or our [AutosuggestHelper sample app](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers)
+
 ## UX Guidelines
 
 ![alt text](https://github.com/what3words/w3w-android-wrapper/blob/master/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
@@ -168,3 +170,11 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
 - Once the user has entered the first letter of the 3rd word the autosuggest feature should be displayed
 - For simplicity, we recommend only displaying 3 suggested results
 - Every address should be accompanied by it’s nearest location.
+
+## Full android-wrappper documentation
+
+| Name |
+|---|
+| [com.what3words.androidwrapper](docs/lib/com.what3words.androidwrapper/index.md) |
+| [com.what3words.androidwrapper.helpers](docs/lib/com.what3words.androidwrapper.helpers/index.md) |
+| [com.what3words.androidwrapper.voice](docs/lib/com.what3words.androidwrapper.voice/index.md) |
