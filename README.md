@@ -168,3 +168,11 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
 - Once the user has entered the first letter of the 3rd word the autosuggest feature should be displayed
 - For simplicity, we recommend only displaying 3 suggested results
 - Every address should be accompanied by it’s nearest location.
+
+## Full android-wrappper documentation
+
+| Name |
+|---|
+| [com.what3words.androidwrapper](docs/lib/com.what3words.androidwrapper/index.md) |
+| [com.what3words.androidwrapper.helpers](docs/lib/com.what3words.androidwrapper.helpers/index.md) |
+| [com.what3words.androidwrapper.voice](docs/lib/com.what3words.androidwrapper.voice/index.md) |
