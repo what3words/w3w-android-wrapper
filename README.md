@@ -14,7 +14,7 @@ To obtain an API key, please visit [https://what3words.com/select-plan](https://
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.14'
+implementation 'com.what3words:w3w-android-wrapper:3.1.15'
 ```
 
 ## Documentation
@@ -130,8 +130,6 @@ wrapper.autosuggest(microphone, "en")
     }.startListening()
 ```
 **For a full working example with voice and AUDIO_RECORD permission request check our [sample](https://github.com/what3words/w3w-android-wrapper/blob/master/sample/src/main/java/com/what3words/androidwrappersample/MainActivity.kt "sample") and [sample-java](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-java/src/main/java/com/what3words/androidwrappersamplejava/MainActivity.java "sample-java")**
-
-*Note: Please bear in mind that the Android Emulator cannot record audio. Therefore, you will need to test on a real device that can record.*
 
 ### Other available wrapper calls and examples.
 
