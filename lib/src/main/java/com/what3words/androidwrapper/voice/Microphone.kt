@@ -78,10 +78,10 @@ class Microphone {
     var isListening: Boolean = false
 
     /**
-     * onListening() callback will return the volume of the microphone while recording from 0.0-1.0, i.e: 0.5, 50% (0.0 min, 1.0 max volume)
+     * [onListening] callback will return the volume of the microphone while recording from 0.0-1.0, i.e: 0.5, 50% (0.0 min, 1.0 max volume)
      *
      * @param callback with a float 0.0-1.0 with the microphone volume, useful for animations, etc.
-     * @return a {@link Microphone} instance
+     * @return a [Microphone] instance
      */
     fun onListening(callback: Consumer<Float?>): Microphone {
         this.onListeningCallback = callback
@@ -89,10 +89,10 @@ class Microphone {
     }
 
     /**
-     * onError() callback will be called if there's some issue starting the microphone, i.e: Permissions
+     * [onError] callback will be called if there's some issue starting the microphone, i.e: Permissions
      *
      * @param callback with a error message.
-     * @return a {@link Microphone} instance
+     * @return a [Microphone] instance
      */
     fun onError(callback: Consumer<String>): Microphone {
         this.onErrorCallback = callback

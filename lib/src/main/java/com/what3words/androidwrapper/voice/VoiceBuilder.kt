@@ -35,8 +35,8 @@ class VoiceBuilder(
      * onSuggestions callback will be called when VoiceAPI returns a set of suggestion after
      * receiving the voice data, this can be empty in case of no suggestions available for the provided voice record.
      *
-     * @param callback with a list of {@link Suggestion} returned by our VoiceAPI
-     * @return a {@link VoiceBuilder} instance
+     * @param callback with a list of [Suggestion] returned by our VoiceAPI
+     * @return a [VoiceBuilder] instance
      */
     fun onSuggestions(callback: Consumer<List<Suggestion>>): VoiceBuilder {
         this.onSuggestionsCallback = callback
@@ -46,8 +46,8 @@ class VoiceBuilder(
     /**
      * onError callback will be called when some API error occurs on the VoiceAPI
      *
-     * @param callback will be called when an {@link APIResponse.What3WordsError} occurs
-     * @return a {@link VoiceBuilder} instance
+     * @param callback will be called when an [APIResponse.What3WordsError] occurs
+     * @return a [VoiceBuilder] instance
      */
     fun onError(callback: Consumer<APIResponse.What3WordsError>): VoiceBuilder {
         this.onErrorCallback = callback
@@ -83,9 +83,9 @@ class VoiceBuilder(
     }
 
     /**
-     * startListening() starts the {@link Microphone} recording and starts sending voice data to our VoiceAPI.
+     * startListening() starts the [Microphone] recording and starts sending voice data to our VoiceAPI.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun startListening(): VoiceBuilder {
         val url = createSocketUrl()
@@ -102,16 +102,16 @@ class VoiceBuilder(
     /**
      * isListening() can be used to check if is currently in recording state.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [link VoiceBuilder] instance
      */
     fun isListening(): Boolean {
         return isListening
     }
 
     /**
-     * stopListening() forces the {@link Microphone} to stop recording and closes the socket with our VoiceAPI.
+     * stopListening() forces the [Microphone] to stop recording and closes the socket with our VoiceAPI.
      *
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun stopListening() {
         isListening = false
@@ -121,10 +121,10 @@ class VoiceBuilder(
 
     /**
      * This is a location, specified as a latitude (often where the user making the query is). If specified, the results will be weighted to
-     * give preference to those near the <code>focus</code>. For convenience, longitude is allowed to wrap around the 180 line, so 361 is equivalent to 1.
+     * give preference to those near the focus. For convenience, longitude is allowed to wrap around the 180 line, so 361 is equivalent to 1.
      *
      * @param coordinates the focus to use
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a [VoiceBuilder] instance
      */
     fun focus(coordinates: Coordinates?): VoiceBuilder {
         focus = coordinates
@@ -136,7 +136,7 @@ class VoiceBuilder(
      * this will be truncated to the maximum. The default is 3
      *
      * @param n the number of AutoSuggest results to return
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun nResults(n: Int?): VoiceBuilder {
         nResults = n
@@ -144,13 +144,13 @@ class VoiceBuilder(
     }
 
     /**
-     * Specifies the number of results (must be &lt;= nResults) within the results set which will have a focus. Defaults to <code>nResults</code>.
+     * Specifies the number of results (must be &lt;= nResults) within the results set which will have a focus. Defaults to nResults.
      * This allows you to run autosuggest with a mix of focussed and unfocussed results, to give you a "blend" of the two. This is exactly what the old V2
-     * <code>standardblend</code> did, and <code>standardblend</code> behaviour can easily be replicated by passing <code>nFocusResults=1</code>,
+     * standardblend did, and standardblend behaviour can easily be replicated by passing nFocusResults=1,
      * which will return just one focussed result and the rest unfocussed.
      *
      * @param n number of results within the results set which will have a focus
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun nFocusResults(n: Int?): VoiceBuilder {
         nFocusResults = n
@@ -158,12 +158,12 @@ class VoiceBuilder(
     }
 
     /**
-     * Restrict autosuggest results to a circle, specified by <code>Coordinates</code> representing the centre of the circle, plus the
-     * <code>radius</code> in kilometres. For convenience, longitude is allowed to wrap around 180 degrees. For example 181 is equivalent to -179.
+     * Restrict autosuggest results to a circle, specified by [Coordinates] representing the [centre] of the circle, plus the
+     * [radius] in kilometres. For convenience, longitude is allowed to wrap around 180 degrees. For example 181 is equivalent to -179.
      *
      * @param centre the centre of the circle
      * @param radius the radius of the circle in kilometres
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun clipToCircle(
         centre: Coordinates?,
@@ -176,12 +176,12 @@ class VoiceBuilder(
 
     /**
      * Restricts autosuggest to only return results inside the countries specified by comma-separated list of uppercase ISO 3166-1 alpha-2 country codes
-     * (for example, to restrict to Belgium and the UK, use <code>clipToCountry("GB", "BE")</code>. <code>clipToCountry</code> will also accept lowercase
+     * (for example, to restrict to Belgium and the UK, use clipToCountry("GB", "BE"). clipToCountry will also accept lowercase
      * country codes. Entries must be two a-z letters. WARNING: If the two-letter code does not correspond to a country, there is no error: API simply
      * returns no results.
      *
      * @param countryCodes countries to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @return a [VoiceBuilder] instance
      */
     fun clipToCountry(countryCodes: List<String>): VoiceBuilder {
         clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
@@ -189,10 +189,10 @@ class VoiceBuilder(
     }
 
     /**
-     * Restrict autosuggest results to a <code>BoundingBox</code>.
+     * Restrict autosuggest results to a [BoundingBox].
      *
-     * @param boundingBox <code>BoundingBox</code> to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @param boundingBox [BoundingBox] to clip results too
+     * @return a [VoiceBuilder] instance
      */
     fun clipToBoundingBox(
         boundingBox: BoundingBox?
@@ -202,12 +202,12 @@ class VoiceBuilder(
     }
 
     /**
-     * Restrict autosuggest results to a polygon, specified by a collection of <code>Coordinates</code>. The polygon should be closed,
+     * Restrict autosuggest results to a [polygon], specified by a collection of [Coordinates]. The polygon should be closed,
      * i.e. the first element should be repeated as the last element; also the list should contain at least 4 entries. The API is currently limited to
      * accepting up to 25 pairs.
      *
-     * @param polygon the polygon to clip results too
-     * @return a {@link VoiceBuilder} instance
+     * @param polygon the list of [Coordinates] that form the polygon to clip results too
+     * @return a [VoiceBuilder] instance
      */
     fun clipToPolygon(
         polygon: List<Coordinates>

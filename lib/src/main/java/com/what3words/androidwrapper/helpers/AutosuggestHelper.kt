@@ -20,6 +20,14 @@ class AutosuggestHelper(
     private var options: AutosuggestOptions? = null
     private var searchJob: Job? = null
 
+    /**
+     * Update AutosuggestHelper query and receive suggestions (strong regex applied) or a did you mean (flexible regex applied) from our Autosuggest API.
+     *
+     * @param searchText the updated query.
+     * @param onSuccessListener the callback for suggestions.
+     * @param onFailureListener the callback for API errors [APIResponse.What3WordsError].
+     * @param onDidYouMeanListener the callback for did you mean results.
+     */
     fun update(
         searchText: String,
         onSuccessListener: Consumer<List<Suggestion>>,
@@ -81,6 +89,13 @@ class AutosuggestHelper(
         }
     }
 
+    /**
+     * When suggestion is selected this will provide all three word address information needed (without coordinates).
+     *
+     * @param rawString the updated raw query.
+     * @param suggestion the selected suggestion.
+     * @param onSuccessListener the callback for the full suggestion information (without coordinates) [Suggestion].
+     */
     fun selected(
         rawString: String,
         suggestion: Suggestion,
@@ -99,6 +114,15 @@ class AutosuggestHelper(
         onSuccessListener.accept(suggestion)
     }
 
+    /**
+     * When suggestion is selected this will provide all three word address information needed with coordinates.
+     * Note that selectedWithCoordinates() will convert the three word address to a lat/lng which will count against your plan's quota.
+     *
+     * @param rawString the updated raw query.
+     * @param suggestion the selected suggestion.
+     * @param onSuccessListener the callback for the full suggestion information with coordinates [SuggestionWithCoordinates].
+     * @param onFailureListener the callback for API errors [APIResponse.What3WordsError].
+     */
     fun selectedWithCoordinates(
         rawString: String,
         suggestion: Suggestion,
@@ -128,10 +152,10 @@ class AutosuggestHelper(
     }
 
     /**
-     * Set all options at once using <code>AutosuggestOptions</code>
+     * Set all options at once using [AutosuggestOptions]
      *
-     * @param options the AutoSuggestOptions
-     * @return a {@link Builder} instance suitable for invoking a <code>autosuggest</code> API request
+     * @param options the [AutosuggestOptions] with all filters/clipping needed to be applied to the search
+     * @return a [AutosuggestHelper] instance suitable for invoking a autosuggest API request
      */
     fun options(options: AutosuggestOptions): AutosuggestHelper {
         this.options = options
@@ -142,7 +166,7 @@ class AutosuggestHelper(
      * Flexible delimiters feature allows our regex to be less precise on delimiters, this means that "filled count soa" or "filled,count,soa" will be parsed to "filled.count.soa" and send to our autosuggest API.
      *
      * @param boolean enables flexible delimiters feature enabled (false by default)
-     * @return a {@link W3WAutoSuggestEditText} instance
+     * @return a [AutosuggestHelper] instance
      */
     fun allowFlexibleDelimiters(boolean: Boolean): AutosuggestHelper {
         allowFlexibleDelimiters = boolean
