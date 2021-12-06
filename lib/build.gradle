@@ -67,5 +67,4 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
 
     api "com.what3words:w3w-java-wrapper:3.1.11"
-    implementation group: 'com.google.guava', name: 'guava', version: '24.1-jre'
 }
