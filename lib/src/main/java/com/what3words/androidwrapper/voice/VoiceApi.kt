@@ -57,7 +57,7 @@ internal class VoiceApi(
         encoding: Int,
         url: String
     ) {
-        if (socket != null) throw Exception("socket already open")
+        if (socket != null) forceStop()
         val urlWithKey = "$url&key=$apiKey"
         val request = Request.Builder().url(urlWithKey).build()
 
