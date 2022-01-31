@@ -29,9 +29,6 @@ allprojects {
         mavenCentral()
         google()
         jcenter()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/comwhat3words-1176"
-        }
     }
 }
 
