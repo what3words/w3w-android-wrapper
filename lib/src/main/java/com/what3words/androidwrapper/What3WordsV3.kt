@@ -82,6 +82,17 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         voiceApi = VoiceApi(apiKey)
     }
 
+    constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context, headers: Map<String, String>) : super(
+        apiKey,
+        endpoint,
+        context.packageName,
+        getSignature(context),
+        headers
+    ) {
+        dispatchers = DefaultDispatcherProvider()
+        voiceApi = VoiceApi(apiKey, voiceEndpoint)
+    }
+
     companion object {
         private fun getSignature(context: Context?): String? {
             return if (context == null) {
