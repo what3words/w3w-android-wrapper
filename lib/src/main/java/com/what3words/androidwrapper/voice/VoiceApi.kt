@@ -13,13 +13,16 @@ import org.json.JSONObject
 
 internal class VoiceApi(
     private var apiKey: String,
+    var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
 ) {
 
     companion object {
-        const val BASE_URL = "wss://voiceapi.what3words.com/v1/autosuggest"
-        const val BASE_URL_WITH_COORDINATES =
-            "wss://voiceapi.what3words.com/v1/autosuggest-with-coordinates"
+        const val BASE_URL = "wss://voiceapi.what3words.com/v1/"
+        const val URL_WITHOUT_COORDINATES =
+            "autosuggest"
+        const val URL_WITH_COORDINATES =
+            "autosuggest-with-coordinates"
     }
 
     internal var socket: WebSocket? = null

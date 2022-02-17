@@ -94,7 +94,7 @@ class VoiceApiTests {
             true
         }
 
-        voiceApi = VoiceApi("any", mockClient)
+        voiceApi = VoiceApi("any", "any", mockClient)
     }
 
     private fun mockWebSocket(
