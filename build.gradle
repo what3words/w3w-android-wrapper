@@ -8,9 +8,6 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/comwhat3words-1189"
-        }
     }
     dependencies {
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.1.0"
@@ -29,6 +26,9 @@ allprojects {
         mavenCentral()
         google()
         jcenter()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/comwhat3words-1189"
+        }
     }
 }
 
