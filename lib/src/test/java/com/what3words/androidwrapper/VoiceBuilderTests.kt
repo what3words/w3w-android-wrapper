@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper
 
+import android.content.Context
 import android.media.AudioFormat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.util.Consumer
@@ -46,6 +47,9 @@ class VoiceBuilderTests {
     private lateinit var microphone: Microphone
 
     @MockK
+    private lateinit var context: Context
+
+    @MockK
     private var suggestionsCallback = mockk<Consumer<List<Suggestion>>>()
 
     @MockK
@@ -58,6 +62,7 @@ class VoiceBuilderTests {
         microphone = mockk()
         suggestionsCallback = mockk()
         errorCallback = mockk()
+        context = mockk()
 
         justRun {
             voiceApi.forceStop()
@@ -84,6 +89,12 @@ class VoiceBuilderTests {
             microphone.encoding
         } answers {
             AudioFormat.ENCODING_DEFAULT
+        }
+
+        every {
+            context.packageName
+        } answers {
+            "com.what3words.android.wrapper"
         }
     }
 
@@ -338,5 +349,22 @@ class VoiceBuilderTests {
             // then
             assertThat(builder.isListening()).isTrue()
             verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `custom VoiceApi URL`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val textCustomUrl = "http://custom.text.url/"
+            val voiceCustomUrl = "wss://custom.voice.url/"
+            val what3WordsV3 =
+                What3WordsV3("key", textCustomUrl, voiceCustomUrl, context, emptyMap())
+
+            // when
+            val builder = what3WordsV3.autosuggest(microphone, "en")
+            val finalURL = builder.createSocketUrl(what3WordsV3.voiceApi.baseUrl)
+
+            // then
+            assertThat(finalURL.contains(voiceCustomUrl)).isTrue()
         }
 }

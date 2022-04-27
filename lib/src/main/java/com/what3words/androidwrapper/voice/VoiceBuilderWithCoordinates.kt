@@ -216,7 +216,7 @@ class VoiceBuilderWithCoordinates(
         return this
     }
 
-    private fun createSocketUrl(baseUrl: String): String {
+    internal fun createSocketUrl(baseUrl: String): String {
         var url = "${baseUrl}${URL_WITH_COORDINATES}"
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
