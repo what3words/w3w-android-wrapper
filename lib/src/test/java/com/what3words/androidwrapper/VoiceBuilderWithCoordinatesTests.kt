@@ -362,7 +362,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            val finalURL = builder.createSocketUrl(what3WordsV3.voiceApi.baseUrl)
+            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceApi.baseUrl)
 
             // then
             assertThat(finalURL.contains(voiceCustomUrl)).isTrue()

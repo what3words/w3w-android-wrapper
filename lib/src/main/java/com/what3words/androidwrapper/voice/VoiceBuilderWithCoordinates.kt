@@ -93,7 +93,7 @@ class VoiceBuilderWithCoordinates(
         api.voiceApi.open(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrl(api.voiceApi.baseUrl),
+            url = createSocketUrlWithCoordinates(api.voiceApi.baseUrl),
             listener = this
         )
         return this
@@ -216,7 +216,7 @@ class VoiceBuilderWithCoordinates(
         return this
     }
 
-    internal fun createSocketUrl(baseUrl: String): String {
+    internal fun createSocketUrlWithCoordinates(baseUrl: String): String {
         var url = "${baseUrl}${URL_WITH_COORDINATES}"
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
