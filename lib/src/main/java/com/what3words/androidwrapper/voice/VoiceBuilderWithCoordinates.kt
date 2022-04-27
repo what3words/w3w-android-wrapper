@@ -4,6 +4,7 @@ import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.androidwrapper.voice.VoiceApi.Companion.URL_WITH_COORDINATES
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -92,7 +93,7 @@ class VoiceBuilderWithCoordinates(
         api.voiceApi.open(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrl(),
+            url = createSocketUrlWithCoordinates(api.voiceApi.baseUrl),
             listener = this
         )
         return this
@@ -215,8 +216,8 @@ class VoiceBuilderWithCoordinates(
         return this
     }
 
-    private fun createSocketUrl(): String {
-        var url = VoiceApi.BASE_URL_WITH_COORDINATES
+    internal fun createSocketUrlWithCoordinates(baseUrl: String): String {
+        var url = "${baseUrl}${URL_WITH_COORDINATES}"
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
         nResults?.let {

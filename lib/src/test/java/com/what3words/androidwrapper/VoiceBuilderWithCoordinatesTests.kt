@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper
 
+import android.content.Context
 import android.media.AudioFormat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.util.Consumer
@@ -7,7 +8,8 @@ import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
-import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL_WITH_COORDINATES
+import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL
+import com.what3words.androidwrapper.voice.VoiceApi.Companion.URL_WITH_COORDINATES
 import com.what3words.androidwrapper.voice.VoiceApiListenerWithCoordinates
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
@@ -42,6 +44,9 @@ class VoiceBuilderWithCoordinatesTests {
     private lateinit var voiceApi: VoiceApi
 
     @MockK
+    private lateinit var context: Context
+
+    @MockK
     private lateinit var microphone: Microphone
 
     @MockK
@@ -57,6 +62,7 @@ class VoiceBuilderWithCoordinatesTests {
         microphone = mockk()
         suggestionsCallback = mockk()
         errorCallback = mockk()
+        context = mockk()
 
         justRun {
             voiceApi.forceStop()
@@ -74,9 +80,22 @@ class VoiceBuilderWithCoordinatesTests {
         }
 
         every {
+            voiceApi.baseUrl
+        } answers {
+            BASE_URL
+        }
+
+        every {
             microphone.encoding
         } answers {
             AudioFormat.ENCODING_DEFAULT
+        }
+
+
+        every {
+            context.packageName
+        } answers {
+            "com.what3words.android.wrapper"
         }
     }
 
@@ -177,7 +196,7 @@ class VoiceBuilderWithCoordinatesTests {
     fun `focus is set expect param url`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152"
+            val expectedUrl = "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&focus=51.1,-0.152"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -197,7 +216,7 @@ class VoiceBuilderWithCoordinatesTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             val expectedUrl =
-                "$BASE_URL_WITH_COORDINATES?voice-language=en&focus=51.1,-0.152&n-focus-results=3"
+                "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&focus=51.1,-0.152&n-focus-results=3"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -216,7 +235,7 @@ class VoiceBuilderWithCoordinatesTests {
     fun `nResults is set expect param url`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&n-results=3"
+            val expectedUrl = "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&n-results=3"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -234,7 +253,7 @@ class VoiceBuilderWithCoordinatesTests {
     fun `clipToCountry is set expect param url`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val expectedUrl = "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-country=GB,FR"
+            val expectedUrl = "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&clip-to-country=GB,FR"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -253,7 +272,7 @@ class VoiceBuilderWithCoordinatesTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             val expectedUrl =
-                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,1.0"
+                "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&clip-to-circle=51.1,-0.152,1.0"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -272,7 +291,7 @@ class VoiceBuilderWithCoordinatesTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             val expectedUrl =
-                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-circle=51.1,-0.152,100.0"
+                "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&clip-to-circle=51.1,-0.152,100.0"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -291,7 +310,7 @@ class VoiceBuilderWithCoordinatesTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             val expectedUrl =
-                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
+                "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -312,7 +331,7 @@ class VoiceBuilderWithCoordinatesTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             val expectedUrl =
-                "$BASE_URL_WITH_COORDINATES?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152"
+                "${BASE_URL}${URL_WITH_COORDINATES}?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152"
             val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
                 .onSuggestions(suggestionsCallback)
@@ -330,5 +349,22 @@ class VoiceBuilderWithCoordinatesTests {
             // then
             assertThat(builder.isListening()).isTrue()
             verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        }
+
+    @Test
+    fun `custom VoiceApi URL`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val textCustomUrl = "http://custom.text.url/"
+            val voiceCustomUrl = "wss://custom.voice.url/"
+            val what3WordsV3 =
+                What3WordsV3("key", textCustomUrl, voiceCustomUrl, context, emptyMap())
+
+            // when
+            val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
+            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceApi.baseUrl)
+
+            // then
+            assertThat(finalURL.contains(voiceCustomUrl)).isTrue()
         }
 }

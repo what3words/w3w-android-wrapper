@@ -2,19 +2,29 @@ package com.what3words.androidwrapper.helpers
 
 import java.util.regex.Pattern
 
-internal val split_regex = Regex("[.｡。･・︒។։။۔።।,-_/ ]+")
+internal val splitRegex = Regex("[.｡。･・︒។։။۔።।,-_/ ]+")
 
 fun String.isPossible3wa(): Boolean {
     val regex =
-        "^/*[^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}[.｡。･・︒។։။۔።।][^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}[.｡。･・︒។։။۔።।][^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}$"
+        "^/*(?:(?:\\p{L}\\p{M}*)+[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*)+[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*)+|(?:\\p{L}\\p{M}*)+([\u0020\u00A0](?:\\p{L}\\p{M}*)+){1,3}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*)+([\u0020\u00A0](?:\\p{L}\\p{M}*)+){1,3}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*)+([\u0020\u00A0](?:\\p{L}\\p{M}*)+){1,3})$"
     Pattern.compile(regex).also {
         return it.matcher(this).find()
     }
 }
 
 fun String.didYouMean3wa(): Boolean {
-    val dymRegex = "^/*[^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}([.｡。･・︒។։။۔።।,-_/ ]+)[^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}([.｡。･・︒។։။۔።।,-_/ ]+)[^0-9`~!@#$%^&*()+\\-_=\\]\\[{\\}\\\\|'<,.>?/\";:£§º©®\\s]{1,}$"
+    val dymRegex =
+        "^/*(?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።। ,\\\\^_/+'&\\:;|　-]{1,2}(?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።। ,\\\\^_/+'&\\:;|　-]{1,2}(?:\\p{L}\\p{M}*){1,}$"
     Pattern.compile(dymRegex).also {
         return it.matcher(this).find()
     }
 }
+
+fun String.searchPossible3wa(): List<String> {
+    val searchRegex =
+        "(?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*){1,}"
+    Regex(searchRegex).also {
+        return it.findAll(this).map { it.value }.toList()
+    }
+}
+
