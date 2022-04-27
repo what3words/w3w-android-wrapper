@@ -39,10 +39,10 @@ class AutosuggestHelper(
             searchText.isPossible3wa() -> searchText
             !allowFlexibleDelimiters && searchText.didYouMean3wa() -> {
                 isDidYouMean = true
-                searchText.split(split_regex, 3).joinToString(".")
+                searchText.split(splitRegex, 3).joinToString(".")
             }
             allowFlexibleDelimiters && searchText.didYouMean3wa() -> searchText.split(
-                split_regex,
+                splitRegex,
                 3
             ).joinToString(".")
             else -> null
