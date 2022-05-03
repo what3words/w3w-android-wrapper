@@ -88,12 +88,11 @@ class VoiceBuilder(
      * @return a [VoiceBuilder] instance
      */
     fun startListening(): VoiceBuilder {
-        val url = createSocketUrl()
         isListening = true
         api.voiceApi.open(
             mic.recordingRate,
             mic.encoding,
-            url = url,
+            url = createSocketUrl(api.voiceApi.baseUrl),
             listener = this
         )
         return this
@@ -216,8 +215,8 @@ class VoiceBuilder(
         return this
     }
 
-    private fun createSocketUrl(): String {
-        var url = VoiceApi.BASE_URL
+    internal fun createSocketUrl(baseUrl: String): String {
+        var url = "${baseUrl}${VoiceApi.URL_WITHOUT_COORDINATES}"
         url += if (voiceLanguage == "zh") "?voice-language=cmn"
         else "?voice-language=$voiceLanguage"
         nResults?.let {
