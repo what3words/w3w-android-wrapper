@@ -455,7 +455,7 @@ class AutosuggestHelperTests {
             every {
                 convert.square
             } answers {
-                Square()
+                Square(51.0, 12.0, 12.0, 12.3)
             }
 
             every {
