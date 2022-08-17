@@ -2,7 +2,7 @@ package com.what3words.androidwrapper.helpers
 
 import java.util.regex.Pattern
 
-internal val splitRegex = Regex("[.｡。･・︒។։။۔።।,-_/ ]+")
+internal val splitRegex = Regex("[.｡。･・︒។։။۔።। ,\\\\^_/+'&\\:;|　-]+")
 
 @Deprecated("", ReplaceWith("com.what3words.javawrapper.What3WordsV3.isPossible3wa()"))
 fun String.isPossible3wa(): Boolean {

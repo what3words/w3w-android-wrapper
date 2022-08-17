@@ -7,10 +7,13 @@ import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.what3words.javawrapper.What3WordsV3.didYouMean3wa
+import com.what3words.javawrapper.What3WordsV3.isPossible3wa
 
 class AutosuggestHelper(
     private val api: What3WordsV3,
@@ -36,12 +39,12 @@ class AutosuggestHelper(
     ) {
         var isDidYouMean = false
         val searchFiltered: String? = when {
-            searchText.isPossible3wa() -> searchText
-            !allowFlexibleDelimiters && searchText.didYouMean3wa() -> {
+            isPossible3wa(searchText) -> searchText
+            !allowFlexibleDelimiters && didYouMean3wa(searchText) -> {
                 isDidYouMean = true
                 searchText.split(splitRegex, 3).joinToString(".")
             }
-            allowFlexibleDelimiters && searchText.didYouMean3wa() -> searchText.split(
+            allowFlexibleDelimiters && didYouMean3wa(searchText) -> searchText.split(
                 splitRegex,
                 3
             ).joinToString(".")
@@ -76,7 +79,7 @@ class AutosuggestHelper(
             CoroutineScope(dispatchers.main()).launch {
                 if (res.isSuccessful) {
                     if (isDidYouMean) {
-                        res.suggestions.firstOrNull { it.words == finalQuery }?.let {
+                        res.suggestions.firstOrNull { it.words.lowercase(Locale.getDefault()) == finalQuery.lowercase(Locale.getDefault()) }?.let {
                             onDidYouMeanListener?.accept(it)
                         }
                     } else {
