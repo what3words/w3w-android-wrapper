@@ -190,6 +190,59 @@ class AutosuggestHelperTests {
         }
 
     @Test
+    fun `did you mean 3wa returns suggestions with capital letters`() =
+        coroutinesTestRule.testDispatcher.runBlockingTest {
+            // given
+            val suggestionsJson =
+                ClassLoader.getSystemResource("suggestions.json").readText()
+            val suggestions =
+                Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
+            val autosuggest = mockk<Autosuggest>()
+
+            every {
+                autosuggest.isSuccessful
+            } answers {
+                true
+            }
+
+            every {
+                autosuggest.suggestions
+            } answers {
+                suggestions
+            }
+
+            every {
+                api.autosuggest("star.words.f").execute()
+            } answers {
+                autosuggest
+            }
+
+            every {
+                api.autosuggest("Star.words.forced").execute()
+            } answers {
+                autosuggest
+            }
+
+            // when
+            helper.update("Star", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("Star words", suggestionsCallback, errorCallback, didYouMeanCallback)
+            helper.update("Star words f", suggestionsCallback, errorCallback, didYouMeanCallback)
+            delay(150)
+            helper.update(
+                "Star words forced",
+                suggestionsCallback,
+                errorCallback,
+                didYouMeanCallback
+            )
+            delay(500)
+
+            // then
+            verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
+            verify(exactly = 1) { didYouMeanCallback.accept(suggestions.first()) }
+            verify(exactly = 0) { errorCallback.accept(any()) }
+        }
+
+    @Test
     fun `allowFlexibleDelimiters is true returns suggestions`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
