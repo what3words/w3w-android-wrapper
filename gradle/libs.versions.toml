@@ -21,6 +21,7 @@ android-application = { id = "com.android.application", version.ref = "androidGr
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 klint = { id = "org.jlleitschuh.gradle.ktlint", version = "10.1.0" }
 sonarqube = { id = "org.sonarqube", version = "3.3" }
+avastDockerCompose = {id = "com.avast.gradle.docker-compose", version = "0.14.3"}
 
 dokka = { id = "org.jetbrains.dokka", version = "1.5.0" }
 errorprone = { id = "net.ltgt.errorprone", version = "2.0.2" }
