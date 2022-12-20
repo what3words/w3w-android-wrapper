@@ -1,3 +1,23 @@
+enableFeaturePreview("VERSION_CATALOGS")
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/comwhat3words-1332"
+        }
+    }
+
+    versionCatalogs {
+        // declares an additional catalog, named 'testLibs', from the 'test-libs.versionstoml' file
+        testLibs {
+            from(files('gradle/testLibs.versions.toml'))
+        }
+    }
+}
+
 include ':sample-java'
 include ':lib'
 include ':sample'
