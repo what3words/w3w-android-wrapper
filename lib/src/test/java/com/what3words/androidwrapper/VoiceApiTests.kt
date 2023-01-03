@@ -17,6 +17,7 @@ import okhttp3.WebSocketListener
 import org.junit.Before
 import org.junit.Test
 import java.lang.Exception
+import okio.ByteString
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -177,7 +178,7 @@ class VoiceApiTests {
 
         // then
         verify(exactly = 5) { mockWebSocket.send(any<String>()) }
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 1) { listener.suggestions(any()) }
         verify(exactly = 0) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -205,7 +206,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 1) {
             listenerWithCoordinates.suggestionsWithCoordinates(any())
         }
@@ -230,7 +231,7 @@ class VoiceApiTests {
         mockWebSocket.close(1003, jsonError)
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -253,7 +254,7 @@ class VoiceApiTests {
         mockWebSocket.close(1003, jsonError)
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -276,7 +277,7 @@ class VoiceApiTests {
         mockWebSocket.close(1003, jsonError)
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -299,7 +300,7 @@ class VoiceApiTests {
         mockWebSocket.close(1003, jsonError)
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -326,7 +327,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -353,7 +354,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -380,7 +381,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -407,7 +408,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -434,7 +435,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -461,7 +462,7 @@ class VoiceApiTests {
         mockWebSocket.close(1000, "closed by server")
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -486,7 +487,7 @@ class VoiceApiTests {
         mockWebSocket.send("voice2")
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) { listener.suggestions(any()) }
         verify(exactly = 1) { listener.error(any()) }
         assert(voiceApi.socket == null)
@@ -511,7 +512,7 @@ class VoiceApiTests {
         mockWebSocket.send("voice2")
 
         // then
-        verify(exactly = 1) { listenerWithCoordinates.connected(mockWebSocket) }
+        verify(exactly = 1) { listenerWithCoordinates.connected(voiceApi) }
         verify(exactly = 0) { listenerWithCoordinates.suggestionsWithCoordinates(any()) }
         verify(exactly = 1) { listenerWithCoordinates.error(any()) }
         assert(voiceApi.socket == null)
@@ -538,7 +539,7 @@ class VoiceApiTests {
         voiceApi.forceStop()
 
         // then
-        verify(exactly = 1) { listener.connected(mockWebSocket) }
+        verify(exactly = 1) { listener.connected(voiceApi) }
         verify(exactly = 0) {
             listener.suggestions(any())
         }
