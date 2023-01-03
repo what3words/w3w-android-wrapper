@@ -6,7 +6,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url "https://oss.sonatype.org/content/repositories/comwhat3words-1192"
+            url "https://oss.sonatype.org/content/repositories/comwhat3words-1193"
         }
     }
 

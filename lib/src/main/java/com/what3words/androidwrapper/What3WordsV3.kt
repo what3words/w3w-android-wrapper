@@ -13,7 +13,19 @@ import com.what3words.androidwrapper.voice.VoiceBuilderWithCoordinates
 import com.what3words.androidwrapper.voice.VoiceProvider
 import java.security.MessageDigest
 
-class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
+interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
+    fun autosuggest(
+        microphone: Microphone,
+        voiceLanguage: String
+    ) : VoiceBuilder
+
+    fun autosuggestWithCoordinates(
+        microphone: Microphone,
+        voiceLanguage: String
+    )
+}
+
+class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper {
     internal var voiceApi: VoiceProvider
     internal var dispatchers: DispatcherProvider
 
@@ -83,7 +95,13 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         voiceApi = VoiceApi(apiKey)
     }
 
-    constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context, headers: Map<String, String>) : super(
+    constructor(
+        apiKey: String,
+        endpoint: String,
+        voiceEndpoint: String,
+        context: Context,
+        headers: Map<String, String>
+    ) : super(
         apiKey,
         endpoint,
         context.packageName,
@@ -94,7 +112,13 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         voiceApi = VoiceApi(apiKey, voiceEndpoint)
     }
 
-    constructor(apiKey: String, endpoint: String, voiceProvider: VoiceProvider, context: Context, headers: Map<String, String>) : super(
+    constructor(
+        apiKey: String,
+        endpoint: String,
+        voiceProvider: VoiceProvider,
+        context: Context,
+        headers: Map<String, String>
+    ) : super(
         apiKey,
         endpoint,
         context.packageName,
@@ -145,7 +169,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
      * @param voiceLanguage  request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
      * @return a [VoiceBuilder] instance, use [VoiceBuilder.startListening] to start recording and sending voice data to our API.
      */
-    fun autosuggest(
+    override fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
     ): VoiceBuilder {
@@ -168,7 +192,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
      * @param voiceLanguage request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
      * @return a [VoiceBuilder] instance, use [VoiceBuilder.startListening] to start recording and sending voice data to our API.
      */
-    fun autosuggestWithCoordinates(
+    override fun autosuggestWithCoordinates(
         microphone: Microphone,
         voiceLanguage: String
     ): VoiceBuilderWithCoordinates {
