@@ -10,10 +10,11 @@ import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceBuilder
 import com.what3words.androidwrapper.voice.VoiceBuilderWithCoordinates
+import com.what3words.androidwrapper.voice.VoiceProvider
 import java.security.MessageDigest
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
-    internal var voiceApi: VoiceApi
+    internal var voiceApi: VoiceProvider
     internal var dispatchers: DispatcherProvider
 
     constructor(apiKey: String, context: Context) : super(
@@ -91,6 +92,17 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceApi = VoiceApi(apiKey, voiceEndpoint)
+    }
+
+    constructor(apiKey: String, endpoint: String, voiceProvider: VoiceProvider, context: Context, headers: Map<String, String>) : super(
+        apiKey,
+        endpoint,
+        context.packageName,
+        getSignature(context),
+        headers
+    ) {
+        dispatchers = DefaultDispatcherProvider()
+        voiceApi = voiceProvider
     }
 
     companion object {

@@ -12,7 +12,6 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.WebSocket
 
 class VoiceBuilderWithCoordinates(
     private val api: What3WordsV3,
@@ -55,8 +54,8 @@ class VoiceBuilderWithCoordinates(
         return this
     }
 
-    override fun connected(socket: WebSocket) {
-        mic.startRecording(socket)
+    override fun connected(voiceProvider: VoiceProvider) {
+        mic.startRecording(voiceProvider)
     }
 
     override fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>) {
@@ -90,10 +89,10 @@ class VoiceBuilderWithCoordinates(
      */
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
-        api.voiceApi.open(
+        api.voiceApi.initialize(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrlWithCoordinates(api.voiceApi.baseUrl),
+            url = createSocketUrlWithCoordinates(api.voiceApi.getBaseVoiceUrl()),
             listener = this
         )
         return this

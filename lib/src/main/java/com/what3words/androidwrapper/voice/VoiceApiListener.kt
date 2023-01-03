@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+import android.speech.tts.Voice
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.Suggestion
 import okhttp3.WebSocket
@@ -11,7 +12,7 @@ interface VoiceApiListener {
     /**
      * When WebSocket successfully does the handshake with VoiceAPI
      */
-    fun connected(socket: WebSocket)
+    fun connected(voiceProvider: VoiceProvider)
 
     /**
      * When VoiceAPI receive the recording, processed it and retrieved what3word addresses

@@ -163,7 +163,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonSuggestions)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -192,7 +192,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonSuggestionsWithCoordinates)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -221,7 +221,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError, 1003, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -244,7 +244,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError, 1003, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -267,7 +267,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError, 1003, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -290,7 +290,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError, 1003, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -313,7 +313,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -340,7 +340,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -367,7 +367,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             6,
             BASE_URL,
@@ -394,7 +394,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -421,7 +421,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -448,7 +448,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,
@@ -475,7 +475,7 @@ class VoiceApiTests {
         mockWebSocketFailure(jsonStart, webSocketError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_FLOAT,
             BASE_URL,
@@ -500,7 +500,7 @@ class VoiceApiTests {
         mockWebSocketFailure(jsonStart, webSocketError)
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_8BIT,
             BASE_URL,
@@ -526,7 +526,7 @@ class VoiceApiTests {
         mockWebSocket(jsonStart, jsonSuggestions, 1000, "Aborted by user")
 
         // when
-        voiceApi.open(
+        voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
             BASE_URL,

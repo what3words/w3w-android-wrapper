@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+import android.speech.tts.Voice
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
@@ -54,8 +55,8 @@ class VoiceBuilder(
         return this
     }
 
-    override fun connected(socket: WebSocket) {
-        mic.startRecording(socket)
+    override fun connected(voiceProvider: VoiceProvider) {
+        mic.startRecording(voiceProvider)
     }
 
     override fun suggestions(suggestions: List<Suggestion>) {
@@ -89,10 +90,10 @@ class VoiceBuilder(
      */
     fun startListening(): VoiceBuilder {
         isListening = true
-        api.voiceApi.open(
+        api.voiceApi.initialize(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrl(api.voiceApi.baseUrl),
+            url = createSocketUrl(api.voiceApi.getBaseVoiceUrl()),
             listener = this
         )
         return this

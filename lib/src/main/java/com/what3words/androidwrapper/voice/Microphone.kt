@@ -9,10 +9,6 @@ import androidx.core.util.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.WebSocket
-import okio.ByteString
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import kotlin.math.log10
 
 class Microphone {
@@ -105,7 +101,7 @@ class Microphone {
     }
 
     @SuppressLint("MissingPermission")
-    internal fun startRecording(socket: WebSocket) {
+    internal fun startRecording(provider: VoiceProvider) {
         if (!isSampleRateValid(recordingRate)) {
             onErrorCallback?.accept("Invalid sample rate, please use one of the following: ${getSupportedSampleRates().joinToString { it.toString() }}")
             return
@@ -125,7 +121,7 @@ class Microphone {
                     audioRecord.startRecording()
                     while (isListening) {
                         val readCount = audioRecord.read(buffer, 0, buffer.size)
-                        sendData(readCount, buffer, socket)
+                        provider.sendData(readCount, buffer)
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
                             val volume = calculateVolume(readCount, buffer)
@@ -149,14 +145,6 @@ class Microphone {
                 }
             }
         }
-    }
-
-    internal fun sendData(readCount: Int, buffer: ShortArray, socket: WebSocket) {
-        val bufferBytes: ByteBuffer =
-            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
-        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
-        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
-        socket.send(ByteString.of(*bufferBytes.array()))
     }
 
     internal fun calculateVolume(readCount: Int, buffer: ShortArray): Double {

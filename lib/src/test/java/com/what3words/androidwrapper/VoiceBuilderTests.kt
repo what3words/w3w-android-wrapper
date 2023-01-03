@@ -66,7 +66,7 @@ class VoiceBuilderTests {
 
         justRun {
             voiceApi.forceStop()
-            voiceApi.open(any(), any(), any(), any<VoiceApiListener>())
+            voiceApi.initialize(any(), any(), any(), any<VoiceApiListener>())
             microphone.startRecording(socket)
             microphone.stopRecording()
             suggestionsCallback.accept(any())
@@ -114,7 +114,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
             verify(exactly = 1) { microphone.startRecording(socket) }
 
             // when forced stop
@@ -142,7 +142,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
         verify(exactly = 1) { microphone.startRecording(socket) }
 
         // when
@@ -172,7 +172,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
             verify(exactly = 1) { microphone.startRecording(socket) }
 
             val suggestionsJson =
@@ -206,7 +206,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
     }
 
     @Test
@@ -226,7 +226,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -243,7 +243,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
     }
 
     @Test
@@ -262,7 +262,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -281,7 +281,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -300,7 +300,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -322,7 +322,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -348,7 +348,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test

@@ -8,7 +8,7 @@ interface VoiceApiListenerWithCoordinates {
     /**
      * When WebSocket successfully does the handshake with VoiceAPI
      */
-    fun connected(socket: WebSocket)
+    fun connected(voiceProvider: VoiceProvider)
 
     /**
      * When VoiceAPI receive the recording, processed it and retrieved what3word addresses with coordinates
