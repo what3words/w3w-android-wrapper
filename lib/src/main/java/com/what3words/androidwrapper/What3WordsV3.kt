@@ -22,7 +22,7 @@ interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
     fun autosuggestWithCoordinates(
         microphone: Microphone,
         voiceLanguage: String
-    )
+    ) : VoiceBuilderWithCoordinates
 }
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper {
