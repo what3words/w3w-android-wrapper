@@ -1,8 +1,9 @@
 package com.what3words.androidwrapper.helpers
 
 import androidx.core.util.Consumer
-import com.what3words.androidwrapper.What3WordsV3
 import com.what3words.androidwrapper.What3WordsWrapper
+import com.what3words.javawrapper.What3WordsV3.didYouMean3wa
+import com.what3words.javawrapper.What3WordsV3.isPossible3wa
 import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.APIResponse
@@ -13,13 +14,36 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.what3words.javawrapper.What3WordsV3.didYouMean3wa
-import com.what3words.javawrapper.What3WordsV3.isPossible3wa
+
+interface IAutosuggestHelper {
+    fun update(
+        searchText: String,
+        onSuccessListener: Consumer<List<Suggestion>>,
+        onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
+        onDidYouMeanListener: Consumer<Suggestion>? = null
+    )
+
+    fun selected(
+        rawString: String,
+        suggestion: Suggestion,
+        onSuccessListener: Consumer<Suggestion>
+    )
+
+    fun selectedWithCoordinates(
+        rawString: String,
+        suggestion: Suggestion,
+        onSuccessListener: Consumer<SuggestionWithCoordinates>,
+        onFailureListener: Consumer<APIResponse.What3WordsError>? = null
+    )
+
+    fun options(options: AutosuggestOptions): IAutosuggestHelper
+    fun allowFlexibleDelimiters(boolean: Boolean): IAutosuggestHelper
+}
 
 class AutosuggestHelper(
     private val api: What3WordsWrapper,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
-) {
+) : IAutosuggestHelper {
     private var allowFlexibleDelimiters: Boolean = false
     private var options: AutosuggestOptions? = null
     private var searchJob: Job? = null
@@ -32,7 +56,7 @@ class AutosuggestHelper(
      * @param onFailureListener the callback for API errors [APIResponse.What3WordsError].
      * @param onDidYouMeanListener the callback for did you mean results.
      */
-    fun update(
+    override fun update(
         searchText: String,
         onSuccessListener: Consumer<List<Suggestion>>,
         onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
@@ -80,7 +104,11 @@ class AutosuggestHelper(
             CoroutineScope(dispatchers.main()).launch {
                 if (res.isSuccessful) {
                     if (isDidYouMean) {
-                        res.suggestions.firstOrNull { it.words.lowercase(Locale.getDefault()) == finalQuery.lowercase(Locale.getDefault()) }?.let {
+                        res.suggestions.firstOrNull {
+                            it.words.lowercase(Locale.getDefault()) == finalQuery.lowercase(
+                                Locale.getDefault()
+                            )
+                        }?.let {
                             onDidYouMeanListener?.accept(it)
                         }
                     } else {
@@ -100,7 +128,7 @@ class AutosuggestHelper(
      * @param suggestion the selected suggestion.
      * @param onSuccessListener the callback for the full suggestion information (without coordinates) [Suggestion].
      */
-    fun selected(
+    override fun selected(
         rawString: String,
         suggestion: Suggestion,
         onSuccessListener: Consumer<Suggestion>
@@ -127,7 +155,7 @@ class AutosuggestHelper(
      * @param onSuccessListener the callback for the full suggestion information with coordinates [SuggestionWithCoordinates].
      * @param onFailureListener the callback for API errors [APIResponse.What3WordsError].
      */
-    fun selectedWithCoordinates(
+    override fun selectedWithCoordinates(
         rawString: String,
         suggestion: Suggestion,
         onSuccessListener: Consumer<SuggestionWithCoordinates>,
@@ -161,7 +189,7 @@ class AutosuggestHelper(
      * @param options the [AutosuggestOptions] with all filters/clipping needed to be applied to the search
      * @return a [AutosuggestHelper] instance suitable for invoking a autosuggest API request
      */
-    fun options(options: AutosuggestOptions): AutosuggestHelper {
+    override fun options(options: AutosuggestOptions): AutosuggestHelper {
         this.options = options
         return this
     }
@@ -172,7 +200,7 @@ class AutosuggestHelper(
      * @param boolean enables flexible delimiters feature enabled (false by default)
      * @return a [AutosuggestHelper] instance
      */
-    fun allowFlexibleDelimiters(boolean: Boolean): AutosuggestHelper {
+    override fun allowFlexibleDelimiters(boolean: Boolean): AutosuggestHelper {
         allowFlexibleDelimiters = boolean
         return this
     }
