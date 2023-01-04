@@ -59,8 +59,8 @@ class AutosuggestHelper(
     override fun update(
         searchText: String,
         onSuccessListener: Consumer<List<Suggestion>>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
-        onDidYouMeanListener: Consumer<Suggestion>? = null
+        onFailureListener: Consumer<APIResponse.What3WordsError>?,
+        onDidYouMeanListener: Consumer<Suggestion>?
     ) {
         var isDidYouMean = false
         val searchFiltered: String? = when {
@@ -159,7 +159,7 @@ class AutosuggestHelper(
         rawString: String,
         suggestion: Suggestion,
         onSuccessListener: Consumer<SuggestionWithCoordinates>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>? = null
+        onFailureListener: Consumer<APIResponse.What3WordsError>?
     ) {
         CoroutineScope(dispatchers.io()).launch {
             val builder = api.autosuggestionSelection(
