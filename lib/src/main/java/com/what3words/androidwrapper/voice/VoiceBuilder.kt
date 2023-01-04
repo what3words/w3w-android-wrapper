@@ -1,8 +1,7 @@
 package com.what3words.androidwrapper.voice
 
-import android.speech.tts.Voice
 import androidx.core.util.Consumer
-import com.what3words.androidwrapper.What3WordsV3
+import com.what3words.androidwrapper.What3WordsWrapper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
 import com.what3words.javawrapper.request.BoundingBox
@@ -12,10 +11,9 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.WebSocket
 
 class VoiceBuilder(
-    private val api: What3WordsV3,
+    private val api: What3WordsWrapper,
     private val mic: Microphone,
     private val voiceLanguage: String,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
@@ -90,10 +88,10 @@ class VoiceBuilder(
      */
     fun startListening(): VoiceBuilder {
         isListening = true
-        api.voiceApi.initialize(
+        api.getVoiceProvider().initialize(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrl(api.voiceApi.getBaseVoiceUrl()),
+            url = createSocketUrl(api.getVoiceProvider().getBaseVoiceUrl()),
             listener = this
         )
         return this
@@ -116,7 +114,7 @@ class VoiceBuilder(
     fun stopListening() {
         isListening = false
         mic.stopRecording()
-        api.voiceApi.forceStop()
+        api.getVoiceProvider().forceStop()
     }
 
     /**

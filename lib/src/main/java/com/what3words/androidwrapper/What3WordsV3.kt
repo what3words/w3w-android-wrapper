@@ -23,6 +23,8 @@ interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
         microphone: Microphone,
         voiceLanguage: String
     ) : VoiceBuilderWithCoordinates
+
+    fun getVoiceProvider() : VoiceProvider
 }
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper {
@@ -197,5 +199,9 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         voiceLanguage: String
     ): VoiceBuilderWithCoordinates {
         return VoiceBuilderWithCoordinates(this, microphone, voiceLanguage, dispatchers)
+    }
+
+    override fun getVoiceProvider(): VoiceProvider {
+        return voiceApi
     }
 }
