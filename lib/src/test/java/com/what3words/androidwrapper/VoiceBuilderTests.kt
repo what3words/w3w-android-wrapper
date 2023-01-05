@@ -80,7 +80,7 @@ class VoiceBuilderTests {
         }
 
         every {
-            voiceApi.getBaseVoiceUrl()
+            voiceApi.baseUrl
         } answers {
             BASE_URL
         }
@@ -362,7 +362,7 @@ class VoiceBuilderTests {
 
             // when
             val builder = what3WordsV3.autosuggest(microphone, "en")
-            val finalURL = builder.createSocketUrl(what3WordsV3.voiceApi.getBaseVoiceUrl())
+            val finalURL = builder.createSocketUrl(what3WordsV3.voiceProvider.baseUrl)
 
             // then
             assertThat(finalURL.contains(voiceCustomUrl)).isTrue()

@@ -32,12 +32,12 @@ interface VoiceProvider {
     fun sendData(readCount: Int, buffer: ShortArray)
 
     fun forceStop()
-    fun getBaseVoiceUrl(): String
+    var baseUrl: String
 }
 
 internal class VoiceApi(
     private var apiKey: String,
-    var baseUrl: String = BASE_URL,
+    override var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
 ) : VoiceProvider {
 
@@ -244,10 +244,6 @@ internal class VoiceApi(
 
     override fun forceStop() {
         socket?.close(1000, "Aborted by user")
-    }
-
-    override fun getBaseVoiceUrl(): String {
-        return baseUrl
     }
 }
 

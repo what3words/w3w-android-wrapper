@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.google.common.io.BaseEncoding
+import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.androidwrapper.helpers.IAutosuggestHelper
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceBuilder
@@ -24,11 +26,13 @@ interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
         voiceLanguage: String
     ) : VoiceBuilderWithCoordinates
 
-    fun getVoiceProvider() : VoiceProvider
+    var voiceProvider: VoiceProvider
+    var helper : IAutosuggestHelper
 }
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper {
-    internal var voiceApi: VoiceProvider
+    override var voiceProvider: VoiceProvider
+    override var helper: IAutosuggestHelper
     internal var dispatchers: DispatcherProvider
 
     constructor(apiKey: String, context: Context) : super(
@@ -38,12 +42,13 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     internal constructor(
         apiKey: String,
-        voiceApi: VoiceApi,
+        voiceProvider: VoiceProvider,
         dispatchers: DispatcherProvider = DefaultDispatcherProvider()
     ) : super(
         apiKey,
@@ -52,7 +57,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         emptyMap()
     ) {
         this.dispatchers = dispatchers
-        this@What3WordsV3.voiceApi = voiceApi
+        this.voiceProvider = voiceProvider
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, context: Context, headers: Map<String, String>) : super(
@@ -62,7 +68,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         headers
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, context: Context) : super(
@@ -73,7 +80,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context) : super(
@@ -84,7 +92,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey, voiceEndpoint)
+        voiceProvider = VoiceApi(apiKey, voiceEndpoint)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(
@@ -94,7 +103,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         headers: Map<String, String>
     ) : super(apiKey, endpoint, context.packageName, getSignature(context), headers) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(
@@ -111,7 +121,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         headers
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey, voiceEndpoint)
+        voiceProvider = VoiceApi(apiKey, voiceEndpoint)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(
@@ -128,7 +139,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         headers
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = voiceProvider
+        this.voiceProvider = voiceProvider
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     companion object {
@@ -199,9 +211,5 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper 
         voiceLanguage: String
     ): VoiceBuilderWithCoordinates {
         return VoiceBuilderWithCoordinates(this, microphone, voiceLanguage, dispatchers)
-    }
-
-    override fun getVoiceProvider(): VoiceProvider {
-        return voiceApi
     }
 }

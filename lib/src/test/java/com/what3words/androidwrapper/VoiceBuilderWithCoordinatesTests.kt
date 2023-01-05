@@ -80,7 +80,7 @@ class VoiceBuilderWithCoordinatesTests {
         }
 
         every {
-            voiceApi.getBaseVoiceUrl()
+            voiceApi.baseUrl
         } answers {
             BASE_URL
         }
@@ -362,7 +362,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceApi.getBaseVoiceUrl())
+            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceProvider.baseUrl)
 
             // then
             assertThat(finalURL.contains(voiceCustomUrl)).isTrue()

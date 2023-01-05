@@ -90,10 +90,10 @@ class VoiceBuilderWithCoordinates(
      */
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
-        api.getVoiceProvider().initialize(
+        api.voiceProvider.initialize(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrlWithCoordinates(api.getVoiceProvider().getBaseVoiceUrl()),
+            url = createSocketUrlWithCoordinates(api.voiceProvider.baseUrl),
             listener = this
         )
         return this
@@ -116,7 +116,7 @@ class VoiceBuilderWithCoordinates(
     fun stopListening() {
         isListening = false
         mic.stopRecording()
-        api.getVoiceProvider().forceStop()
+        api.voiceProvider.forceStop()
     }
 
     /**
