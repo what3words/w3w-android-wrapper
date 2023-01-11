@@ -15,7 +15,7 @@ import com.what3words.androidwrapper.voice.VoiceBuilderWithCoordinates
 import com.what3words.androidwrapper.voice.VoiceProvider
 import java.security.MessageDigest
 
-interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
+interface What3WordsAndroidWrapper : com.what3words.javawrapper.What3WordsJavaWrapper {
     fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
@@ -30,7 +30,7 @@ interface What3WordsWrapper : com.what3words.javawrapper.What3WordsWrapper {
     var helper : IAutosuggestHelper
 }
 
-class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsWrapper {
+class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidWrapper {
     override var voiceProvider: VoiceProvider
     override var helper: IAutosuggestHelper
     internal var dispatchers: DispatcherProvider

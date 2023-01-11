@@ -1,7 +1,7 @@
 package com.what3words.androidwrapper.helpers
 
 import androidx.core.util.Consumer
-import com.what3words.androidwrapper.What3WordsWrapper
+import com.what3words.androidwrapper.What3WordsAndroidWrapper
 import com.what3words.javawrapper.What3WordsV3.didYouMean3wa
 import com.what3words.javawrapper.What3WordsV3.isPossible3wa
 import com.what3words.javawrapper.request.AutosuggestOptions
@@ -41,7 +41,7 @@ interface IAutosuggestHelper {
 }
 
 class AutosuggestHelper(
-    private val api: What3WordsWrapper,
+    private val api: What3WordsAndroidWrapper,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 ) : IAutosuggestHelper {
     private var allowFlexibleDelimiters: Boolean = false
