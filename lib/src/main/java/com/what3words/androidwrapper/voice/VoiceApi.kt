@@ -35,7 +35,7 @@ interface VoiceProvider {
     var baseUrl: String
 }
 
-internal class VoiceApi(
+class VoiceApi(
     private var apiKey: String,
     override var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
