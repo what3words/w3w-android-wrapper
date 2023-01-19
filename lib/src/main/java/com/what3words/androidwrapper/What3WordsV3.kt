@@ -26,13 +26,13 @@ interface What3WordsAndroidWrapper : com.what3words.javawrapper.What3WordsJavaWr
         voiceLanguage: String
     ) : VoiceBuilderWithCoordinates
 
-    var voiceProvider: VoiceProvider
-    var helper : IAutosuggestHelper
+    val voiceProvider: VoiceProvider
+    val helper : IAutosuggestHelper
 }
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidWrapper {
-    override var voiceProvider: VoiceProvider
-    override var helper: IAutosuggestHelper
+    override val voiceProvider: VoiceProvider
+    override val helper: IAutosuggestHelper
     internal var dispatchers: DispatcherProvider
 
     constructor(apiKey: String, context: Context) : super(
