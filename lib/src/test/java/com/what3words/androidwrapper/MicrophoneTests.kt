@@ -72,23 +72,4 @@ class MicrophoneTests {
         )
         assert(volume > 50.0)
     }
-
-    @Test
-    fun `sendData success`() {
-        val microphone = Microphone()
-        val array = shortArrayOf(
-            500,
-            500,
-            500,
-            500,
-            500
-        )
-
-        microphone.sendData(
-            array.count(),
-            array,
-            socket
-        )
-        verify(exactly = 1) { socket.send(any<ByteString>()) }
-    }
 }

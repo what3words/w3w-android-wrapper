@@ -66,8 +66,8 @@ class VoiceBuilderTests {
 
         justRun {
             voiceApi.forceStop()
-            voiceApi.open(any(), any(), any(), any<VoiceApiListener>())
-            microphone.startRecording(socket)
+            voiceApi.initialize(any(), any(), any(), any<VoiceApiListener>())
+            microphone.startRecording(voiceApi)
             microphone.stopRecording()
             suggestionsCallback.accept(any())
             errorCallback.accept(any())
@@ -110,12 +110,12 @@ class VoiceBuilderTests {
 
             // when startListening and connected successfully
             builder.startListening()
-            builder.connected(socket)
+            builder.connected(voiceApi)
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-            verify(exactly = 1) { microphone.startRecording(socket) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when forced stop
             builder.stopListening()
@@ -138,12 +138,12 @@ class VoiceBuilderTests {
 
         // when startListening and connected successfully
         builder.startListening()
-        builder.connected(socket)
+        builder.connected(voiceApi)
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-        verify(exactly = 1) { microphone.startRecording(socket) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+        verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
         // when
         builder.error(APIError())
@@ -168,12 +168,12 @@ class VoiceBuilderTests {
 
             // when startListening and connected successfully
             builder.startListening()
-            builder.connected(socket)
+            builder.connected(voiceApi)
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-            verify(exactly = 1) { microphone.startRecording(socket) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             val suggestionsJson =
                 ClassLoader.getSystemResource("suggestions.json").readText()
@@ -206,7 +206,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
     }
 
     @Test
@@ -226,7 +226,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -243,7 +243,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
     }
 
     @Test
@@ -262,7 +262,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -281,7 +281,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -300,7 +300,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -322,7 +322,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -348,7 +348,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -362,7 +362,7 @@ class VoiceBuilderTests {
 
             // when
             val builder = what3WordsV3.autosuggest(microphone, "en")
-            val finalURL = builder.createSocketUrl(what3WordsV3.voiceApi.baseUrl)
+            val finalURL = builder.createSocketUrl(what3WordsV3.voiceProvider.baseUrl)
 
             // then
             assertThat(finalURL.contains(voiceCustomUrl)).isTrue()

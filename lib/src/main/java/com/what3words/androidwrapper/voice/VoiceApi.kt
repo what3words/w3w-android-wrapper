@@ -4,18 +4,42 @@ import android.media.AudioFormat
 import android.util.Log
 import com.google.gson.Gson
 import com.what3words.javawrapper.response.APIError
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import okio.ByteString
 import org.json.JSONObject
 
-internal class VoiceApi(
+interface VoiceProvider {
+    fun initialize(
+        sampleRate: Int,
+        encoding: Int,
+        url: String,
+        listener: VoiceApiListener
+    )
+
+    fun initialize(
+        sampleRate: Int,
+        encoding: Int,
+        url: String,
+        listener: VoiceApiListenerWithCoordinates
+    )
+
+    fun sendData(readCount: Int, buffer: ShortArray)
+
+    fun forceStop()
+    var baseUrl: String
+}
+
+class VoiceApi(
     private var apiKey: String,
-    var baseUrl: String = BASE_URL,
+    override var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
-) {
+) : VoiceProvider {
 
     companion object {
         const val BASE_URL = "wss://voiceapi.what3words.com/v1/"
@@ -29,7 +53,7 @@ internal class VoiceApi(
     private var listener: VoiceApiListener? = null
     var listenerWithCoordinates: VoiceApiListenerWithCoordinates? = null
 
-    internal fun open(
+    override fun initialize(
         sampleRate: Int,
         encoding: Int,
         url: String,
@@ -39,7 +63,7 @@ internal class VoiceApi(
         open(sampleRate, encoding, url)
     }
 
-    internal fun open(
+    override fun initialize(
         sampleRate: Int,
         encoding: Int,
         url: String,
@@ -47,6 +71,14 @@ internal class VoiceApi(
     ) {
         this.listenerWithCoordinates = listener
         open(sampleRate, encoding, url)
+    }
+
+    override fun sendData(readCount: Int, buffer: ShortArray) {
+        val bufferBytes: ByteBuffer =
+            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
+        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
+        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
+        socket?.send(ByteString.of(*bufferBytes.array()))
     }
 
     /**
@@ -90,8 +122,8 @@ internal class VoiceApi(
 
                         when (socketMessage.message) {
                             BaseVoiceMessagePayload.RecognitionStarted -> {
-                                listenerWithCoordinates?.connected(webSocket)
-                                listener?.connected(webSocket)
+                                listenerWithCoordinates?.connected(this@VoiceApi)
+                                listener?.connected(this@VoiceApi)
                             }
                             BaseVoiceMessagePayload.Suggestions -> {
                                 listenerWithCoordinates?.let {
@@ -210,7 +242,7 @@ internal class VoiceApi(
         )
     }
 
-    fun forceStop() {
+    override fun forceStop() {
         socket?.close(1000, "Aborted by user")
     }
 }

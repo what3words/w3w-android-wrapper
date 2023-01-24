@@ -2,6 +2,7 @@ package com.what3words.androidwrapper.voice
 
 import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsV3
+import com.what3words.androidwrapper.What3WordsAndroidWrapper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
 import com.what3words.androidwrapper.voice.VoiceApi.Companion.URL_WITH_COORDINATES
@@ -12,10 +13,9 @@ import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.WebSocket
 
 class VoiceBuilderWithCoordinates(
-    private val api: What3WordsV3,
+    private val api: What3WordsAndroidWrapper,
     private val mic: Microphone,
     private val voiceLanguage: String,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
@@ -55,8 +55,8 @@ class VoiceBuilderWithCoordinates(
         return this
     }
 
-    override fun connected(socket: WebSocket) {
-        mic.startRecording(socket)
+    override fun connected(voiceProvider: VoiceProvider) {
+        mic.startRecording(voiceProvider)
     }
 
     override fun suggestionsWithCoordinates(suggestions: List<SuggestionWithCoordinates>) {
@@ -90,10 +90,10 @@ class VoiceBuilderWithCoordinates(
      */
     fun startListening(): VoiceBuilderWithCoordinates {
         isListening = true
-        api.voiceApi.open(
+        api.voiceProvider.initialize(
             mic.recordingRate,
             mic.encoding,
-            url = createSocketUrlWithCoordinates(api.voiceApi.baseUrl),
+            url = createSocketUrlWithCoordinates(api.voiceProvider.baseUrl),
             listener = this
         )
         return this
@@ -116,7 +116,7 @@ class VoiceBuilderWithCoordinates(
     fun stopListening() {
         isListening = false
         mic.stopRecording()
-        api.voiceApi.forceStop()
+        api.voiceProvider.forceStop()
     }
 
     /**
