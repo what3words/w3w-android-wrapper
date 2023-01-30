@@ -34,6 +34,12 @@ class CerenceVoiceProvider private constructor(private val pointerToCPPCerenceMa
      *  @property dataPath path to the data files
      * **/
     class Builder(private val fcfPath: String, private val dataPath: String) {
+        companion object {
+            init {
+                System.loadLibrary("cerence-jni")
+            }
+        }
+
         fun build(): CerenceVoiceProvider {
             return newCerenceManger(fcfPath = fcfPath, dataPath = dataPath)
         }
