@@ -5,6 +5,8 @@ import com.what3words.androidwrapper.voice.VoiceApiListenerWithCoordinates
 import com.what3words.androidwrapper.voice.VoiceProvider
 
 /** Cerence implementation of the [VoiceProvider] interface for offline voice recognition support.
+ *
+ * Constructor is marked as private as all instances of this class will be created in the JNI.
  * **/
 class CerenceVoiceProvider private constructor(private val pointerToCPPCerenceManager: Long) :
     VoiceProvider {
