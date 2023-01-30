@@ -12,7 +12,7 @@ android {
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
-        buildConfigField 'String', 'W3W_API_KEY', findProperty('W3W_API_KEY') ? "\"${findProperty('W3W_API_KEY')}\"" : "\"YOUR_API_KEY_HERE\""
+        buildConfigField 'String', 'W3W_API_KEY', findProperty('PROD_API_KEY') ? "\"${findProperty('PROD_API_KEY')}\"" : "\"YOUR_API_KEY_HERE\""
         buildConfigField 'String', 'PLACES_KEY', findProperty('PLACES_KEY') ? "\"${findProperty('PLACES_KEY')}\"" : "\"YOUR_PLACES_API_KEY_HERE\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
