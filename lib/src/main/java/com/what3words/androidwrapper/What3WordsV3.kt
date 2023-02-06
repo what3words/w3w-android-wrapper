@@ -4,16 +4,35 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.google.common.io.BaseEncoding
+import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.androidwrapper.helpers.IAutosuggestHelper
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceBuilder
 import com.what3words.androidwrapper.voice.VoiceBuilderWithCoordinates
+import com.what3words.androidwrapper.voice.VoiceProvider
 import java.security.MessageDigest
 
-class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
-    internal var voiceApi: VoiceApi
+interface What3WordsAndroidWrapper : com.what3words.javawrapper.What3WordsJavaWrapper {
+    fun autosuggest(
+        microphone: Microphone,
+        voiceLanguage: String
+    ) : VoiceBuilder
+
+    fun autosuggestWithCoordinates(
+        microphone: Microphone,
+        voiceLanguage: String
+    ) : VoiceBuilderWithCoordinates
+
+    val voiceProvider: VoiceProvider
+    val helper : IAutosuggestHelper
+}
+
+class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidWrapper {
+    override val voiceProvider: VoiceProvider
+    override val helper: IAutosuggestHelper
     internal var dispatchers: DispatcherProvider
 
     constructor(apiKey: String, context: Context) : super(
@@ -23,12 +42,13 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     internal constructor(
         apiKey: String,
-        voiceApi: VoiceApi,
+        voiceProvider: VoiceProvider,
         dispatchers: DispatcherProvider = DefaultDispatcherProvider()
     ) : super(
         apiKey,
@@ -37,7 +57,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         emptyMap()
     ) {
         this.dispatchers = dispatchers
-        this@What3WordsV3.voiceApi = voiceApi
+        this.voiceProvider = voiceProvider
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, context: Context, headers: Map<String, String>) : super(
@@ -47,7 +68,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         headers
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, context: Context) : super(
@@ -58,7 +80,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context) : super(
@@ -69,7 +92,8 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         null
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey, voiceEndpoint)
+        voiceProvider = VoiceApi(apiKey, voiceEndpoint)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     constructor(
@@ -79,10 +103,17 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         headers: Map<String, String>
     ) : super(apiKey, endpoint, context.packageName, getSignature(context), headers) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey)
+        voiceProvider = VoiceApi(apiKey)
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
-    constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context, headers: Map<String, String>) : super(
+    constructor(
+        apiKey: String,
+        endpoint: String,
+        voiceEndpoint: String,
+        context: Context,
+        headers: Map<String, String>
+    ) : super(
         apiKey,
         endpoint,
         context.packageName,
@@ -90,7 +121,26 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
         headers
     ) {
         dispatchers = DefaultDispatcherProvider()
-        voiceApi = VoiceApi(apiKey, voiceEndpoint)
+        voiceProvider = VoiceApi(apiKey, voiceEndpoint)
+        helper = AutosuggestHelper(this, dispatchers)
+    }
+
+    constructor(
+        apiKey: String,
+        endpoint: String,
+        voiceProvider: VoiceProvider,
+        context: Context,
+        headers: Map<String, String>
+    ) : super(
+        apiKey,
+        endpoint,
+        context.packageName,
+        getSignature(context),
+        headers
+    ) {
+        dispatchers = DefaultDispatcherProvider()
+        this.voiceProvider = voiceProvider
+        helper = AutosuggestHelper(this, dispatchers)
     }
 
     companion object {
@@ -133,7 +183,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
      * @param voiceLanguage  request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
      * @return a [VoiceBuilder] instance, use [VoiceBuilder.startListening] to start recording and sending voice data to our API.
      */
-    fun autosuggest(
+    override fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
     ): VoiceBuilder {
@@ -156,7 +206,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3 {
      * @param voiceLanguage request parameter is mandatory, and must always be specified. The language code provided is used to configure both the Speechmatics ASR, and the what3words AutoSuggest algorithm. Please provide one of the following voice-language codes: ar, cmn, de, en, es, hi, ja, ko.
      * @return a [VoiceBuilder] instance, use [VoiceBuilder.startListening] to start recording and sending voice data to our API.
      */
-    fun autosuggestWithCoordinates(
+    override fun autosuggestWithCoordinates(
         microphone: Microphone,
         voiceLanguage: String
     ): VoiceBuilderWithCoordinates {

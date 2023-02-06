@@ -66,8 +66,8 @@ class VoiceBuilderWithCoordinatesTests {
 
         justRun {
             voiceApi.forceStop()
-            voiceApi.open(any(), any(), any(), any<VoiceApiListenerWithCoordinates>())
-            microphone.startRecording(socket)
+            voiceApi.initialize(any(), any(), any(), any<VoiceApiListenerWithCoordinates>())
+            microphone.startRecording(voiceApi)
             microphone.stopRecording()
             suggestionsCallback.accept(any())
             errorCallback.accept(any())
@@ -110,12 +110,12 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when startListening and connected successfully
             builder.startListening()
-            builder.connected(socket)
+            builder.connected(voiceApi)
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-            verify(exactly = 1) { microphone.startRecording(socket) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when forced stop
             builder.stopListening()
@@ -139,12 +139,12 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when startListening and connected successfully
             builder.startListening()
-            builder.connected(socket)
+            builder.connected(voiceApi)
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-            verify(exactly = 1) { microphone.startRecording(socket) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when
             builder.error(APIError())
@@ -168,12 +168,12 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when startListening and connected successfully
             builder.startListening()
-            builder.connected(socket)
+            builder.connected(voiceApi)
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), any(), builder) }
-            verify(exactly = 1) { microphone.startRecording(socket) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), any(), builder) }
+            verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             val suggestionsJson =
                 ClassLoader.getSystemResource("suggestions-with-coordinates.json").readText()
@@ -208,7 +208,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -228,7 +228,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -246,7 +246,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -264,7 +264,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -283,7 +283,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -302,7 +302,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -323,7 +323,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -348,7 +348,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.open(any(), any(), expectedUrl, builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(), expectedUrl, builder) }
         }
 
     @Test
@@ -362,7 +362,7 @@ class VoiceBuilderWithCoordinatesTests {
 
             // when
             val builder = what3WordsV3.autosuggestWithCoordinates(microphone, "en")
-            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceApi.baseUrl)
+            val finalURL = builder.createSocketUrlWithCoordinates(what3WordsV3.voiceProvider.baseUrl)
 
             // then
             assertThat(finalURL.contains(voiceCustomUrl)).isTrue()

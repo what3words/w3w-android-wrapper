@@ -2,7 +2,7 @@ def ossrhUsername = findProperty('OSSRH_USERNAME')
 def ossrhPassword = findProperty('OSSRH_PASSWORD')
 def signingKey = findProperty('SIGNING_KEY')
 def signingKeyPwd = findProperty('SIGNING_KEY_PWD')
-def libVersion = findProperty('LIBRARY_VERSION') ? findProperty('LIBRARY_VERSION') : "3.1.20"
+def libVersion = findProperty('LIBRARY_VERSION') ? findProperty('LIBRARY_VERSION') : "3.1.21"
 
 task androidSourcesJar(type: Jar) {
     archiveClassifier.convention('sources')
@@ -58,8 +58,8 @@ afterEvaluate {
             maven {
                 name = "sonatype"
 
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
                 url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
                 credentials {
