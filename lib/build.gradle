@@ -23,8 +23,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 32
-        versionCode 3121
-        versionName "3.1.21"
+        versionCode 3122
+        versionName "3.1.22"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
