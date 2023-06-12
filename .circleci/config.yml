@@ -96,7 +96,7 @@ workflows:
           context:
             - mobile
             - maven-sign
-#          filters:
-#            branches:
-#              only:
-#                - dev
+          filters:
+            branches:
+              only:
+                - dev
