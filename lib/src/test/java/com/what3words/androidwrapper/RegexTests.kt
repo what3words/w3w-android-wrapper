@@ -3,14 +3,6 @@ package com.what3words.androidwrapper
 import com.what3words.androidwrapper.helpers.didYouMean3wa
 import com.what3words.androidwrapper.helpers.isPossible3wa
 import com.what3words.androidwrapper.helpers.searchPossible3wa
-import com.what3words.androidwrapper.voice.Microphone
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
-import io.mockk.verify
-import okhttp3.WebSocket
-import okio.ByteString
-import org.junit.Before
 import org.junit.Test
 
 class RegexTests {

@@ -16,8 +16,6 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.junit.Before
 import org.junit.Test
-import java.lang.Exception
-import okio.ByteString
 
 /**
  * Example local unit test, which will execute on the development machine (host).

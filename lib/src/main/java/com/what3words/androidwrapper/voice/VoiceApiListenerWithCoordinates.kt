@@ -2,7 +2,6 @@ package com.what3words.androidwrapper.voice
 
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
-import okhttp3.WebSocket
 
 interface VoiceApiListenerWithCoordinates {
     /**
