@@ -56,13 +56,6 @@ dependencies {
 }
 ```
 
-add the following ProGuard rules
-```
--keep class com.what3words.javawrapper.request.* { *; }
--keep class com.what3words.javawrapper.response.* { *; }
--keep class com.what3words.androidwrapper.voice.* { *; } // add if using voice api autosuggest 
-```
-
 ### convertTo3wa example in kotlin with Coroutines.
 Because it is not possible to perform a networking operation on the main application thread, API calls need to be made in a background thread, we used Coroutines in this example. *for more Kotlin examples try our **sample app** in this repo*.
 
