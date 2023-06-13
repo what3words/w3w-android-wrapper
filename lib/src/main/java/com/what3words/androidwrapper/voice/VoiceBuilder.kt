@@ -4,6 +4,7 @@ import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsAndroidWrapper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
 import com.what3words.javawrapper.response.APIError
@@ -18,14 +19,7 @@ class VoiceBuilder(
     private val voiceLanguage: String,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 ) : VoiceApiListener {
-    private var clipToPolygon: Array<Coordinates>? = null
-    private var clipToBoundingBox: BoundingBox? = null
-    private var clipToCircle: Coordinates? = null
-    private var clipToCircleRadius: Double? = null
-    private var clipToCountry: Array<String>? = null
-    private var nFocusResults: Int? = null
-    private var focus: Coordinates? = null
-    private var nResults: Int? = null
+    internal var autosuggestOptions: AutosuggestOptions = AutosuggestOptions()
     private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
@@ -89,9 +83,10 @@ class VoiceBuilder(
     fun startListening(): VoiceBuilder {
         isListening = true
         api.voiceProvider.initialize(
-            mic.recordingRate,
-            mic.encoding,
-            url = createSocketUrl(api.voiceProvider.baseUrl),
+            sampleRate = mic.recordingRate,
+            encoding = mic.encoding,
+            autosuggestOptions = autosuggestOptions,
+            voiceLanguage = voiceLanguage,
             listener = this
         )
         return this
@@ -125,7 +120,7 @@ class VoiceBuilder(
      * @return a [VoiceBuilder] instance
      */
     fun focus(coordinates: Coordinates?): VoiceBuilder {
-        focus = coordinates
+        autosuggestOptions.focus = coordinates
         return this
     }
 
@@ -137,7 +132,7 @@ class VoiceBuilder(
      * @return a [VoiceBuilder] instance
      */
     fun nResults(n: Int?): VoiceBuilder {
-        nResults = n
+        autosuggestOptions.nResults = n
         return this
     }
 
@@ -151,7 +146,7 @@ class VoiceBuilder(
      * @return a [VoiceBuilder] instance
      */
     fun nFocusResults(n: Int?): VoiceBuilder {
-        nFocusResults = n
+        autosuggestOptions.nFocusResults = n
         return this
     }
 
@@ -167,8 +162,8 @@ class VoiceBuilder(
         centre: Coordinates?,
         radius: Double? = 1.0
     ): VoiceBuilder {
-        clipToCircle = centre
-        clipToCircleRadius = radius
+        autosuggestOptions.clipToCircle = centre
+        autosuggestOptions.clipToCircleRadius = radius
         return this
     }
 
@@ -182,7 +177,7 @@ class VoiceBuilder(
      * @return a [VoiceBuilder] instance
      */
     fun clipToCountry(countryCodes: List<String>): VoiceBuilder {
-        clipToCountry = if (countryCodes.isNotEmpty()) countryCodes.toTypedArray() else null
+        autosuggestOptions.clipToCountry = if (countryCodes.isNotEmpty()) countryCodes else null
         return this
     }
 
@@ -195,7 +190,7 @@ class VoiceBuilder(
     fun clipToBoundingBox(
         boundingBox: BoundingBox?
     ): VoiceBuilder {
-        clipToBoundingBox = boundingBox
+        autosuggestOptions.clipToBoundingBox = boundingBox
         return this
     }
 
@@ -210,35 +205,19 @@ class VoiceBuilder(
     fun clipToPolygon(
         polygon: List<Coordinates>
     ): VoiceBuilder {
-        clipToPolygon = if (polygon.isNotEmpty()) polygon.toTypedArray() else null
+        autosuggestOptions.clipToPolygon = if (polygon.isNotEmpty()) polygon else null
         return this
     }
 
-    internal fun createSocketUrl(baseUrl: String): String {
-        var url = "${baseUrl}${VoiceApi.URL_WITHOUT_COORDINATES}"
-        url += if (voiceLanguage == "zh") "?voice-language=cmn"
-        else "?voice-language=$voiceLanguage"
-        nResults?.let {
-            url += "&n-results=$nResults"
-        }
-        focus?.let {
-            url += "&focus=${focus!!.lat},${focus!!.lng}"
-            if (nFocusResults != null) {
-                url += "&n-focus-results=$nFocusResults"
-            }
-        }
-        clipToCountry?.let {
-            url += "&clip-to-country=${it.joinToString(",")}"
-        }
-        clipToCircle?.let {
-            url += "&clip-to-circle=${it.lat},${it.lng},${clipToCircleRadius ?: 1}"
-        }
-        clipToPolygon?.let {
-            url += "&clip-to-polygon=${it.joinToString(",") { coordinates -> "${coordinates.lat},${coordinates.lng}" }}"
-        }
-        clipToBoundingBox?.let {
-            url += "&clip-to-bounding-box=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
-        }
-        return url
+    /**
+     * This method allows for updating the autosuggest options of the [VoiceBuilder]
+     * instance by setting the autosuggestOptions property to the provided options.
+     *
+     * @param options The new AutosuggestOptions to be set.
+     * @return The updated VoiceBuilder object.
+     */
+    fun updateAutosuggestOptions(options: AutosuggestOptions): VoiceBuilder {
+        this.autosuggestOptions = options
+        return this
     }
 }
