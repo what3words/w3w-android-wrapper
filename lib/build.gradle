@@ -13,7 +13,7 @@ apply from: '../jacoco.gradle'
 apply from: '../sonarqube.gradle'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildToolsVersion libs.versions.buildToolsVersion.get()
 
     kotlinOptions {
@@ -22,9 +22,7 @@ android {
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 32
-        versionCode 3121
-        versionName "3.1.21"
+        targetSdkVersion 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -48,6 +46,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.what3words.androidwrapper'
 }
 
 dependencies {

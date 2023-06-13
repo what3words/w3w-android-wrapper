@@ -466,6 +466,12 @@ class AutosuggestHelperTests {
             every {
                 suggestion.language
             } answers {
+                "en"
+            }
+
+            every {
+                suggestion.locale
+            } answers {
                 "en-GB"
             }
 

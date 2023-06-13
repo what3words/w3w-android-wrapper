@@ -46,6 +46,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'com.what3words.sample_multi_autosuggest_providers'
 }
 
 dependencies {
