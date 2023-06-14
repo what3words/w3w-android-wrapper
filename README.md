@@ -14,7 +14,7 @@ To obtain an API key, please visit [https://what3words.com/select-plan](https://
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.21'
+implementation 'com.what3words:w3w-android-wrapper:3.1.22'
 ```
 
 ## Documentation
@@ -54,13 +54,6 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 }
-```
-
-add the following ProGuard rules
-```
--keep class com.what3words.javawrapper.request.* { *; }
--keep class com.what3words.javawrapper.response.* { *; }
--keep class com.what3words.androidwrapper.voice.* { *; } // add if using voice api autosuggest 
 ```
 
 ### convertTo3wa example in kotlin with Coroutines.

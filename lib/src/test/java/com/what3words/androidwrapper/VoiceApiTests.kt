@@ -6,18 +6,22 @@ import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceApi.Companion.BASE_URL
 import com.what3words.androidwrapper.voice.VoiceApiListener
 import com.what3words.androidwrapper.voice.VoiceApiListenerWithCoordinates
+import com.what3words.javawrapper.request.AutosuggestOptions
+import com.what3words.javawrapper.request.BoundingBox
+import com.what3words.javawrapper.request.Coordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.junit.Before
 import org.junit.Test
 import java.lang.Exception
-import okio.ByteString
+import com.google.common.truth.Truth.assertThat
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -95,7 +99,7 @@ class VoiceApiTests {
             true
         }
 
-        voiceApi = VoiceApi("any", "any", mockClient)
+        voiceApi = VoiceApi("any", BASE_URL, mockClient)
     }
 
     private fun mockWebSocket(
@@ -167,7 +171,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.send("voice1")
@@ -196,7 +201,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.send("voice1")
@@ -225,7 +231,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.close(1003, jsonError)
@@ -248,7 +255,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.close(1003, jsonError)
@@ -271,7 +279,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.close(1003, jsonError)
@@ -294,7 +303,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.close(1003, jsonError)
@@ -317,7 +327,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.send("voice1")
@@ -344,7 +355,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.send("voice1")
@@ -371,7 +383,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             6,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.send("voice1")
@@ -398,7 +411,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.send("voice1")
@@ -425,7 +439,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.send("voice1")
@@ -452,7 +467,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
         mockWebSocket.send("voice1")
@@ -479,7 +495,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_FLOAT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
 
@@ -504,7 +521,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_8BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listenerWithCoordinates
         )
 
@@ -530,7 +548,8 @@ class VoiceApiTests {
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
             AudioFormat.ENCODING_PCM_16BIT,
-            BASE_URL,
+            "en",
+            AutosuggestOptions(),
             listener
         )
         mockWebSocket.send("voice1")
@@ -545,5 +564,28 @@ class VoiceApiTests {
         }
         verify(exactly = 0) { listener.error(any()) }
         assert(voiceApi.socket == null)
+    }
+
+    @Test
+    fun `createSocketUrl with AutosuggestOptions matches expected param url`() {
+        // given
+        val expectedUrl =
+            "${BASE_URL}${VoiceApi.URL_WITHOUT_COORDINATES}?voice-language=en&clip-to-polygon=51.1,-0.152,51.1,-0.152,51.1,-0.152&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
+
+        // when
+        val actualUrl =
+            voiceApi.createSocketUrl(url = "${BASE_URL}${VoiceApi.URL_WITHOUT_COORDINATES}",
+                voiceLanguage = "en", autosuggestOptions = AutosuggestOptions().apply {
+                    clipToBoundingBox =
+                        BoundingBox(Coordinates(51.1, -0.152), Coordinates(51.1, -0.152))
+
+                    clipToPolygon = listOf(
+                        Coordinates(51.1, -0.152),
+                        Coordinates(51.1, -0.152),
+                        Coordinates(51.1, -0.152)
+                    )
+                })
+
+        assertThat(actualUrl).contains(expectedUrl)
     }
 }

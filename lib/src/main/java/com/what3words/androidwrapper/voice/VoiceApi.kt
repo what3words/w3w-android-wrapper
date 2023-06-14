@@ -2,7 +2,10 @@ package com.what3words.androidwrapper.voice
 
 import android.media.AudioFormat
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
+import com.what3words.androidwrapper.helpers.plusAssign
+import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.response.APIError
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -18,14 +21,16 @@ interface VoiceProvider {
     fun initialize(
         sampleRate: Int,
         encoding: Int,
-        url: String,
+        voiceLanguage: String,
+        autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListener
     )
 
     fun initialize(
         sampleRate: Int,
         encoding: Int,
-        url: String,
+        voiceLanguage: String,
+        autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
     )
 
@@ -56,20 +61,32 @@ class VoiceApi(
     override fun initialize(
         sampleRate: Int,
         encoding: Int,
-        url: String,
+        voiceLanguage: String,
+        autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListener
     ) {
         this.listener = listener
+        val url = createSocketUrl(
+            "${baseUrl}${URL_WITHOUT_COORDINATES}",
+            voiceLanguage,
+            autosuggestOptions
+        )
         open(sampleRate, encoding, url)
     }
 
     override fun initialize(
         sampleRate: Int,
         encoding: Int,
-        url: String,
+        voiceLanguage: String,
+        autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
     ) {
         this.listenerWithCoordinates = listener
+        val url = createSocketUrl(
+            "${baseUrl}${URL_WITH_COORDINATES}",
+            voiceLanguage,
+            autosuggestOptions
+        )
         open(sampleRate, encoding, url)
     }
 
@@ -245,7 +262,43 @@ class VoiceApi(
     override fun forceStop() {
         socket?.close(1000, "Aborted by user")
     }
+
+    @VisibleForTesting
+    internal fun createSocketUrl(
+        url: String,
+        voiceLanguage: String,
+        autosuggestOptions: AutosuggestOptions,
+    ): String {
+        with(autosuggestOptions) {
+            val appendedUrl = StringBuilder(url)
+            appendedUrl += if (voiceLanguage == "zh") "?voice-language=cmn"
+            else "?voice-language=$voiceLanguage"
+            nResults?.let {
+                appendedUrl += "&n-results=$nResults"
+            }
+            focus?.let {
+                appendedUrl += "&focus=${focus!!.lat},${focus!!.lng}"
+                if (nFocusResults != null) {
+                    appendedUrl += "&n-focus-results=$nFocusResults"
+                }
+            }
+            clipToCountry?.let {
+                appendedUrl += "&clip-to-country=${it.joinToString(",")}"
+            }
+            clipToCircle?.let {
+                appendedUrl += "&clip-to-circle=${it.lat},${it.lng},${clipToCircleRadius ?: 1}"
+            }
+            clipToPolygon?.let {
+                appendedUrl += "&clip-to-polygon=${it.joinToString(",") { coordinates -> "${coordinates.lat},${coordinates.lng}" }}"
+            }
+            clipToBoundingBox?.let {
+                appendedUrl += "&clip-to-bounding-box=${it.sw.lat},${it.sw.lng},${it.ne.lat},${it.ne.lng}"
+            }
+            return appendedUrl.toString()
+        }
+    }
 }
+
 
 private fun Int.toW3Wencoding(): String {
     return when (this) {

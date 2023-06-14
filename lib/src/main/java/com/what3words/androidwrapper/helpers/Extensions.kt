@@ -22,12 +22,16 @@ fun String.didYouMean3wa(): Boolean {
     }
 }
 
-@Deprecated("",  ReplaceWith("com.what3words.javawrapper.What3WordsV3.searchPossible3wa()"))
+@Deprecated("", ReplaceWith("com.what3words.javawrapper.What3WordsV3.searchPossible3wa()"))
 fun String.searchPossible3wa(): List<String> {
     val searchRegex =
         "(?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*){1,}[.｡。･・︒។։။۔።।](?:\\p{L}\\p{M}*){1,}"
     Regex(searchRegex).also {
         return it.findAll(this).map { it.value }.toList()
     }
+}
+
+internal operator fun StringBuilder.plusAssign(other: String) {
+    append(other)
 }
 

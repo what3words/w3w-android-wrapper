@@ -1,9 +1,7 @@
 package com.what3words.androidwrapper.voice
 
-import android.speech.tts.Voice
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.Suggestion
-import okhttp3.WebSocket
 
 /**
  * Implement this listener to receive the callbacks from VoiceApi

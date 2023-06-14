@@ -4,7 +4,6 @@ import com.what3words.androidwrapper.voice.Microphone
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.verify
 import okhttp3.WebSocket
 import okio.ByteString
 import org.junit.Before

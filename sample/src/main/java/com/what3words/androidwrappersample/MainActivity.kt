@@ -15,10 +15,10 @@ import com.what3words.androidwrapper.voice.VoiceBuilder
 import com.what3words.androidwrappersample.databinding.ActivityMainBinding
 import com.what3words.androidwrappersample.databinding.ActivityMainBinding.inflate
 import com.what3words.javawrapper.request.Coordinates
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 

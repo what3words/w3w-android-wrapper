@@ -28,11 +28,20 @@ interface What3WordsAndroidWrapper : com.what3words.javawrapper.What3WordsJavaWr
 
     val voiceProvider: VoiceProvider
     val helper : IAutosuggestHelper
+    val dataProvider: DataProvider
+
+    enum class DataProvider {
+        API,
+        SDK
+    }
 }
 
 class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidWrapper {
     override val voiceProvider: VoiceProvider
     override val helper: IAutosuggestHelper
+    override val dataProvider: What3WordsAndroidWrapper.DataProvider
+        get() = What3WordsAndroidWrapper.DataProvider.API
+
     internal var dispatchers: DispatcherProvider
 
     constructor(apiKey: String, context: Context) : super(
