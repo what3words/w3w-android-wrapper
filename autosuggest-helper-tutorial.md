@@ -15,7 +15,7 @@ The example uses a EditText and a RecyclerView with two different providers for 
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.1.15'
+implementation 'com.what3words:w3w-android-wrapper:3.1.22'
 ```
 
 AndroidManifest.xml
