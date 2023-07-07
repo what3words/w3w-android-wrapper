@@ -17,6 +17,28 @@ class Microphone {
         const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
+
+        fun isSampleRateValid(sampleRate: Int): Boolean {
+            return getSupportedSampleRates().contains(sampleRate)
+        }
+
+        fun getSupportedSampleRates(): List<Int> {
+            val validSampleRates = intArrayOf(
+                8000, 11025, 16000, 22050, 44100, 48000
+            )
+            val list = mutableListOf<Int>()
+            validSampleRates.forEach {
+                val result = AudioRecord.getMinBufferSize(
+                    it,
+                    AudioFormat.CHANNEL_IN_DEFAULT,
+                    AudioFormat.ENCODING_PCM_16BIT
+                )
+                if (result != AudioRecord.ERROR && result != AudioRecord.ERROR_BAD_VALUE && result > 0) {
+                    list.add(it)
+                }
+            }
+            return list
+        }
     }
 
     constructor() {
@@ -30,27 +52,6 @@ class Microphone {
         )
     }
 
-    private fun getSupportedSampleRates(): List<Int> {
-        val validSampleRates = intArrayOf(
-            8000, 11025, 16000, 22050, 44100, 48000
-        )
-        val list = mutableListOf<Int>()
-        validSampleRates.forEach {
-            val result = AudioRecord.getMinBufferSize(
-                it,
-                AudioFormat.CHANNEL_IN_DEFAULT,
-                AudioFormat.ENCODING_PCM_16BIT
-            )
-            if (result != AudioRecord.ERROR && result != AudioRecord.ERROR_BAD_VALUE && result > 0) {
-                list.add(it)
-            }
-        }
-        return list
-    }
-
-    private fun isSampleRateValid(sampleRate: Int): Boolean {
-        return getSupportedSampleRates().contains(sampleRate)
-    }
 
     constructor(recordingRate: Int, encoding: Int, channel: Int, audioSource: Int) {
         this.recordingRate = recordingRate
