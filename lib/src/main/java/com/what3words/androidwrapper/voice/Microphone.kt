@@ -18,10 +18,37 @@ class Microphone {
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
 
+        /**
+         * Retrieves the optimal sample rate based on the preferred sample rate.
+         * If the preferred sample rate is valid, it is returned as the optimal rate.
+         * Otherwise, the maximum supported sample rate is returned.
+         * @param preferredSampleRate The preferred sample rate to consider.
+         *
+         * @return The optimal sample rate.
+         */
+        fun getOptimalSampleRate(preferredSampleRate: Int): Int {
+            return if (isSampleRateValid(preferredSampleRate)) {
+                preferredSampleRate
+            } else {
+                getSupportedSampleRates().maxOrNull() ?: -1
+            }
+        }
+
+        /**
+         * Checks if the provided sample rate is valid or supported.
+         *
+         * @param sampleRate The sample rate to validate.
+         * @return `true` if the sample rate is valid, `false` otherwise.
+         */
         fun isSampleRateValid(sampleRate: Int): Boolean {
             return getSupportedSampleRates().contains(sampleRate)
         }
 
+        /**
+         * Retrieves a list of supported sample rates for audio recording.
+         *
+         * @return A list of supported sample rates.
+         */
         fun getSupportedSampleRates(): List<Int> {
             val validSampleRates = intArrayOf(
                 8000, 11025, 16000, 22050, 44100, 48000
