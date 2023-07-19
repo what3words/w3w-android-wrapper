@@ -70,4 +70,5 @@ dependencies {
 
     api libs.what3words.java.wrapper
     api libs.google.guava
+    implementation libs.bundles.retrofit
 }
