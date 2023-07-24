@@ -8,12 +8,13 @@ junit = "4.13.2"
 espresso = "3.4.0"
 jacoco = "0.8.7"
 androidGradlePlugin = "7.0.4"
-what3wordsJavaWrapper = "3.1.17"
+what3wordsJavaWrapper = "3.1.18"
 multiDex = "1.0.3"
 buildToolsVersion = "30.0.3"
 kotlinxCoroutines = "1.5.2"
-rxJava3Android = "3.0.0"
-rxJava3 = "3.0.7"
+rxJava3Android = "3.0.2"
+rxJava3 = "3.1.6"
+retrofit = "2.9.0"
 
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -58,7 +59,7 @@ android-multidex = { module = "com.android.support:multidex", version = "multiDe
 google-android-material = { module = "com.google.android.material:material", version = "1.6.1" }
 google-play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "googlePlayServices" }
 google-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "googlePlayServices" }
-google-guava = { module = "com.google.guava:guava", version = "30.1-android" }
+google-guava = { module = "com.google.guava:guava", version = "32.0.1-android" }
 google-places = { module = "com.google.android.libraries.places:places", version = "2.6.0" }
 
 airbnb-lottie = { module = "com.airbnb.android:lottie", version = "3.6.1" }
@@ -70,5 +71,9 @@ nishkarsh-android-permissions = { module = "io.github.nishkarsh:android-permissi
 reactivex-rxjava3-core = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxJava3" }
 reactivex-rxjava3-android = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxJava3Android" }
 
+retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-gson-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+
 [bundles]
 compose-application = ['compose-ui', 'compose-material', 'androidx-activity-compose', 'androidx-lifecycle-runtime', 'compose-constraint-layout', 'compose-ui-tooling-preview']
+retrofit= ['retrofit-core', 'retrofit-gson-converter']

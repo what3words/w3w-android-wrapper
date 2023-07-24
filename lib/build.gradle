@@ -26,6 +26,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        // for robolectric
+        testOptions.unitTests.includeAndroidResources = true
     }
 
     compileOptions {
@@ -70,4 +73,7 @@ dependencies {
 
     api libs.what3words.java.wrapper
     api libs.google.guava
+    implementation libs.bundles.retrofit
+
+    testImplementation 'org.robolectric:robolectric:4.10.3'
 }

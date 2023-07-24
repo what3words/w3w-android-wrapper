@@ -1,8 +1,44 @@
 version: '2.1'
 orbs:
   gradle: circleci/gradle@2.2.0
+  android: circleci/android@2.3.0
 
 jobs:
+  build-android-test:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2023.05.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - run:
+          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+          command: sudo chmod +x ./gradlew
+      - run:
+          name: Wrapper
+          command: ./gradlew wrapper
+      - android/create-avd:
+          avd-name: testDevice
+          system-image: system-images;android-30;google_apis;x86
+          install: true
+      - android/start-emulator:
+          avd-name: testDevice
+          no-window: true
+          post-emulator-launch-assemble-command: echo "Emulator Started"
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - run:
+          name: Run Android Tests
+          command: ./gradlew lib:connectedDebugAndroidTest
+      - store_test_results:
+          path: lib/build/outputs/androidTest-results
   build-test-sonar:
     docker:
       - image: circleci/android:api-30
@@ -60,7 +96,7 @@ jobs:
             >> gradle.properties
       - run:
           name: Publish to Maven
-          command: ./gradlew assemble publish
+          command: ./gradlew lib:assemble publish
       - run:
           name: Assemble sample release build
           command: ./gradlew sample:assembleRelease
@@ -87,6 +123,7 @@ workflows:
             - mobile
   build-test-sonar-publish:
     jobs:
+      - build-android-test
       - build-test-sonar:
           context: SonarCloud
       - deploy-to-sonatype:
