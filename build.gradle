@@ -34,7 +34,7 @@ buildscript {
         guava_version = "32.0.1-android"
         robolectric_version = "4.10.3"
         android_arch_testing_version = "2.2.0"
-        json_version = "20180813"
+        json_version = "20230618"
         mockk_version = "1.12.1"
         espresso_core_version = "3.5.1"
         androidx_junit_version = "1.1.5"
