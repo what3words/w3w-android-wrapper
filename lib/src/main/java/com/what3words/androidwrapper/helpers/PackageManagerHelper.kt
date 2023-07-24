@@ -20,8 +20,6 @@ internal object PackageManagerHelper {
         packageName: String,
         flags: Int
     ): PackageInfo? {
-        val list = listOf<String>()
-        list.isEmpty()
         val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags.toLong()))
         } else {
