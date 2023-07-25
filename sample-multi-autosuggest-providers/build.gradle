@@ -50,18 +50,17 @@ android {
 }
 
 dependencies {
-
-    implementation libs.androidx.core
-    implementation libs.androidx.appcompat
-    implementation libs.google.android.material
-    implementation libs.androidx.constraint.layout
-    implementation libs.google.places
-    testImplementation testLibs.junit
-    androidTestImplementation testLibs.androidx.junit
-    androidTestImplementation testLibs.androidx.espresso.core
+    implementation "androidx.core:core-ktx:$androidx_core_version"
+    implementation "androidx.appcompat:appcompat:$androidx_appcompat_version"
+    implementation "com.google.android.material:material:$google_material_version"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation "com.google.android.libraries.places:places:$google_places_version"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation "com.google.android.gms:play-services-basement:$google_play_services_version"
+    implementation "com.google.android.gms:play-services-tasks:$google_play_services_tasks_version"
 
     //you should use:
     //implementation "com.what3words:w3w-android-wrapper:3.x.x"
-    implementation libs.what3words.java.wrapper
+    implementation "com.what3words:w3w-java-wrapper:$what3words_java_wrapper_version"
     implementation project(":lib")
 }

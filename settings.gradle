@@ -1,18 +1,9 @@
-enableFeaturePreview("VERSION_CATALOGS")
-
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://s01.oss.sonatype.org/content/repositories/comwhat3words-1137' }
-    }
-
-    versionCatalogs {
-        // declares an additional catalog, named 'testLibs', from the 'test-libs.versionstoml' file
-        testLibs {
-            from(files('gradle/testLibs.versions.toml'))
-        }
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/comwhat3words-1140' }
     }
 }
 
