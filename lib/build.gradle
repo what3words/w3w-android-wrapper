@@ -61,7 +61,6 @@ dependencies {
 
     // w3w java wrapper
     api "com.what3words:w3w-java-wrapper:$what3words_java_wrapper_version"
-    implementation "com.google.guava:guava:$guava_version"
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
