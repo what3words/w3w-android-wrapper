@@ -1,13 +1,16 @@
 package com.what3words.androidwrapper
 
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
-import com.google.common.io.BaseEncoding
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
 import com.what3words.androidwrapper.helpers.IAutosuggestHelper
+import com.what3words.androidwrapper.helpers.PackageManagerHelper
+import com.what3words.androidwrapper.helpers.PackageManagerHelper.getPackageInfoCompat
+import com.what3words.androidwrapper.helpers.PackageManagerHelper.getSignaturesCompat
 import com.what3words.androidwrapper.voice.Microphone
 import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.androidwrapper.voice.VoiceBuilder
@@ -19,15 +22,15 @@ interface What3WordsAndroidWrapper : com.what3words.javawrapper.What3WordsJavaWr
     fun autosuggest(
         microphone: Microphone,
         voiceLanguage: String
-    ) : VoiceBuilder
+    ): VoiceBuilder
 
     fun autosuggestWithCoordinates(
         microphone: Microphone,
         voiceLanguage: String
-    ) : VoiceBuilderWithCoordinates
+    ): VoiceBuilderWithCoordinates
 
     val voiceProvider: VoiceProvider
-    val helper : IAutosuggestHelper
+    val helper: IAutosuggestHelper
     val dataProvider: DataProvider
 
     enum class DataProvider {
@@ -159,12 +162,16 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
             } else try {
                 val packageManager: PackageManager = context.packageManager
                 val packageName: String = context.packageName
-                val packageInfo =
-                    packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-                if (packageInfo?.signatures == null || packageInfo.signatures.isEmpty() || packageInfo.signatures[0] == null
+                val packageInfo: PackageInfo? =
+                    packageManager.getPackageInfoCompat(
+                        packageName,
+                        PackageManagerHelper.getSigningFlagsCompat()
+                    )
+                val packageSignatures: Array<Signature?>? = packageInfo?.getSignaturesCompat()
+                if (packageSignatures == null || packageSignatures.isEmpty() || packageSignatures[0] == null
                 ) {
                     null
-                } else signatureDigest(packageInfo.signatures[0])
+                } else signatureDigest(packageSignatures[0])
             } catch (e: Exception) {
                 null
             }
@@ -174,10 +181,20 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
             return if (sig == null) {
                 null
             } else try {
-                val signature: ByteArray = sig.toByteArray()
-                val md: MessageDigest = MessageDigest.getInstance("SHA1")
-                val digest: ByteArray = md.digest(signature)
-                BaseEncoding.base16().lowerCase().encode(digest)
+                val md = MessageDigest.getInstance("SHA1")
+                val sha1Hash = md.digest(sig.toByteArray())
+
+                val result = StringBuilder()
+                for (index in sha1Hash.indices) {
+                    val byte = sha1Hash[index]
+                    val formatResult = if (index != sha1Hash.size - 1) {
+                        String.format("%02X:", byte)
+                    } else {
+                        String.format("%02X", byte) // Don't append : to the last entry
+                    }
+                    result.append(formatResult)
+                }
+                result.toString()
             } catch (e: Exception) {
                 null
             }
