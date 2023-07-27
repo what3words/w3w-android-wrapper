@@ -25,7 +25,7 @@ buildscript {
         espresso_version = "3.4.0"
         jacoco_version = "0.8.7"
         android_gradle_plugin_version = "7.0.4"
-        what3words_java_wrapper_version = "3.1.18"
+        what3words_java_wrapper_version = "3.1.19"
         multidex_version = "2.0.1"
         build_tools_version = "30.0.3"
         kotlinx_coroutines_version = "1.6.4"
