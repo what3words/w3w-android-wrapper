@@ -12,7 +12,6 @@ ext {
 
 jacoco {
     toolVersion = '0.8.7'
-    reportsDir = file("$buildDir/reports")
 }
 
 tasks.withType(Test) {
@@ -30,8 +29,8 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     description = "Generate Jacoco coverage reports for Debug build"
 
     reports {
-        xml.required.set(true)
-        csv.required.set(false)
+        xml.required = true
+        csv.required = false
     }
 
     def javaTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/classes", excludes: coverageExclusions)
