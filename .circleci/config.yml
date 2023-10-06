@@ -41,10 +41,10 @@ jobs:
       - store_test_results:
           path: lib/build/outputs/androidTest-results
   test-sonar:
-    docker:
-      - image: circleci/android:api-30
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2023.05.1
     steps:
       - checkout
       - library-setup
@@ -54,10 +54,10 @@ jobs:
       - store_test_results:
           path: lib/build/test-results/testDebugUnitTest
   deploy-to-sonatype:
-    docker:
-      - image: circleci/android:api-30
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2023.05.1
     steps:
       - checkout
       - library-setup
