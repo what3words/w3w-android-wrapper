@@ -69,6 +69,7 @@ enum class W3WLanguage(val code: String) {
     SW(code = "sw"),
     TA(code = "ta"),
     TE(code = "te"),
+    TH(code = "th"),
     TR(code = "tr"),
     UK(code = "uk"),
     UR(code = "ur"),
