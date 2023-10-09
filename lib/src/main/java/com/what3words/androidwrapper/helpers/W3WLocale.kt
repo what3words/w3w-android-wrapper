@@ -1,15 +1,8 @@
 package com.what3words.core.domain.language
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.annotations.JsonAdapter
-import com.google.gson.annotations.SerializedName
-import java.lang.reflect.Type
-
-/*
-    To be moved to core com.what3words.core
-    full RFC5646 enum with all our supported languages, to be moved to core library
+/**
+ *   RFC5646 What3Words Language Definition.
+ *   All the languages supported by What3Words across all our domain, from lat/lng conversion to text, voice, image search.
  */
 enum class W3WLanguage(val code: String) {
     AF(code = "af"),
@@ -86,11 +79,21 @@ enum class W3WLanguage(val code: String) {
     ZH_HANT_TW(code = "zh-Hant-TW"),
     ZU(code = "zu");
 
-    //to be replaced with regex
+    /**
+     * Get RFC5646 language ISO 639-1 code. Example: [W3WLanguage.ZH_HANT_TW.getRegionCode] returns zh.
+     *
+     * @return language ISO 639-1 two letter code.
+     */
     fun getLanguageCode(): String {
         return code.split("-")[0]
     }
 
+
+    /**
+     * Get RFC5646 script ISO 15924 code. Example: [W3WLanguage.ZH_HANT_TW.getRegionCode] returns Hant.
+     *
+     * @return script ISO 15924 four letter code.
+     */
     fun getScriptCode(): String? {
         val split = code.split("-")
         return when {
@@ -100,6 +103,11 @@ enum class W3WLanguage(val code: String) {
         }
     }
 
+    /**
+     * Get RFC5646 region ISO 3166-1 alpha-2 code. Example: [W3WLanguage.ZH_HANT_TW.getRegionCode] returns TW.
+     *
+     * @return region ISO 3166-1 alpha-2 two letter code.
+     */
     fun getRegionCode(): String? {
         val split = code.split("-")
         return when {
