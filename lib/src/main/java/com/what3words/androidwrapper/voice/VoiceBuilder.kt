@@ -4,6 +4,7 @@ import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsAndroidWrapper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
+import com.what3words.core.domain.language.W3WLanguage
 import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
@@ -13,16 +14,40 @@ import com.what3words.javawrapper.response.Suggestion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class VoiceBuilder(
-    private val api: What3WordsAndroidWrapper,
-    private val mic: Microphone,
-    private val voiceLanguage: String,
-    private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
-) : VoiceApiListener {
+class VoiceBuilder : VoiceApiListener {
     internal var autosuggestOptions: AutosuggestOptions = AutosuggestOptions()
     private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
+    private lateinit var language: W3WLanguage
+    private var api: What3WordsAndroidWrapper
+    private var mic: Microphone
+    private lateinit var voiceLanguage: String
+    private var dispatchers: DispatcherProvider
+
+    constructor(
+        api: What3WordsAndroidWrapper,
+        mic: Microphone,
+        voiceLanguage: String,
+        dispatchers: DispatcherProvider = DefaultDispatcherProvider()
+    ) {
+        this.api = api
+        this.mic = mic
+        this.voiceLanguage = voiceLanguage
+        this.dispatchers = dispatchers
+    }
+
+    constructor(
+        api: What3WordsAndroidWrapper,
+        mic: Microphone,
+        language: W3WLanguage,
+        dispatchers: DispatcherProvider = DefaultDispatcherProvider()
+    ) {
+        this.api = api
+        this.mic = mic
+        this.language = language
+        this.dispatchers = dispatchers
+    }
 
     /**
      * onSuggestions callback will be called when VoiceAPI returns a set of suggestion after
@@ -82,11 +107,41 @@ class VoiceBuilder(
      */
     fun startListening(): VoiceBuilder {
         isListening = true
+        when {
+            ::voiceLanguage.isInitialized -> api.voiceProvider.initialize(
+                sampleRate = mic.recordingRate,
+                encoding = mic.encoding,
+                autosuggestOptions = autosuggestOptions,
+                voiceLanguage = voiceLanguage,
+                listener = this
+            )
+
+            ::language.isInitialized -> api.voiceProvider.initialize(
+                sampleRate = mic.recordingRate,
+                encoding = mic.encoding,
+                autosuggestOptions = autosuggestOptions,
+                language = language,
+                listener = this
+            )
+
+            else -> throw IllegalStateException()
+        }
+        return this
+    }
+
+    /**
+     * startListening() starts the [Microphone] recording and starts sending voice data to our VoiceAPI.
+     *
+     * @param language [W3WLanguage] with the language RFC5646.
+     * @return a [VoiceBuilder] instance
+     */
+    fun startListening(language: W3WLanguage): VoiceBuilder {
+        isListening = true
         api.voiceProvider.initialize(
             sampleRate = mic.recordingRate,
             encoding = mic.encoding,
             autosuggestOptions = autosuggestOptions,
-            voiceLanguage = voiceLanguage,
+            language = language,
             listener = this
         )
         return this
