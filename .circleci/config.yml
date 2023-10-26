@@ -70,21 +70,6 @@ jobs:
       - run:
           name: Publish to Maven
           command: ./gradlew lib:assemble publish
-      - run:
-          name: Assemble sample release build
-          command: ./gradlew sample:assembleRelease
-      - run:
-          name: Assemble java-sample release build
-          command: ./gradlew sample-java:assembleRelease
-      - run:
-          name: Assemble sample-multi-autosuggest release build
-          command: ./gradlew sample-multi-autosuggest-providers:assembleRelease
-      - store_artifacts:
-          path: sample/build/outputs/apk/release
-      - store_artifacts:
-          path: sample-java/build/outputs/apk/release
-      - store_artifacts:
-          path: sample-multi-autosuggest-providers/build/outputs/apk/release
 
 workflows:
   build-test-sonar-publish:
