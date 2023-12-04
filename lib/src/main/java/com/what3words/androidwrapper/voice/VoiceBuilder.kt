@@ -110,6 +110,7 @@ class VoiceBuilder : VoiceApiListener {
         when {
             ::voiceLanguage.isInitialized -> api.voiceProvider.initialize(
                 sampleRate = mic.recordingRate,
+                samplesPerChannel = mic.bufferSize,
                 encoding = mic.encoding,
                 autosuggestOptions = autosuggestOptions,
                 voiceLanguage = voiceLanguage,
@@ -118,6 +119,7 @@ class VoiceBuilder : VoiceApiListener {
 
             ::language.isInitialized -> api.voiceProvider.initialize(
                 sampleRate = mic.recordingRate,
+                samplesPerChannel = mic.bufferSize,
                 encoding = mic.encoding,
                 autosuggestOptions = autosuggestOptions,
                 language = language,
@@ -139,6 +141,7 @@ class VoiceBuilder : VoiceApiListener {
         isListening = true
         api.voiceProvider.initialize(
             sampleRate = mic.recordingRate,
+            samplesPerChannel = mic.bufferSize,
             encoding = mic.encoding,
             autosuggestOptions = autosuggestOptions,
             language = language,

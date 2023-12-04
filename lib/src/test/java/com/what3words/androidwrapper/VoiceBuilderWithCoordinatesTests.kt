@@ -67,7 +67,14 @@ class VoiceBuilderWithCoordinatesTests {
 
         justRun {
             voiceApi.forceStop()
-            voiceApi.initialize(any(), any(), any<String>(), any(), any<VoiceApiListenerWithCoordinates>())
+            voiceApi.initialize(
+                any(),
+                any(),
+                any(),
+                any<String>(),
+                any(),
+                any<VoiceApiListenerWithCoordinates>()
+            )
             microphone.startRecording(voiceApi)
             microphone.stopRecording()
             suggestionsCallback.accept(any())
@@ -78,6 +85,12 @@ class VoiceBuilderWithCoordinatesTests {
             microphone.recordingRate
         } answers {
             44000
+        }
+
+        every {
+            microphone.bufferSize
+        } answers {
+            2816
         }
 
         every {
@@ -116,7 +129,16 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+            verify(exactly = 1) {
+                voiceApi.initialize(
+                    any(),
+                    any(),
+                    any(),
+                    any<String>(),
+                    any(),
+                    builder
+                )
+            }
             verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when forced stop
@@ -146,7 +168,16 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+            verify(exactly = 1) {
+                voiceApi.initialize(
+                    any(),
+                    any(),
+                    any(),
+                    any<String>(),
+                    any(),
+                    builder
+                )
+            }
             verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when
@@ -176,7 +207,16 @@ class VoiceBuilderWithCoordinatesTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+            verify(exactly = 1) {
+                voiceApi.initialize(
+                    any(),
+                    any(),
+                    any(),
+                    any<String>(),
+                    any(),
+                    builder
+                )
+            }
             verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             val suggestionsJson =
