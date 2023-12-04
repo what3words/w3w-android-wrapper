@@ -51,13 +51,13 @@ interface VoiceProvider {
         listener: VoiceApiListenerWithCoordinates
     )
 
-    fun sendData(readCount: Int, buffer: ShortArray)
+    fun sendData(byteString: ByteString)
 
     fun forceStop()
     var baseUrl: String
 }
 
-class VoiceApi(
+open class VoiceApi(
     private var apiKey: String,
     override var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
@@ -163,12 +163,8 @@ class VoiceApi(
         open(sampleRate, encoding, url)
     }
 
-    override fun sendData(readCount: Int, buffer: ShortArray) {
-        val bufferBytes: ByteBuffer =
-            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
-        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
-        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
-        socket?.send(ByteString.of(*bufferBytes.array()))
+    override fun sendData(byteString: ByteString) {
+        socket?.send(byteString)
     }
 
     /**
