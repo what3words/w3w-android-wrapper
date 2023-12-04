@@ -3,22 +3,30 @@ orbs:
   gradle: circleci/gradle@2.2.0
   android: circleci/android@2.3.0
 
+commands:
+  library-setup:
+    description: Restore cache, config gradlew, download dependencies and save cache
+    steps:
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - run:
+          name: Set up library dependencies
+          command: |
+            ./gradlew wrapper
+            ./gradlew lib:androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
 jobs:
-  build-android-test:
+  android-test:
     executor:
       name: android/android-machine
       resource-class: large
       tag: 2023.05.1
     steps:
       - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
-      - run:
-          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-          command: sudo chmod +x ./gradlew
-      - run:
-          name: Wrapper
-          command: ./gradlew wrapper
+      - library-setup
       - android/create-avd:
           avd-name: testDevice
           system-image: system-images;android-30;google_apis;x86
@@ -28,66 +36,31 @@ jobs:
           no-window: true
           post-emulator-launch-assemble-command: echo "Emulator Started"
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
-      - run:
           name: Run Android Tests
           command: ./gradlew lib:connectedDebugAndroidTest
       - store_test_results:
           path: lib/build/outputs/androidTest-results
-  build-test-sonar:
-    docker:
-      - image: circleci/android:api-30
-    environment:
-      JVM_OPTS: -Xmx3200m
+  test-sonar:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2023.05.1
     steps:
       - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
-      - run:
-          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-          command: sudo chmod +x ./gradlew
-      - run:
-          name: Wrapper
-          command: ./gradlew wrapper
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - library-setup
       - run:
           name: Run Tests
           command: ./gradlew lib:testDebugUnitTest jacocoTestReport sonarqube
       - store_test_results:
           path: lib/build/test-results/testDebugUnitTest
   deploy-to-sonatype:
-    docker:
-      - image: circleci/android:api-30
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: 2023.05.1
     steps:
       - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
-      - run:
-          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-          command: sudo chmod +x ./gradlew
-      - run:
-          name: Wrapper
-          command: ./gradlew wrapper
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - library-setup
       - run:
           name: Inject Maven signing key
           command: |
@@ -97,43 +70,23 @@ jobs:
       - run:
           name: Publish to Maven
           command: ./gradlew lib:assemble publish
-      - run:
-          name: Assemble sample release build
-          command: ./gradlew sample:assembleRelease
-      - run:
-          name: Assemble java-sample release build
-          command: ./gradlew sample-java:assembleRelease
-      - run:
-          name: Assemble sample-multi-autosuggest release build
-          command: ./gradlew sample-multi-autosuggest-providers:assembleRelease
-      - store_artifacts:
-          path: sample/build/outputs/apk/release
-      - store_artifacts:
-          path: sample-java/build/outputs/apk/release
-      - store_artifacts:
-          path: sample-multi-autosuggest-providers/build/outputs/apk/release
 
 workflows:
-  build-test-sonar:
+  build-test-sonar-publish:
     jobs:
-      - build-test-sonar:
-          name: Build, run tests, upload to sonar
+      - android-test
+      - test-sonar:
           context:
             - SonarCloud
             - mobile
-  build-test-sonar-publish:
-    jobs:
-      - build-android-test
-      - build-test-sonar:
-          context: SonarCloud
       - deploy-to-sonatype:
-          name: Build, run tests, sonar and push to maven staging
+          name: Deploy to sonatype and build sample apps
           requires:
-            - build-test-sonar
+            - test-sonar
           context:
             - mobile
             - maven-sign
           filters:
             branches:
               only:
-                - dev
+                - staging

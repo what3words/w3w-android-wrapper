@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
 import com.what3words.androidwrapper.helpers.plusAssign
+import com.what3words.core.domain.language.W3WLanguage
 import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.response.APIError
 import java.nio.ByteBuffer
@@ -29,22 +30,48 @@ interface VoiceProvider {
     fun initialize(
         sampleRate: Int,
         encoding: Int,
+        language: W3WLanguage,
+        autosuggestOptions: AutosuggestOptions,
+        listener: VoiceApiListener
+    )
+
+    fun initialize(
+        sampleRate: Int,
+        encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
     )
 
-    fun sendData(readCount: Int, buffer: ShortArray)
+    fun initialize(
+        sampleRate: Int,
+        encoding: Int,
+        language: W3WLanguage,
+        autosuggestOptions: AutosuggestOptions,
+        listener: VoiceApiListenerWithCoordinates
+    )
+
+    fun sendData(byteString: ByteString)
 
     fun forceStop()
     var baseUrl: String
 }
 
-class VoiceApi(
+open class VoiceApi(
     private var apiKey: String,
     override var baseUrl: String = BASE_URL,
     private var client: OkHttpClient = OkHttpClient()
 ) : VoiceProvider {
+    private enum class VoiceApiCodes(val code: String) {
+        AR("ar"),
+        CMN("cmn"),
+        DE("de"),
+        EN("en"),
+        ES("es"),
+        HI("hi"),
+        JA("ja"),
+        KO("ko")
+    }
 
     companion object {
         const val BASE_URL = "wss://voiceapi.what3words.com/v1/"
@@ -52,11 +79,46 @@ class VoiceApi(
             "autosuggest"
         const val URL_WITH_COORDINATES =
             "autosuggest-with-coordinates"
+        private val map = mapOf(
+            W3WLanguage.AR to VoiceApiCodes.AR,
+            W3WLanguage.ZH_HANS to VoiceApiCodes.CMN,
+            W3WLanguage.ZH_HANT_HK to VoiceApiCodes.CMN,
+            W3WLanguage.ZH_HANT_TW to VoiceApiCodes.CMN,
+            W3WLanguage.DE to VoiceApiCodes.DE,
+            W3WLanguage.EN_CA to VoiceApiCodes.EN,
+            W3WLanguage.EN_AU to VoiceApiCodes.EN,
+            W3WLanguage.EN_GB to VoiceApiCodes.EN,
+            W3WLanguage.EN_IN to VoiceApiCodes.EN,
+            W3WLanguage.EN_US to VoiceApiCodes.EN,
+            W3WLanguage.ES_MX to VoiceApiCodes.ES,
+            W3WLanguage.ES_ES to VoiceApiCodes.ES,
+            W3WLanguage.HI to VoiceApiCodes.HI,
+            W3WLanguage.JA to VoiceApiCodes.JA,
+            W3WLanguage.KO to VoiceApiCodes.KO
+        )
+
+        fun availableLanguages() : List<W3WLanguage> {
+            return map.keys.toList()
+        }
+        fun supportsLanguage(language: W3WLanguage) : Boolean {
+            return map.containsKey(language)
+        }
     }
 
     internal var socket: WebSocket? = null
     private var listener: VoiceApiListener? = null
     var listenerWithCoordinates: VoiceApiListenerWithCoordinates? = null
+
+    override fun initialize(
+        sampleRate: Int,
+        encoding: Int,
+        language: W3WLanguage,
+        autosuggestOptions: AutosuggestOptions,
+        listener: VoiceApiListener
+    ) {
+        val voiceLanguage = map[language]?.code ?: language.code
+        initialize(sampleRate, encoding, voiceLanguage, autosuggestOptions, listener)
+    }
 
     override fun initialize(
         sampleRate: Int,
@@ -77,6 +139,17 @@ class VoiceApi(
     override fun initialize(
         sampleRate: Int,
         encoding: Int,
+        language: W3WLanguage,
+        autosuggestOptions: AutosuggestOptions,
+        listener: VoiceApiListenerWithCoordinates
+    ) {
+        val voiceLanguage = map[language]?.code ?: language.code
+        initialize(sampleRate, encoding, voiceLanguage, autosuggestOptions, listener)
+    }
+
+    override fun initialize(
+        sampleRate: Int,
+        encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
@@ -90,12 +163,8 @@ class VoiceApi(
         open(sampleRate, encoding, url)
     }
 
-    override fun sendData(readCount: Int, buffer: ShortArray) {
-        val bufferBytes: ByteBuffer =
-            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
-        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
-        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
-        socket?.send(ByteString.of(*bufferBytes.array()))
+    override fun sendData(byteString: ByteString) {
+        socket?.send(byteString)
     }
 
     /**
@@ -142,6 +211,7 @@ class VoiceApi(
                                 listenerWithCoordinates?.connected(this@VoiceApi)
                                 listener?.connected(this@VoiceApi)
                             }
+
                             BaseVoiceMessagePayload.Suggestions -> {
                                 listenerWithCoordinates?.let {
                                     val result =
@@ -157,6 +227,7 @@ class VoiceApi(
                                     it.suggestions(result.suggestions)
                                 }
                             }
+
                             BaseVoiceMessagePayload.Error -> {
                                 val result = Gson().fromJson(text, ErrorPayload::class.java)
                                 listenerWithCoordinates?.error(
@@ -172,6 +243,7 @@ class VoiceApi(
                                     }
                                 )
                             }
+
                             BaseVoiceMessagePayload.W3WError -> {
                                 val result = Gson().fromJson(text, W3WErrorPayload::class.java)
                                 listenerWithCoordinates?.error(

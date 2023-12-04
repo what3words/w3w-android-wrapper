@@ -3,6 +3,8 @@ package com.what3words.androidwrapper
 import com.what3words.androidwrapper.helpers.didYouMean3wa
 import com.what3words.androidwrapper.helpers.isPossible3wa
 import com.what3words.androidwrapper.helpers.searchPossible3wa
+import com.what3words.androidwrapper.voice.VoiceApi
+import com.what3words.core.domain.language.W3WLanguage
 import org.junit.Test
 
 class RegexTests {
@@ -32,9 +34,10 @@ class RegexTests {
 
     @Test
     fun `search regex in text with 3wa`() {
-        val words = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse porttitor index.home.raft nunc vitae mauris mattis, et cursus ante posuere. Quisque consequat varius orci, ut auctor ipsum. Integer gravida non eros non posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean consequat interdum lacus, viverra auctor nisi dignissim in. Aenean sed tempor ro.do.so tellus, eget vestibulum dolor. Donec vel mi maximus, commodo diam sit amet, dictum purus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc volutpat eu ligula ultricies feugiat. Cras nisi justo, varius vitae augue at, eleifend porttitor velit.\n" +
-                "\n" +
-                "Aenean id lacus ipsum. Integer ut dolor a enim efficitur aliquam. filled.count.soap. Aliquam vitae mattis diam, eget tincidunt nibh. Suspendisse mattis leo eu arcu finibus lobortis. Aenean bibendum, turpis id posuere aliquet, orci ante euismod ipsum, nec imperdiet ex felis nec nulla. Nulla facilisi. Nam auctor dapibus nunc, sed maximus quam varius a. Quisque eu lacinia dui. Sed at consectetur magna."
+        val words =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse porttitor index.home.raft nunc vitae mauris mattis, et cursus ante posuere. Quisque consequat varius orci, ut auctor ipsum. Integer gravida non eros non posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean consequat interdum lacus, viverra auctor nisi dignissim in. Aenean sed tempor ro.do.so tellus, eget vestibulum dolor. Donec vel mi maximus, commodo diam sit amet, dictum purus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc volutpat eu ligula ultricies feugiat. Cras nisi justo, varius vitae augue at, eleifend porttitor velit.\n" +
+                    "\n" +
+                    "Aenean id lacus ipsum. Integer ut dolor a enim efficitur aliquam. filled.count.soap. Aliquam vitae mattis diam, eget tincidunt nibh. Suspendisse mattis leo eu arcu finibus lobortis. Aenean bibendum, turpis id posuere aliquet, orci ante euismod ipsum, nec imperdiet ex felis nec nulla. Nulla facilisi. Nam auctor dapibus nunc, sed maximus quam varius a. Quisque eu lacinia dui. Sed at consectetur magna."
         assert(words.searchPossible3wa().count() == 3)
         assert(words.searchPossible3wa().contains("index.home.raft"))
         assert(words.searchPossible3wa().contains("filled.count.soap"))
@@ -43,9 +46,25 @@ class RegexTests {
 
     @Test
     fun `search regex in text without 3wa`() {
-        val words = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse porttitor nunc vitae mauris mattis, et cursus ante posuere. Quisque consequat varius orci, ut auctor ipsum. Integer gravida non eros non posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean consequat interdum lacus, viverra auctor nisi dignissim in. Aenean sed tempor tellus, eget vestibulum dolor. Donec vel mi maximus, commodo diam sit amet, dictum purus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc volutpat eu ligula ultricies feugiat. Cras nisi justo, varius vitae augue at, eleifend porttitor velit.\n" +
-                "\n" +
-                "Aenean id lacus ipsum. Integer ut dolor a enim efficitur aliquam. Aliquam vitae mattis diam, eget tincidunt nibh. Suspendisse mattis leo eu arcu finibus lobortis. Aenean bibendum, turpis id posuere aliquet, orci ante euismod ipsum, nec imperdiet ex felis nec nulla. Nulla facilisi. Nam auctor dapibus nunc, sed maximus quam varius a. Quisque eu lacinia dui. Sed at consectetur magna."
+        val words =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse porttitor nunc vitae mauris mattis, et cursus ante posuere. Quisque consequat varius orci, ut auctor ipsum. Integer gravida non eros non posuere. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean consequat interdum lacus, viverra auctor nisi dignissim in. Aenean sed tempor tellus, eget vestibulum dolor. Donec vel mi maximus, commodo diam sit amet, dictum purus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc volutpat eu ligula ultricies feugiat. Cras nisi justo, varius vitae augue at, eleifend porttitor velit.\n" +
+                    "\n" +
+                    "Aenean id lacus ipsum. Integer ut dolor a enim efficitur aliquam. Aliquam vitae mattis diam, eget tincidunt nibh. Suspendisse mattis leo eu arcu finibus lobortis. Aenean bibendum, turpis id posuere aliquet, orci ante euismod ipsum, nec imperdiet ex felis nec nulla. Nulla facilisi. Nam auctor dapibus nunc, sed maximus quam varius a. Quisque eu lacinia dui. Sed at consectetur magna."
         assert(words.searchPossible3wa().count() == 0)
+    }
+
+    @Test
+    fun `split regex test`() {
+        assert(W3WLanguage.SR_CYRL_RS.getLanguageCode() == "sr")
+        assert(W3WLanguage.SR_CYRL_RS.getScriptCode() == "Cyrl")
+        assert(W3WLanguage.SR_CYRL_RS.getRegionCode() == "RS")
+
+        assert(W3WLanguage.DE.getLanguageCode() == "de")
+        assert(W3WLanguage.DE.getScriptCode() == null)
+        assert(W3WLanguage.DE.getRegionCode() == null)
+
+        assert(W3WLanguage.BS_LATN.getLanguageCode() == "bs")
+        assert(W3WLanguage.BS_LATN.getScriptCode() == "Latn")
+        assert(W3WLanguage.BS_LATN.getRegionCode() == null)
     }
 }
