@@ -67,7 +67,7 @@ class VoiceBuilderTests {
 
         justRun {
             voiceApi.forceStop()
-            voiceApi.initialize(any(), any(), any<String>(), any(), any<VoiceApiListener>())
+            voiceApi.initialize(any(), any(), any(), any<String>(), any(), any<VoiceApiListener>())
             microphone.startRecording(voiceApi)
             microphone.stopRecording()
             suggestionsCallback.accept(any())
@@ -78,6 +78,12 @@ class VoiceBuilderTests {
             microphone.recordingRate
         } answers {
             44000
+        }
+
+        every {
+            microphone.bufferSize
+        } answers {
+            2816
         }
 
         every {
@@ -115,7 +121,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(),any(), any(), any<String>(), any(), builder) }
             verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             // when forced stop
@@ -143,7 +149,7 @@ class VoiceBuilderTests {
 
         // then
         assertThat(builder.isListening()).isTrue()
-        verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+        verify(exactly = 1) { voiceApi.initialize(any(), any(),any(), any<String>(), any(), builder) }
         verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
         // when
@@ -173,7 +179,7 @@ class VoiceBuilderTests {
 
             // then
             assertThat(builder.isListening()).isTrue()
-            verify(exactly = 1) { voiceApi.initialize(any(), any(), any<String>(), any(), builder) }
+            verify(exactly = 1) { voiceApi.initialize(any(), any(),any(), any<String>(), any(), builder) }
             verify(exactly = 1) { microphone.startRecording(voiceApi) }
 
             val suggestionsJson =

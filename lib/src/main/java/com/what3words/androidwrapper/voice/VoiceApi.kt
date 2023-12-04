@@ -21,6 +21,7 @@ import org.json.JSONObject
 interface VoiceProvider {
     fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,
@@ -29,6 +30,7 @@ interface VoiceProvider {
 
     fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         language: W3WLanguage,
         autosuggestOptions: AutosuggestOptions,
@@ -37,6 +39,7 @@ interface VoiceProvider {
 
     fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,
@@ -45,6 +48,7 @@ interface VoiceProvider {
 
     fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         language: W3WLanguage,
         autosuggestOptions: AutosuggestOptions,
@@ -111,17 +115,19 @@ open class VoiceApi(
 
     override fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         language: W3WLanguage,
         autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListener
     ) {
         val voiceLanguage = map[language]?.code ?: language.code
-        initialize(sampleRate, encoding, voiceLanguage, autosuggestOptions, listener)
+        initialize(sampleRate, samplesPerChannel, encoding, voiceLanguage, autosuggestOptions, listener)
     }
 
     override fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,
@@ -138,17 +144,19 @@ open class VoiceApi(
 
     override fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         language: W3WLanguage,
         autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
     ) {
         val voiceLanguage = map[language]?.code ?: language.code
-        initialize(sampleRate, encoding, voiceLanguage, autosuggestOptions, listener)
+        initialize(sampleRate, samplesPerChannel, encoding, voiceLanguage, autosuggestOptions, listener)
     }
 
     override fun initialize(
         sampleRate: Int,
+        samplesPerChannel: Int,
         encoding: Int,
         voiceLanguage: String,
         autosuggestOptions: AutosuggestOptions,

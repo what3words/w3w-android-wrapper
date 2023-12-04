@@ -17,6 +17,7 @@ import java.nio.ByteOrder
 class Microphone {
     companion object {
         const val DEFAULT_RECORDING_RATE = 44100
+        const val DEFAULT_BUFFER_SIZE = 2816
         const val CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT
         const val ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
@@ -95,7 +96,7 @@ class Microphone {
 
     internal var recordingRate: Int = DEFAULT_RECORDING_RATE
     internal var encoding: Int = ENCODING
-    private var bufferSize: Int = 0
+    internal var bufferSize: Int = DEFAULT_BUFFER_SIZE
     private var channel: Int = CHANNEL
     private var audioSource: Int = MediaRecorder.AudioSource.MIC
 
