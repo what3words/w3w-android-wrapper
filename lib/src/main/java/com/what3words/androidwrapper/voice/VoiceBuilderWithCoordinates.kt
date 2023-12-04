@@ -110,6 +110,7 @@ class VoiceBuilderWithCoordinates : VoiceApiListenerWithCoordinates {
         when {
             ::voiceLanguage.isInitialized -> api.voiceProvider.initialize(
                 sampleRate = mic.recordingRate,
+                samplesPerChannel = mic.bufferSize,
                 encoding = mic.encoding,
                 autosuggestOptions = autosuggestOptions,
                 voiceLanguage = voiceLanguage,
@@ -118,6 +119,7 @@ class VoiceBuilderWithCoordinates : VoiceApiListenerWithCoordinates {
 
             ::language.isInitialized -> api.voiceProvider.initialize(
                 sampleRate = mic.recordingRate,
+                samplesPerChannel = mic.bufferSize,
                 encoding = mic.encoding,
                 autosuggestOptions = autosuggestOptions,
                 language = language,

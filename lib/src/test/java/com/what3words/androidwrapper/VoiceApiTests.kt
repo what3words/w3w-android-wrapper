@@ -170,6 +170,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -200,6 +201,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -230,6 +232,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -254,6 +257,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -278,6 +282,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -302,6 +307,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -326,6 +332,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -354,6 +361,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -382,6 +390,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             6,
             "en",
             AutosuggestOptions(),
@@ -410,6 +419,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -438,6 +448,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -466,6 +477,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
@@ -494,6 +506,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_FLOAT,
             "en",
             AutosuggestOptions(),
@@ -520,6 +533,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_8BIT,
             "en",
             AutosuggestOptions(),
@@ -547,6 +561,7 @@ class VoiceApiTests {
         // when
         voiceApi.initialize(
             Microphone.DEFAULT_RECORDING_RATE,
+            Microphone.DEFAULT_BUFFER_SIZE,
             AudioFormat.ENCODING_PCM_16BIT,
             "en",
             AutosuggestOptions(),
