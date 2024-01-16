@@ -153,7 +153,7 @@ class Microphone {
                     audioRecord.startRecording()
                     while (isListening) {
                         val readCount = audioRecord.read(buffer, 0, buffer.size)
-                        provider.sendData(convertAudioRecordToByteString(readCount, buffer))
+                        provider.sendData(readCount, buffer)
                         if ((System.currentTimeMillis() - oldTimestamp) > 100) {
                             oldTimestamp = System.currentTimeMillis()
                             val volume = calculateVolume(readCount, buffer)
@@ -191,13 +191,5 @@ class Microphone {
             volume = 10 * log10(amplitude)
         }
         return volume
-    }
-
-    internal fun convertAudioRecordToByteString(readCount: Int, buffer: ShortArray): ByteString {
-        val bufferBytes: ByteBuffer =
-            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
-        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
-        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
-        return ByteString.of(*bufferBytes.array())
     }
 }
