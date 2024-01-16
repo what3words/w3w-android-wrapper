@@ -56,6 +56,7 @@ interface VoiceProvider {
     )
 
     fun sendData(byteString: ByteString)
+    fun sendData(readCount: Int, buffer: ShortArray)
 
     fun forceStop()
     var baseUrl: String
@@ -173,6 +174,14 @@ open class VoiceApi(
 
     override fun sendData(byteString: ByteString) {
         socket?.send(byteString)
+    }
+
+    override fun sendData(readCount: Int, buffer: ShortArray) {
+        val bufferBytes: ByteBuffer =
+            ByteBuffer.allocate(readCount * 2) // 2 bytes per short
+        bufferBytes.order(ByteOrder.LITTLE_ENDIAN) // save little-endian byte from short buffer
+        bufferBytes.asShortBuffer().put(buffer, 0, readCount)
+        socket?.send(ByteString.of(*bufferBytes.array()))
     }
 
     /**
