@@ -9,52 +9,23 @@ API methods are grouped into a single service object which can be centrally mana
 
 To obtain an API key, please visit [https://what3words.com/select-plan](https://what3words.com/select-plan) and sign up for an account.
 
-## Installation
 
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.2.0'
+implementation 'com.what3words:w3w-android-wrapper:3.2.1'
 ```
 
 ## Documentation
 
 See the what3words public API [documentation](https://docs.what3words.com/api/v3/)
 
+## Sample using w3w-android-wrapper library
+
+[api-wrapper-sample](https://github.com/what3words/w3w-android-samples/tree/main/api-wrapper-sample)
+
+
 ## Usage
-
-AndroidManifest.xml
-```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yourpackage.yourapp">
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- add if using voice api autosuggest -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-```
-
-build.gradle (app level)
-```gradle
-android {
-    ...
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-
-dependencies {
-    ...
-    // we are going to use coroutines for kotlin examples, feel free to use any other library of your choice.
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
-
-    // we are going to use rxjava for java examples, feel free to use any other library of your choice.
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
-    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-}
-```
 
 ### convertTo3wa example in kotlin with Coroutines.
 Because it is not possible to perform a networking operation on the main application thread, API calls need to be made in a background thread, we used Coroutines in this example. *for more Kotlin examples try our **sample app** in this repo*.
@@ -122,7 +93,6 @@ wrapper.autosuggest(microphone, "en")
         Log.e("VoiceSample", error.message)
     }.startListening()
 ```
-**For a full working example with voice and AUDIO_RECORD permission request check our [sample](https://github.com/what3words/w3w-android-wrapper/blob/master/sample/src/main/java/com/what3words/androidwrappersample/MainActivity.kt "sample") and [sample-java](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-java/src/main/java/com/what3words/androidwrappersamplejava/MainActivity.java "sample-java")**
 
 ### Other available wrapper calls and examples.
 
@@ -154,8 +124,60 @@ If you run our Enterprise Suite API Server yourself, you may specify the URL to 
 
 ## Add what3words autosuggest to an existing autosuggest field
 
-If you want to add what3words support to your existing autosuggest field please check our [AutosuggestHelper tutorial](https://github.com/what3words/w3w-android-wrapper/blob/master/autosuggest-helper-tutorial.md) or our [AutosuggestHelper sample app](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers)
+### Using AutosuggestHelper class
 
+Add the api and helper wherever you put your class variables and be sure to use your [API key](https://what3words.com/select-plan):
+```Kotlin
+val what3words = What3WordsV3("YOUR_API_KEY_HERE", this)
+val autosuggestOptions = AutosuggestOptions().apply {
+    // apply all clippings here (focus, clipToCountry, clipToCircle, etc.)
+    focus = Coordinates(51.5209433, -0.1962334)
+}
+
+val autosuggestHelper = AutosuggestHelper(what3words).options(autosuggestOptions)
+```
+Next step is to use a TextWatcher (or doOnTextChanged EditText extension) and let **autosuggestHelper** know about the changed text and add what3words suggestion data to your existing RecyclerView/Adapter. (check sample for complete working example with [custom data model and RecyclerView adapter](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/SuggestionsAdapter.kt) to show different autosuggest sources and [EditText and RecyclerView](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/MainActivity.kt) setup.
+
+```Kotlin
+editText.doOnTextChanged { text, _, _, _ -> 
+	// update options in case of new clippings applying/changing dynamically i.e: Location.  
+	autosuggestHelper.options(autosuggestOptions).update(  
+	    text.toString(),  
+	    onSuccessListener = { suggestionResults ->  
+		suggestionResults.forEach { suggestion ->  
+		    //Add suggestion to existing RecyclerView adapter
+	            list.add(suggestion)
+	            Log.i("MainActivity", suggestion.words)  
+	        } 
+	        //notify adapter that there's changes on the data. 
+		adapter.notifyDataSetChanged()  
+	    },  
+	    onFailureListener = {  
+                //log any errors returned by what3words API.
+	        Log.e("MainActivity", it.message)  
+	    }  
+	)
+}
+```
+
+### Get the full three word address once the user has selected a row
+
+When user selects a row from the RecyclerView *autosuggestHelper.selected()* or *autosuggestHelper.selectedWithCoordinates()* should be called to retrieve the full three word address with or without coordinates.
+
+```Kotlin
+autosuggestHelper.selectedWithCoordinates(  
+    query.text.toString(),  
+    selectedSuggestion,  
+    onSuccessListener = { w3wWithCoordinates ->
+        Toast.makeText(this,"suggestion selected from what3words, ${w3wWithCoordinates.words}, ${w3wWithCoordinates.coordinates.lat} ${w3wWithCoordinates.coordinates.lng}", Toast.LENGTH_LONG).show()  
+    },  
+    onFailureListener = {  
+	    Log.e("MainActivity", it.message)  
+    }  
+)
+```
+
+***Note*** *that selectedWithCoordinates() will convert the three word address to a lat/lng which will count against your plan's quota.*
 ## UX Guidelines
 
 ![alt text](https://github.com/what3words/w3w-android-wrapper/blob/master/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
