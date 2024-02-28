@@ -1,6 +1,6 @@
 package com.what3words.androidwrapper.datasource.text.api.dto
 
-data class LanguageDto(
+internal data class LanguageDto(
     val nativeName: String,
     val code: String,
     val name: String,

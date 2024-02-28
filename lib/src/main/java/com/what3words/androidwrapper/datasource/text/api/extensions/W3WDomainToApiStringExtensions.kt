@@ -8,7 +8,7 @@ import com.what3words.core.types.geometry.W3WRectangle
 /**
  * Extension methods to convert What3words core types to strings for API requests.
  */
-object W3WDomainToApiStringExtensions {
+internal object W3WDomainToApiStringExtensions {
     /**
      * Converts a list of [W3WCountry] to a string format suitable for API requests.
      */

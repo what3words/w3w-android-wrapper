@@ -1,6 +1,6 @@
 package com.what3words.androidwrapper.datasource.text.api.dto
 
-data class SuggestionDto(
+internal data class SuggestionDto(
     val words: String,
     val country: String,
     val nearestPlace: String,
