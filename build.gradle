@@ -32,6 +32,10 @@ buildscript {
         json_version = "20230618"
         androidx_junit_version = "1.1.5"
         espresso_version = "3.4.0"
+        moshi_version = "1.14.0"
+        retrofit_moshi_version="2.5.0"
+        retrofit_coroutines_adapter_version="0.9.2"
+        moshi_codegen_version="1.8.0"
     }
 }
 
@@ -45,4 +49,3 @@ plugins {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
