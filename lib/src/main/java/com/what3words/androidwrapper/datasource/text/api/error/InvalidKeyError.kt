@@ -9,7 +9,7 @@ package com.what3words.androidwrapper.datasource.text.api.error
  * @param message A descriptive message providing additional information about the error.
  */
 
-class InvalidKeyError(code: String, message: String) : W3WApiError(
+class InvalidKeyError(val code: String, override val message: String) : W3WApiError(
     code = code,
     errorMessage = message
 )

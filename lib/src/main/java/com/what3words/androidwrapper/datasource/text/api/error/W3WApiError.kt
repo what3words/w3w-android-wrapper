@@ -19,7 +19,7 @@ sealed class W3WApiError : W3WError {
      * @param code The error code associated with the error.
      * @param errorMessage A descriptive message providing additional information about the error.
      */
-    constructor(code: String, errorMessage: String) : super(message = "$code: $errorMessage")
+    constructor(code: String?, errorMessage: String?) : super(message = "$code: $errorMessage")
 
     /**
      * Constructor for creating a W3WApiError instance from a Throwable.

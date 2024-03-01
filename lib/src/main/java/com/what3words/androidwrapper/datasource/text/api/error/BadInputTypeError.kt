@@ -11,7 +11,7 @@ package com.what3words.androidwrapper.datasource.text.api.error
  * @param code The error code associated with the BadInputTypeError.
  * @param message A descriptive message detailing the nature of the error.
  */
-class BadInputTypeError(code: String, message: String) : W3WApiError(
+class BadInputTypeError(val code: String, override val message: String) : W3WApiError(
     code = code,
     errorMessage = message
 )

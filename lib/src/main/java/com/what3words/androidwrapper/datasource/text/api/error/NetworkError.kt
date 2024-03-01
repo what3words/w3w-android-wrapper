@@ -7,6 +7,8 @@ package com.what3words.androidwrapper.datasource.text.api.error
  *
  */
 class NetworkError : W3WApiError {
+    val code: String?
+    override val message: String?
     /**
      * Constructor for creating a NetworkError instance with a specific error code and message.
      *
@@ -16,12 +18,19 @@ class NetworkError : W3WApiError {
     constructor(code: String, message: String) : super(
         code = code,
         errorMessage = message
-    )
+    ){
+        this.code = code
+        this.message = message
+    }
+
 
     /**
      * Constructor for creating a NetworkError instance from a Throwable.
      *
      * @param throwable The Throwable object representing the exception that occurred.
      */
-    constructor(throwable: Throwable?) : super(throwable)
+    constructor(throwable: Throwable?) : super(throwable){
+        this.code = null
+        this.message = null
+    }
 }
