@@ -192,7 +192,7 @@ class W3WApiTextDatasource internal constructor(
 
     companion object {
         /**
-         * Get a new API manager instance.
+         * Creates a new [W3WApiTextDatasource] instance.
          *
          * @param apiKey Your what3words API key obtained from https://accounts.what3words.com
          * @param endPoint Override the default public API endpoint.
