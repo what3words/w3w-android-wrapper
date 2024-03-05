@@ -1,10 +1,9 @@
 package com.what3words.androidwrapper.datasource.text.api.retrofit
 
+import com.what3words.androidwrapper.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import java.io.IOException
-import java.util.Properties
 
 
 internal class What3WordsV3Interceptor(
@@ -14,21 +13,8 @@ internal class What3WordsV3Interceptor(
     private val headers: Map<String, String> = mapOf()
 ) : Interceptor {
 
-    private val version: String?
-        get() {
-            val props = Properties()
-            try {
-                javaClass.getResourceAsStream("/version.properties")?.use { inputStream ->
-                    props.load(inputStream)
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            return props.getProperty("version")
-        }
-
     private val userAgent: String =
-        ("what3words-Android/" + version + " (Java " + System.getProperty("java.version") + "; "
+        ("what3words-Android/" + BuildConfig.VERSION_NAME + " (Java " + System.getProperty("java.version") + "; "
                 + System.getProperty("os.name") + " " + System.getProperty("os.version") + ")")
 
     override fun intercept(chain: Interceptor.Chain): Response {

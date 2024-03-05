@@ -26,6 +26,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
+        buildConfigField "String", "VERSION_NAME", "\"${findProperty('VERSION_NAME')}\""
         // for robolectric
         testOptions.unitTests.includeAndroidResources = true
     }
