@@ -62,7 +62,6 @@ internal interface What3WordsV3Service {
     @GET("grid-section")
     suspend fun gridSection(
         @Query("bounding-box") bbox: String?,
-        @Query("format") format: String? = "json",
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<GridSectionResponse>
 
