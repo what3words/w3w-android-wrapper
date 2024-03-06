@@ -9,9 +9,9 @@ import com.what3words.core.types.geometry.W3WLine
 internal class GridSectionResponseMapper(private val lineDtoToDomainMapper: Mapper<LineDto, W3WLine>) :
     Mapper<GridSectionResponse, W3WGridSection> {
     override fun mapFrom(from: GridSectionResponse): W3WGridSection {
-        val lines = from.lines.map { line: LineDto ->
+        val lines = from.lines?.map { line: LineDto ->
             lineDtoToDomainMapper.mapFrom(line)
-        }
+        } ?: emptyList()
         return W3WGridSection(
             lines = lines
         )
