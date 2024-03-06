@@ -5,6 +5,7 @@ import com.what3words.androidwrapper.datasource.text.api.response.AvailableLangu
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoordinatesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.HeaderMap
 import retrofit2.http.Query
@@ -16,13 +17,13 @@ internal interface What3WordsV3Service {
         @Query("language") language: String?,
         @Query("locale") locale: String?,
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): ConvertTo3waResponse
+    ): Response<ConvertTo3waResponse>
 
     @GET("convert-to-coordinates")
     suspend fun convertToCoordinates(
         @Query("words") address: String?,
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): ConvertToCoordinatesResponse
+    ): Response<ConvertToCoordinatesResponse>
 
     @GET("autosuggest")
     suspend fun autosuggest(
@@ -39,7 +40,7 @@ internal interface What3WordsV3Service {
         @Query("locale") locale: String?,
         @Query("prefer-land") preferLand: String?,
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): AutosuggestResponse
+    ): Response<AutosuggestResponse>
 
     @GET("autosuggest-with-coordinates")
     suspend fun autosuggestWithCoordinates(
@@ -56,18 +57,18 @@ internal interface What3WordsV3Service {
         @Query("locale") locale: String?,
         @Query("prefer-land") preferLand: String?,
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): AutosuggestResponse
+    ): Response<AutosuggestResponse>
 
     @GET("grid-section")
     suspend fun gridSection(
         @Query("bounding-box") bbox: String?,
         @Query("format") format: String? = "json",
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): GridSectionResponse
+    ): Response<GridSectionResponse>
 
 
     @GET("available-languages")
     suspend fun availableLanguages(
         @HeaderMap headers: Map<String, String> = emptyMap()
-    ): AvailableLanguagesResponse
+    ): Response<AvailableLanguagesResponse>
 }

@@ -1,7 +1,6 @@
 package com.what3words.androidwrapper.datasource.text
 
 import com.what3words.androidwrapper.common.Mapper
-import com.what3words.androidwrapper.datasource.text.api.utils.executeApiRequestAndHandleResponse
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
@@ -11,6 +10,7 @@ import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waRe
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoordinatesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient
+import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient.executeApiRequestAndHandleResponse
 import com.what3words.core.datasource.W3WTextDatasource
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.domain.W3WAddress
