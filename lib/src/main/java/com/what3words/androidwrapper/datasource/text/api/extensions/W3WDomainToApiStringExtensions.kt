@@ -44,7 +44,7 @@ internal object W3WDomainToApiStringExtensions {
         return listOf(
             "${center.lat}",
             "${center.lng}",
-            "$radius"
+            "${radius.km()}"
         ).joinToString(separator = ",")
     }
 
