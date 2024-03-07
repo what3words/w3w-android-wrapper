@@ -1,11 +1,10 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text
 
-import com.what3words.androidwrapper.datasource.text.W3WApiTextDatasource
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
 import com.what3words.androidwrapper.datasource.text.api.error.BadCoordinatesError
 import com.what3words.androidwrapper.datasource.text.api.error.BadWordsError
-import com.what3words.androidwrapper.fake.FakeWhat3WordsV3Service
+import com.what3words.androidwrapper.datasource.text.fake.FakeWhat3WordsV3Service
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WRectangle
