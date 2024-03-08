@@ -165,7 +165,6 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
 
     override suspend fun gridSection(
         bbox: String?,
-        format: String?,
         headers: Map<String, String>
     ): Response<GridSectionResponse> {
         return if (bbox != null && invalidRectangle.toAPIString() == bbox) {
