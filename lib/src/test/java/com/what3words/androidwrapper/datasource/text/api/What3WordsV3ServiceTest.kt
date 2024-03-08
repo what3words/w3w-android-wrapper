@@ -1,8 +1,7 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxTooBigError
@@ -649,7 +648,6 @@ class What3WordsV3ServiceTest {
         runTest {
             // Arrange
             val boundingBox = "52.207988,0.116126,52.208867,0.117540"
-            val format = "json"
             val expectedResponseData = """
             {
               "lines": [
