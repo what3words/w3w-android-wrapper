@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.mapper
 
 import com.what3words.androidwrapper.datasource.text.api.dto.CoordinatesDto
 import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
@@ -7,7 +7,6 @@ import com.what3words.androidwrapper.datasource.text.api.mappers.CoordinatesDtoT
 import com.what3words.androidwrapper.datasource.text.api.mappers.GridSectionResponseMapper
 import com.what3words.androidwrapper.datasource.text.api.mappers.LineDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
-import org.junit.Assert
 import org.junit.Test
 
 class GridSectionResponseMapperTest {

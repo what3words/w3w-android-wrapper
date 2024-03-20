@@ -8,16 +8,16 @@ import com.what3words.androidwrapper.datasource.text.fake.FakeWhat3WordsV3Servic
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WRectangle
-import com.what3words.core.types.language.W3WLanguage
-import com.what3words.core.types.language.W3WLanguageRCF5646
+import com.what3words.core.types.language.W3WProprietaryLanguage
+import com.what3words.core.types.language.W3WRCF5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import org.junit.Test
 
-class W3WApiTextDatasourceTest {
+class W3WApiTextDataSourceTest {
 
     private val fakeWhat3WordsV3Service = FakeWhat3WordsV3Service()
 
-    private val w3WApiTextDatasource = W3WApiTextDatasource(
+    private val w3WApiTextDatasource = W3WApiTextDataSource(
         fakeWhat3WordsV3Service,
         MappersFactory.providesConvertTo3waDtoToDomainMapper(),
         MappersFactory.providesConvertToCoordinatesResponseMapper(),
@@ -30,7 +30,7 @@ class W3WApiTextDatasourceTest {
     fun convertTo3wa_withInvalidCoordinates_returnsBadCoordinatesError() {
         val result = w3WApiTextDatasource.convertTo3wa(
             W3WCoordinates(-91.0, 181.0),
-            W3WLanguage("en", "en_GB")
+            W3WProprietaryLanguage("en", "en_GB")
         )
         assert(result is W3WResult.Failure)
         result as W3WResult.Failure
@@ -41,7 +41,7 @@ class W3WApiTextDatasourceTest {
     fun convertTo3wa_withValidCoordinates_returnsW3WAddress() {
         val result = w3WApiTextDatasource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
-            W3WLanguage("en", "en_GB")
+            W3WProprietaryLanguage("en", "en_GB")
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success
@@ -52,7 +52,7 @@ class W3WApiTextDatasourceTest {
     fun convertTo3wa_withValidCoordinatesAndRFC5646Language_returnsW3WAddress() {
         val result = w3WApiTextDatasource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
-            W3WLanguageRCF5646.EN_GB
+            W3WRCF5646Language.EN_GB
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success

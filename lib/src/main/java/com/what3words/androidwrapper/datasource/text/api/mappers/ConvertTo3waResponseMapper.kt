@@ -1,14 +1,14 @@
 package com.what3words.androidwrapper.datasource.text.api.mappers
 
 import com.what3words.androidwrapper.common.Mapper
-import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
 import com.what3words.androidwrapper.datasource.text.api.dto.CoordinatesDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SquareDto
+import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
 import com.what3words.core.types.domain.W3WAddress
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WRectangle
-import com.what3words.core.types.language.W3WLanguage
+import com.what3words.core.types.language.W3WProprietaryLanguage
 
 internal class ConvertTo3waResponseMapper(
     private val coordinatesDtoToDomainMapper: Mapper<CoordinatesDto, W3WCoordinates>,
@@ -22,7 +22,7 @@ internal class ConvertTo3waResponseMapper(
             val square = square?.let { squareDtoToDomainMapper.mapFrom(it) }
                 ?: throw NullPointerException("Square property cannot be null")
             val language = language?.let {
-                W3WLanguage(code = it, locale = locale)
+                W3WProprietaryLanguage(code = it, locale = locale)
             } ?: throw NullPointerException("Language property cannot be null")
             val country = country?.let { W3WCountry(twoLetterCode = it) }
                 ?: throw NullPointerException("Country property cannot be null")

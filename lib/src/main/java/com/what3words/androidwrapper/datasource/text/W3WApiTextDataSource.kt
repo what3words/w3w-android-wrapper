@@ -11,7 +11,7 @@ import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoord
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient.executeApiRequestAndHandleResponse
-import com.what3words.core.datasource.W3WTextDatasource
+import com.what3words.core.datasource.text.W3WTextDataSource
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.domain.W3WAddress
 import com.what3words.core.types.domain.W3WSuggestion
@@ -19,11 +19,11 @@ import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WGridSection
 import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WLanguage
-import com.what3words.core.types.language.W3WLanguageRCF5646
+import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
 
 /**
- * Rest API implementation of the [com.what3words.core.datasource.W3WTextDatasource] interface.
+ * Rest API implementation of the [com.what3words.core.datasource.text.W3WTextDataSource] interface.
  * All functions in this class are blocking, therefore should be called from a background thread.
  * Clients must declare necessary internet permissions in their AndroidManifest files before invoking any function in this class.
  *
@@ -34,14 +34,14 @@ import com.what3words.core.types.options.W3WAutosuggestOptions
  * @property availableLanguagesResponseMapper Mapper for converting AvailableLanguagesResponse DTOs to domain objects.
  * @property gridSectionResponseMapper Mapper for converting GridSectionResponse DTOs to domain objects.
  */
-class W3WApiTextDatasource internal constructor(
+class W3WApiTextDataSource internal constructor(
     private val what3WordsV3Service: What3WordsV3Service,
     private val convertTo3waDtoToDomainMapper: Mapper<ConvertTo3waResponse, W3WAddress>,
     private val convertToCoordinatesResponseMapper: Mapper<ConvertToCoordinatesResponse, W3WCoordinates>,
     private val autosuggestResponseMapper: Mapper<AutosuggestResponse, List<W3WSuggestion>>,
-    private val availableLanguagesResponseMapper: Mapper<AvailableLanguagesResponse, Set<W3WLanguage>>,
+    private val availableLanguagesResponseMapper: Mapper<AvailableLanguagesResponse, Set<W3WProprietaryLanguage>>,
     private val gridSectionResponseMapper: Mapper<GridSectionResponse, W3WGridSection>
-) : W3WTextDatasource {
+) : W3WTextDataSource {
 
     /**
      * Converts a latitude and longitude to a 3 word address.
@@ -60,31 +60,8 @@ class W3WApiTextDatasource internal constructor(
         return executeApiRequestAndHandleResponse(convertTo3waDtoToDomainMapper) {
             what3WordsV3Service.convertTo3wa(
                 coordinates = coordinates.toAPIString(),
-                language = language.code,
-                locale = language.locale
-            )
-        }
-    }
-
-    /**
-     * Converts a latitude and longitude to a 3 word address.
-     * Additionally provides country information, grid square bounds, nearest place, and a map link.
-     *
-     * **This is a blocking I/O method and should only be called from a background thread.**
-     *
-     * @param coordinates The latitude and longitude of the location to convert to a 3 word address.
-     * @param language The language in which the 3 word address should be provided, specified by RFC 5646.
-     * @return A [W3WResult] instance containing the what3words address.
-     */
-    @Throws(InterruptedException::class)
-    override fun convertTo3wa(
-        coordinates: W3WCoordinates, language: W3WLanguageRCF5646
-    ): W3WResult<W3WAddress> {
-        return executeApiRequestAndHandleResponse(convertTo3waDtoToDomainMapper) {
-            what3WordsV3Service.convertTo3wa(
-                coordinates = coordinates.toAPIString(),
-                language = language.getLanguageCode(),
-                locale = language.getRegionCode()
+                language = language.w3wCode,
+                locale = language.w3wLocale
             )
         }
     }
@@ -117,14 +94,9 @@ class W3WApiTextDatasource internal constructor(
      * @return A [W3WResult] instance containing a list of what3words address suggestions.
      */
     override fun autosuggest(
-        input: String, options: W3WAutosuggestOptions?
+        input: String, options: W3WAutosuggestOptions?,
     ): W3WResult<List<W3WSuggestion>> {
         return executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
-            val requestLanguage: String? =
-                options?.language?.code ?: options?.languageRCF5646?.getLanguageCode()
-            val requestLocale: String? =
-                options?.language?.locale ?: options?.languageRCF5646?.getRegionCode()
-
             if (options?.includeCoordinates == true) {
                 what3WordsV3Service.autosuggestWithCoordinates(
                     input = input,
@@ -136,9 +108,9 @@ class W3WApiTextDatasource internal constructor(
                     clipToCircle = options.clipToCircle?.toAPIString(),
                     clipToPolygon = options.clipToPolygon?.toAPIString(),
                     inputType = options.inputType?.value,
-                    lang = requestLanguage,
-                    locale = requestLocale,
-                    preferLand = options.preferLand.toString()
+                    lang = options.language?.w3wCode,
+                    locale = options.language?.w3wLocale,
+                    preferLand = options.preferLand.toString(),
                 )
             } else {
                 what3WordsV3Service.autosuggest(
@@ -151,8 +123,8 @@ class W3WApiTextDatasource internal constructor(
                     clipToCircle = options?.clipToCircle?.toAPIString(),
                     clipToPolygon = options?.clipToPolygon?.toAPIString(),
                     inputType = options?.inputType?.value,
-                    lang = requestLanguage,
-                    locale = requestLocale,
+                    lang = options?.language?.w3wCode,
+                    locale = options?.language?.w3wLocale,
                     preferLand = options?.preferLand?.toString()
                 )
             }
@@ -184,7 +156,7 @@ class W3WApiTextDatasource internal constructor(
      * @return A [W3WResult] instance containing a set of available what3words languages.
      */
     @Throws(InterruptedException::class)
-    override fun availableLanguages(): W3WResult<Set<W3WLanguage>> {
+    override fun availableLanguages(): W3WResult<Set<W3WProprietaryLanguage>> {
         return executeApiRequestAndHandleResponse(availableLanguagesResponseMapper) {
             what3WordsV3Service.availableLanguages()
         }
@@ -192,7 +164,7 @@ class W3WApiTextDatasource internal constructor(
 
     companion object {
         /**
-         * Creates a new [W3WApiTextDatasource] instance.
+         * Creates a new [W3WApiTextDataSource] instance.
          *
          * @param apiKey Your what3words API key obtained from https://accounts.what3words.com
          * @param endPoint Override the default public API endpoint.
@@ -206,8 +178,8 @@ class W3WApiTextDatasource internal constructor(
             packageName: String? = null,
             signature: String? = null,
             headers: Map<String, String> = mapOf()
-        ): W3WApiTextDatasource {
-            return W3WApiTextDatasource(
+        ): W3WApiTextDataSource {
+            return W3WApiTextDataSource(
                 what3WordsV3Service = W3WV3RetrofitApiClient.createW3WV3Service(
                     apiKey, endPoint, packageName, signature, headers
                 ),

@@ -1,8 +1,8 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.mapper
 
 import com.what3words.androidwrapper.datasource.text.api.dto.LanguageDto
 import com.what3words.androidwrapper.datasource.text.api.mappers.LanguageDtoToDomainMapper
-import com.what3words.core.types.language.W3WLanguage
+import com.what3words.core.types.language.W3WProprietaryLanguage
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -31,11 +31,11 @@ class LanguageDtoToDomainMapperTest {
         )
 
         val expected = listOf(
-            W3WLanguage(
+            W3WProprietaryLanguage(
                 code = "en",
                 locale = "en_US"
             ),
-            W3WLanguage(
+            W3WProprietaryLanguage(
                 code = "en",
                 locale = "en_GB"
             )
@@ -56,7 +56,7 @@ class LanguageDtoToDomainMapperTest {
         )
 
         val expected = listOf(
-            W3WLanguage(
+            W3WProprietaryLanguage(
                 code = "vi",
                 locale = null
             )
@@ -78,7 +78,7 @@ class LanguageDtoToDomainMapperTest {
         )
 
         val expected = listOf(
-            W3WLanguage(
+            W3WProprietaryLanguage(
                 code = "vi",
                 locale = null
             )

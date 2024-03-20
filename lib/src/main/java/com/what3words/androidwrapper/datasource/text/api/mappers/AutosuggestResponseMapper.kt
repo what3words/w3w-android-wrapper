@@ -11,7 +11,7 @@ import com.what3words.core.types.domain.W3WSuggestion
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WDistance
 import com.what3words.core.types.geometry.W3WRectangle
-import com.what3words.core.types.language.W3WLanguage
+import com.what3words.core.types.language.W3WProprietaryLanguage
 
 internal class AutosuggestResponseMapper(
     private val coordinatesDtoToDomainMapper: Mapper<CoordinatesDto, W3WCoordinates>,
@@ -31,7 +31,7 @@ internal class AutosuggestResponseMapper(
                     square = suggestion.square?.let {
                         squareDtoToDomainMapper.mapFrom(it)
                     },
-                    language = W3WLanguage(suggestion.language, suggestion.locale),
+                    language = W3WProprietaryLanguage(suggestion.language, suggestion.locale),
                     country = W3WCountry(suggestion.country)
                 ),
                 distanceToFocus = suggestion.distanceToFocusKm?.toDouble()?.let(::W3WDistance),
