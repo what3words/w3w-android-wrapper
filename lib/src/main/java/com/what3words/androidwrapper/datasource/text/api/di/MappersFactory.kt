@@ -19,7 +19,7 @@ import com.what3words.core.types.domain.W3WAddress
 import com.what3words.core.types.domain.W3WSuggestion
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WGridSection
-import com.what3words.core.types.language.W3WLanguage
+import com.what3words.core.types.language.W3WProprietaryLanguage
 
 internal object MappersFactory {
     // Lazy delegates to create mapper instances only when they are accessed
@@ -69,7 +69,7 @@ internal object MappersFactory {
     fun providesGridSectionResponseMapper(): Mapper<GridSectionResponse, W3WGridSection> =
         gridSectionResponseMapper
 
-    fun providesAvailableLanguagesResponseMapper(): Mapper<AvailableLanguagesResponse, Set<W3WLanguage>> =
+    fun providesAvailableLanguagesResponseMapper(): Mapper<AvailableLanguagesResponse, Set<W3WProprietaryLanguage>> =
         availableLanguagesResponseMapper
 
     fun providesAutosuggestResponseMapper(): Mapper<AutosuggestResponse, List<W3WSuggestion>> =

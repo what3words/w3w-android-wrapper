@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.mapper
 
 import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SuggestionDto
@@ -79,31 +79,31 @@ class AutosuggestResponseMapperTest {
         assert(result.size == 3)
         assert(result[0].w3wAddress.address == "///index.home.raft")
         assert(result[0].w3wAddress.nearestPlace == "Bayswater, London")
-        assert(result[0].w3wAddress.language.code == "en")
+        assert(result[0].w3wAddress.language.w3wCode == "en")
         assert(result[0].w3wAddress.country.twoLetterCode == "GB")
         assert(result[0].w3wAddress.center == null)
         assert(result[0].w3wAddress.square == null)
-        assert(result[0].w3wAddress.language.locale == null)
+        assert(result[0].w3wAddress.language.w3wLocale == null)
         assert(result[0].distanceToFocus == null)
         assert(result[0].rank == 1)
 
         assert(result[1].w3wAddress.address == "///indexes.home.raft")
         assert(result[1].w3wAddress.nearestPlace == "Prosperity, West Virginia")
-        assert(result[1].w3wAddress.language.code == "en")
+        assert(result[1].w3wAddress.language.w3wCode == "en")
         assert(result[1].w3wAddress.country.twoLetterCode == "US")
         assert(result[1].w3wAddress.center == null)
         assert(result[1].w3wAddress.square == null)
-        assert(result[1].w3wAddress.language.locale == null)
+        assert(result[1].w3wAddress.language.w3wLocale == null)
         assert(result[1].distanceToFocus == null)
         assert(result[1].rank == 2)
 
         assert(result[2].w3wAddress.address == "///index.homes.raft")
         assert(result[2].w3wAddress.nearestPlace == "Greensboro, North Carolina")
-        assert(result[2].w3wAddress.language.code == "en")
+        assert(result[2].w3wAddress.language.w3wCode == "en")
         assert(result[2].w3wAddress.country.twoLetterCode == "US")
         assert(result[2].w3wAddress.center == null)
         assert(result[2].w3wAddress.square == null)
-        assert(result[2].w3wAddress.language.locale == null)
+        assert(result[2].w3wAddress.language.w3wLocale == null)
         assert(result[2].distanceToFocus == null)
         assert(result[2].rank == 3)
     }

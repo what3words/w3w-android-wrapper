@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.mapper
 
 import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
