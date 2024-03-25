@@ -9,7 +9,7 @@ import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WProprietaryLanguage
-import com.what3words.core.types.language.W3WRCF5646Language
+import com.what3words.core.types.language.W3WRFC5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import org.junit.Test
 
@@ -52,7 +52,7 @@ class W3WApiTextDataSourceTest {
     fun convertTo3wa_withValidCoordinatesAndRFC5646Language_returnsW3WAddress() {
         val result = w3WApiTextDatasource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
-            W3WRCF5646Language.EN_GB
+            W3WRFC5646Language.EN_GB
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success
