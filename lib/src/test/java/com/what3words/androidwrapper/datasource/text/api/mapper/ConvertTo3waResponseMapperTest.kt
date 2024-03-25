@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.mapper
 
 import com.what3words.androidwrapper.datasource.text.api.dto.CoordinatesDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SquareDto
@@ -41,8 +41,8 @@ class ConvertTo3waResponseMapperTest {
 
         // Assert
         assert(result.address == "///index.home.raft")
-        assert(result.language.code == "en")
-        assert(result.language.locale == null)
+        assert(result.language.w3wCode == "en")
+        assert(result.language.w3wLocale == null)
         assert(result.center?.lng == -0.203586)
         assert(result.center?.lat == 51.521251)
         assert(result.square?.southwest?.lng == -0.203607)

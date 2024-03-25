@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper
+package com.what3words.androidwrapper.datasource.text.api.extensions
 
 import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.core.types.domain.W3WCountry
