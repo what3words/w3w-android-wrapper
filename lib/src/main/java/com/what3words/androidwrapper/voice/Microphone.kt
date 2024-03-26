@@ -14,6 +14,7 @@ import okio.ByteString
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+@Deprecated("This class is deprecated, use new W3WMicroPhone instead.")
 class Microphone {
     companion object {
         const val DEFAULT_RECORDING_RATE = 44100

@@ -3,6 +3,7 @@ package com.what3words.androidwrapper.voice
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 
+@Deprecated("This class is deprecated, please use new W3WApiVoiceDatasource instead")
 interface VoiceApiListenerWithCoordinates {
     /**
      * When WebSocket successfully does the handshake with VoiceAPI

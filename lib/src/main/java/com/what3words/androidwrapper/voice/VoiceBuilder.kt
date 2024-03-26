@@ -14,6 +14,7 @@ import com.what3words.javawrapper.response.Suggestion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Deprecated("This class is deprecated, please use new W3WApiVoiceDatasource instead")
 class VoiceBuilder : VoiceApiListener {
     internal var autosuggestOptions: AutosuggestOptions = AutosuggestOptions()
     private var onSuggestionsCallback: Consumer<List<Suggestion>>? = null
