@@ -4,7 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toApiString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
-import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toVoiceApiLanguage
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toVoiceApiString
 import com.what3words.androidwrapper.voice.BaseVoiceMessagePayload
 import com.what3words.androidwrapper.voice.ErrorPayload
 import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
@@ -231,7 +231,7 @@ internal class W3WVoiceClient(
                             addQueryParameter(it.key, it.value)
                         }
                         // specify non-optional voice language parameter and api key
-                        addQueryParameter("voice-language", voiceLanguage.toVoiceApiLanguage())
+                        addQueryParameter("voice-language", voiceLanguage.toVoiceApiString())
                         addQueryParameter("api-key", apiKey)
                     }.build()
             ).build()

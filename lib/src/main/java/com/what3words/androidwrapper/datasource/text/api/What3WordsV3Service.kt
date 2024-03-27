@@ -9,6 +9,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.HeaderMap
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 internal interface What3WordsV3Service {
     @GET("convert-to-3wa")
@@ -28,34 +29,14 @@ internal interface What3WordsV3Service {
     @GET("autosuggest")
     suspend fun autosuggest(
         @Query("input") input: String?,
-        @Query("n-results") nResults: String?,
-        @Query("focus") focus: String?,
-        @Query("n-focus-results") nFocusResults: String?,
-        @Query("clip-to-country") clipToCountry: String?,
-        @Query("clip-to-bounding-box") clipToBoundingBox: String?,
-        @Query("clip-to-circle") clipToCircle: String?,
-        @Query("clip-to-polygon") clipToPolygon: String?,
-        @Query("input-type") inputType: String?,
-        @Query("language") lang: String?,
-        @Query("locale") locale: String?,
-        @Query("prefer-land") preferLand: String?,
+        @QueryMap options: Map<String, String> = emptyMap(),
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<AutosuggestResponse>
 
     @GET("autosuggest-with-coordinates")
     suspend fun autosuggestWithCoordinates(
         @Query("input") input: String?,
-        @Query("n-results") nResults: String?,
-        @Query("focus") focus: String?,
-        @Query("n-focus-results") nFocusResults: String?,
-        @Query("clip-to-country") clipToCountry: String?,
-        @Query("clip-to-bounding-box") clipToBoundingBox: String?,
-        @Query("clip-to-circle") clipToCircle: String?,
-        @Query("clip-to-polygon") clipToPolygon: String?,
-        @Query("input-type") inputType: String?,
-        @Query("language") lang: String?,
-        @Query("locale") locale: String?,
-        @Query("prefer-land") preferLand: String?,
+        @QueryMap options: Map<String, String> = emptyMap(),
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<AutosuggestResponse>
 
