@@ -6,6 +6,7 @@ import com.what3words.javawrapper.response.Suggestion
 /**
  * Implement this listener to receive the callbacks from VoiceApi
  */
+@Deprecated("This class is deprecated, please use new W3WApiVoiceDatasource instead")
 interface VoiceApiListener {
     /**
      * When WebSocket successfully does the handshake with VoiceAPI
