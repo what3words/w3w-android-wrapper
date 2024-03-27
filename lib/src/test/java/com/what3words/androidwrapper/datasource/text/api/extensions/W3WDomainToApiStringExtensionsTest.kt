@@ -1,6 +1,6 @@
 package com.what3words.androidwrapper.datasource.text.api.extensions
 
-import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.geometry.W3WCircle
 import com.what3words.core.types.geometry.W3WCoordinates

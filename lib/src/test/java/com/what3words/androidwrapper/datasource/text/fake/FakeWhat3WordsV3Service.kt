@@ -6,7 +6,7 @@ import com.what3words.androidwrapper.datasource.text.api.dto.LanguageDto
 import com.what3words.androidwrapper.datasource.text.api.dto.LineDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SquareDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SuggestionDto
-import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
 import com.what3words.androidwrapper.datasource.text.api.response.AvailableLanguagesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
