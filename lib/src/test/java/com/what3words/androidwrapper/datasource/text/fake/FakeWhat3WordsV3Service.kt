@@ -97,17 +97,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
 
     override suspend fun autosuggest(
         input: String?,
-        nResults: String?,
-        focus: String?,
-        nFocusResults: String?,
-        clipToCountry: String?,
-        clipToBoundingBox: String?,
-        clipToCircle: String?,
-        clipToPolygon: String?,
-        inputType: String?,
-        lang: String?,
-        locale: String?,
-        preferLand: String?,
+        options: Map<String, String>,
         headers: Map<String, String>
     ): Response<AutosuggestResponse> {
         return Response.success(
@@ -131,17 +121,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
 
     override suspend fun autosuggestWithCoordinates(
         input: String?,
-        nResults: String?,
-        focus: String?,
-        nFocusResults: String?,
-        clipToCountry: String?,
-        clipToBoundingBox: String?,
-        clipToCircle: String?,
-        clipToPolygon: String?,
-        inputType: String?,
-        lang: String?,
-        locale: String?,
-        preferLand: String?,
+        options: Map<String, String>,
         headers: Map<String, String>
     ): Response<AutosuggestResponse> {
         return Response.success(
