@@ -1,7 +1,6 @@
 package com.what3words.androidwrapper.common.extensions
 
 import android.media.AudioFormat
-import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamEncoding
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.geometry.W3WCircle
@@ -68,6 +67,9 @@ internal object W3WDomainToApiStringExtensions {
         } ?: ""
     }
 
+    /**
+     * Converts [W3WAutosuggestOptions] to a map of query parameters suitable for API requests.
+     */
     fun W3WAutosuggestOptions.toQueryMap(): Map<String, String> {
         return buildMap {
             nResults.let {
@@ -75,6 +77,10 @@ internal object W3WDomainToApiStringExtensions {
             }
             focus?.let {
                 "focus" to it.toAPIString()
+            }
+            language?.let {
+                "language" to it.w3wCode
+                "locale" to it.w3wLocale
             }
             nFocusResults?.let {
                 "n-focus-results" to it
@@ -95,9 +101,19 @@ internal object W3WDomainToApiStringExtensions {
             clipToBoundingBox?.let {
                 "clip-to-bounding-box" to it.toAPIString()
             }
+            inputType?.let {
+                "input-type" to it
+            }
+            preferLand.let {
+                "prefer-land" to it.toString()
+            }
+
         }
     }
 
+    /**
+     * Converts [W3WAudioStreamEncoding] to a string format suitable for API requests.
+     */
     fun W3WAudioStreamEncoding.toApiString(): String {
         return when (this.value) {
             AudioFormat.ENCODING_PCM_16BIT -> "pcm_s16le"
@@ -107,7 +123,10 @@ internal object W3WDomainToApiStringExtensions {
         }
     }
 
-    fun W3WLanguage.toVoiceApiLanguage(): String {
+    /**
+     * Converts [W3WLanguage] to a string format suitable for voice api request
+     */
+    fun W3WLanguage.toVoiceApiString(): String {
         return when (w3wCode) {
             "zh" -> "cmn"
             else -> w3wCode

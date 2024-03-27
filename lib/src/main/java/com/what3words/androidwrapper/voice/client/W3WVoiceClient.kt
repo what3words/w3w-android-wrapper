@@ -1,21 +1,23 @@
 package com.what3words.androidwrapper.voice.client
 
-import android.media.AudioFormat
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
-import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
-import com.what3words.androidwrapper.helpers.plusAssign
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toApiString
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toVoiceApiLanguage
 import com.what3words.androidwrapper.voice.BaseVoiceMessagePayload
 import com.what3words.androidwrapper.voice.ErrorPayload
 import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
 import com.what3words.androidwrapper.voice.W3WErrorPayload
 import com.what3words.androidwrapper.voice.error.W3WApiVoiceError
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
-import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamEncoding
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamProxy
+import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import com.what3words.javawrapper.response.APIError
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -26,6 +28,14 @@ import org.json.JSONObject
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * This class is responsible for handling voice recognition using the what3words API.
+ * It uses a WebSocket to communicate with the API.
+ *
+ * @property apiKey The API key to use for the what3words API.
+ * @property endPoint Override the default public API endpoint.
+ * @property client The OkHttpClient to use for the WebSocket connection.
+ */
 internal class W3WVoiceClient(
     private val apiKey: String,
     private val endPoint: String?,
@@ -36,33 +46,44 @@ internal class W3WVoiceClient(
     private lateinit var request: Request
     private lateinit var audioInputStreamProxy: W3WAudioStreamProxy
 
+    /**
+     * Initializes the client with the necessary parameters.
+     *
+     * @param voiceLanguage The audio stream (instance of [W3WAudioStream]) providing audio signals for ASR.
+     * @param autoSuggestOptions Additional options for tuning the address suggestions.
+     * @param audioInputStream The audio input stream to use for voice recognition.
+     * @return The initialized client.
+     */
     internal fun initialize(
-        languageCode: String,
+        voiceLanguage: W3WLanguage,
         autoSuggestOptions: W3WAutosuggestOptions?,
         audioInputStream: W3WAudioStream
     ): W3WVoiceClient {
-        val url = createSocketUrl(
-            endPoint ?: BASE_URL,
-            languageCode,
-            autoSuggestOptions ?: W3WAutosuggestOptions.Builder().build(),
-            apiKey
-        )
-        request = Request.Builder().url(url).build()
+        request = buildRequest(autoSuggestOptions, voiceLanguage)
         audioInputStreamProxy = W3WAudioStreamProxy(audioInputStream)
         return this
     }
 
+    /**
+     * Opens a WebSocket connection and starts the voice recognition process.
+     * This method should be called after [initialize] method.
+     *
+     * @param onStatusChanged A callback that is called when the status of the voice recognition
+     * process changes. Providing a [W3WResult] instance containing a list of what3words address
+     * suggestions in case of success or [W3WApiVoiceError] in case of failure.
+     */
     internal fun openWebSocketAndStartRecognition(
-        onStatusChanged: (status: Status) -> Unit
+        onStatusChanged: (recognitionStatus: RecognitionStatus) -> Unit
     ) {
         if (!::request.isInitialized || !::audioInputStreamProxy.isInitialized) {
-            throw IllegalStateException("initialize() must be called before open()")
+            throw IllegalStateException("initialize() must be called before openWebSocketAndStartRecognition()")
         }
 
+        socket?.close(MANUAL_CLOSE_CODE, "Aborted by new request")
         socket = client.newWebSocket(request, webSocketListener(onStatusChanged))
     }
 
-    private fun webSocketListener(onStatusChanged: (status: Status) -> Unit): WebSocketListener {
+    private fun webSocketListener(onStatusChanged: (recognitionStatus: RecognitionStatus) -> Unit): WebSocketListener {
         return object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 super.onOpen(webSocket, response)
@@ -97,13 +118,13 @@ internal class W3WVoiceClient(
                                     text,
                                     SuggestionsWithCoordinatesPayload::class.java
                                 )
-                            onStatusChanged(Status.Suggestions(result.suggestions))
+                            onStatusChanged(RecognitionStatus.Suggestions(result.suggestions))
                         }
 
                         BaseVoiceMessagePayload.Error -> {
                             val result = Gson().fromJson(text, ErrorPayload::class.java)
                             onStatusChanged(
-                                Status.Error(
+                                RecognitionStatus.Error(
                                     W3WApiVoiceError(
                                         code = result.code?.toString() ?: "StreamingError",
                                         message = "${result.type} - ${result.reason}"
@@ -115,7 +136,7 @@ internal class W3WVoiceClient(
                         BaseVoiceMessagePayload.W3WError -> {
                             val result = Gson().fromJson(text, W3WErrorPayload::class.java)
                             onStatusChanged(
-                                Status.Error(
+                                RecognitionStatus.Error(
                                     W3WApiVoiceError(
                                         code = result.error.code,
                                         message = result.error.message
@@ -127,7 +148,7 @@ internal class W3WVoiceClient(
 
                 } catch (ex: Exception) {
                     onStatusChanged(
-                        Status.Error(
+                        RecognitionStatus.Error(
                             W3WApiVoiceError(
                                 code = "UnknownError",
                                 message = ex.message ?: "Unknown error"
@@ -140,7 +161,7 @@ internal class W3WVoiceClient(
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 if (socket != null) t.message?.let {
                     onStatusChanged(
-                        Status.Error(
+                        RecognitionStatus.Error(
                             W3WApiVoiceError(
                                 code = "NetworkError",
                                 message = it
@@ -156,7 +177,7 @@ internal class W3WVoiceClient(
                     try {
                         val result = Gson().fromJson(reason, APIError::class.java)
                         onStatusChanged(
-                            Status.Error(
+                            RecognitionStatus.Error(
                                 W3WApiVoiceError(
                                     code = result.code,
                                     message = result.message
@@ -164,7 +185,7 @@ internal class W3WVoiceClient(
                             )
                         )
                     } catch (e: Exception) {
-                        Status.Error(
+                        RecognitionStatus.Error(
                             W3WApiVoiceError(
                                 code = "NetworkError",
                                 message = reason
@@ -178,7 +199,6 @@ internal class W3WVoiceClient(
         }
     }
 
-
     private fun sendData(webSocket: WebSocket, readCount: Int, buffer: ShortArray) {
         val bufferBytes: ByteBuffer =
             ByteBuffer.allocate(readCount * 2) // 2 bytes per short
@@ -187,63 +207,39 @@ internal class W3WVoiceClient(
         webSocket.send(ByteString.of(*bufferBytes.array()))
     }
 
+    /**
+     * Explicitly closes the WebSocket connection and audio stream.
+     */
     internal fun close(reason: String) {
         audioInputStreamProxy.closeAudioInputStream()
         socket?.close(MANUAL_CLOSE_CODE, reason)
     }
 
     @VisibleForTesting
-    internal fun createSocketUrl(
-        baseUrl: String,
-        voiceLanguage: String,
-        autoSuggestOptions: W3WAutosuggestOptions,
-        apiKey: String
-    ): String {
-        with(autoSuggestOptions) {
-            val appendedUrl = StringBuilder(baseUrl)
-            appendedUrl += if (this.includeCoordinates) URL_WITH_COORDINATES
-            else URL_WITHOUT_COORDINATES
-            appendedUrl += if (voiceLanguage == "zh") "?voice-language=cmn"
-            else "?voice-language=$voiceLanguage"
-            nResults.let {
-                appendedUrl += "&n-results=$nResults"
-            }
-            focus?.let {
-                appendedUrl += "&focus=${focus!!.lat},${focus!!.lng}"
-                if (nFocusResults != null) {
-                    appendedUrl += "&n-focus-results=$nFocusResults"
-                }
-            }
-            clipToCountry.let {
-                appendedUrl += "&clip-to-country=${it.joinToString(",")}"
-            }
-            clipToCircle?.let {
-                appendedUrl += "&clip-to-circle=${it.center.lat},${it.center.lng},${it.radius.km()}"
-            }
-            clipToPolygon?.let {
-                appendedUrl += "&clip-to-polygon=${it.toAPIString()}}"
-            }
-            clipToBoundingBox?.let {
-                appendedUrl += "&clip-to-bounding-box=${it.toAPIString()}"
-            }
-            appendedUrl += "&key=$apiKey"
-
-            return appendedUrl.toString()
-        }
+    internal fun buildRequest(
+        autoSuggestOptions: W3WAutosuggestOptions?,
+        voiceLanguage: W3WLanguage
+    ): Request {
+        val queryMap = autoSuggestOptions?.toQueryMap()
+        val requestWithCoordinates = autoSuggestOptions?.includeCoordinates == true
+        return Request.Builder()
+            .url(
+                HttpUrl.Builder().host(endPoint ?: BASE_URL)
+                    .addEncodedPathSegment(if (requestWithCoordinates) URL_WITH_COORDINATES else URL_WITHOUT_COORDINATES)
+                    .apply {
+                        queryMap?.forEach {
+                            addQueryParameter(it.key, it.value)
+                        }
+                        // specify non-optional voice language parameter and api key
+                        addQueryParameter("voice-language", voiceLanguage.toVoiceApiLanguage())
+                        addQueryParameter("api-key", apiKey)
+                    }.build()
+            ).build()
     }
 
-    private fun W3WAudioStreamEncoding.toApiString(): String {
-        return when (this.value) {
-            AudioFormat.ENCODING_PCM_16BIT -> "pcm_s16le"
-            AudioFormat.ENCODING_PCM_FLOAT -> "pcm_f32le"
-            AudioFormat.ENCODING_PCM_8BIT -> "mulaw"
-            else -> "pcm_s16le"
-        }
-    }
-
-    sealed interface Status {
-        data class Suggestions(val suggestions: List<SuggestionWithCoordinates>) : Status
-        data class Error(val error: W3WApiVoiceError) : Status
+    sealed interface RecognitionStatus {
+        data class Suggestions(val suggestions: List<SuggestionWithCoordinates>) : RecognitionStatus
+        data class Error(val error: W3WApiVoiceError) : RecognitionStatus
     }
 
     companion object {
