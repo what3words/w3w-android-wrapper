@@ -3,7 +3,7 @@ package com.what3words.androidwrapper.datasource.text
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
-import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
 import com.what3words.androidwrapper.datasource.text.api.response.AvailableLanguagesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
