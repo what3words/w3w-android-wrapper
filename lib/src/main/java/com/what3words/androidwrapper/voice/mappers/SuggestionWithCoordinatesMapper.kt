@@ -15,20 +15,19 @@ class SuggestionWithCoordinatesMapper : Mapper<SuggestionWithCoordinates, W3WSug
         return W3WSuggestion(
             w3wAddress = W3WAddress(
                 words = from.words,
-                center = W3WCoordinates(
-                    lat = from.coordinates.lat,
-                    lng = from.coordinates.lng
-                ),
-                square = W3WRectangle(
-                    southwest = W3WCoordinates(
-                        lat = from.square.southwest.lat,
-                        lng = from.square.southwest.lng
-                    ),
-                    northeast = W3WCoordinates(
-                        lat = from.square.northeast.lat,
-                        lng = from.square.northeast.lng
+                center = from.coordinates?.let { W3WCoordinates(it.lat, it.lng) },
+                square = from.square?.let {
+                    W3WRectangle(
+                        W3WCoordinates(
+                            it.southwest.lat,
+                            it.southwest.lng
+                        ),
+                        W3WCoordinates(
+                            it.northeast.lat,
+                            it.northeast.lng
+                        )
                     )
-                ),
+                },
                 language = W3WProprietaryLanguage(from.language, from.locale),
                 country = W3WCountry(from.country),
                 nearestPlace = from.nearestPlace
