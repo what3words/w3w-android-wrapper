@@ -118,16 +118,19 @@ internal class W3WVoiceClient(
                                     text,
                                     SuggestionsWithCoordinatesPayload::class.java
                                 )
+                            audioInputStreamProxy.closeAudioInputStream()
                             onStatusChanged(RecognitionStatus.Suggestions(result.suggestions))
                         }
 
                         BaseVoiceMessagePayload.Error -> {
                             val result = Gson().fromJson(text, ErrorPayload::class.java)
+                            audioInputStreamProxy.closeAudioInputStream()
                             onStatusChanged(
                                 RecognitionStatus.Error(
-                                    W3WApiVoiceError(
-                                        code = result.code?.toString() ?: "StreamingError",
-                                        message = "${result.type} - ${result.reason}"
+                                    W3WApiVoiceError.StreamingError(
+                                        type = result.type,
+                                        code = result.code,
+                                        reason = result.reason,
                                     )
                                 )
                             )
@@ -135,9 +138,10 @@ internal class W3WVoiceClient(
 
                         BaseVoiceMessagePayload.W3WError -> {
                             val result = Gson().fromJson(text, W3WErrorPayload::class.java)
+                            audioInputStreamProxy.closeAudioInputStream()
                             onStatusChanged(
                                 RecognitionStatus.Error(
-                                    W3WApiVoiceError(
+                                    W3WApiVoiceError.ConnectionError(
                                         code = result.error.code,
                                         message = result.error.message
                                     )
@@ -147,9 +151,10 @@ internal class W3WVoiceClient(
                     }
 
                 } catch (ex: Exception) {
+                    audioInputStreamProxy.closeAudioInputStream()
                     onStatusChanged(
                         RecognitionStatus.Error(
-                            W3WApiVoiceError(
+                            W3WApiVoiceError.ConnectionError(
                                 code = "UnknownError",
                                 message = ex.message ?: "Unknown error"
                             )
@@ -162,7 +167,7 @@ internal class W3WVoiceClient(
                 if (socket != null) t.message?.let {
                     onStatusChanged(
                         RecognitionStatus.Error(
-                            W3WApiVoiceError(
+                            W3WApiVoiceError.ConnectionError(
                                 code = "NetworkError",
                                 message = it
                             )
@@ -178,7 +183,7 @@ internal class W3WVoiceClient(
                         val result = Gson().fromJson(reason, APIError::class.java)
                         onStatusChanged(
                             RecognitionStatus.Error(
-                                W3WApiVoiceError(
+                                W3WApiVoiceError.ConnectionError(
                                     code = result.code,
                                     message = result.message
                                 )
@@ -186,7 +191,7 @@ internal class W3WVoiceClient(
                         )
                     } catch (e: Exception) {
                         RecognitionStatus.Error(
-                            W3WApiVoiceError(
+                            W3WApiVoiceError.ConnectionError(
                                 code = "NetworkError",
                                 message = reason
                             )
@@ -224,7 +229,8 @@ internal class W3WVoiceClient(
         val requestWithCoordinates = autoSuggestOptions?.includeCoordinates == true
         return Request.Builder()
             .url(
-                HttpUrl.Builder().host(endPoint ?: BASE_URL)
+                HttpUrl.Builder().scheme("https").host(endPoint ?: BASE_URL)
+                    .addEncodedPathSegment("v1")
                     .addEncodedPathSegment(if (requestWithCoordinates) URL_WITH_COORDINATES else URL_WITHOUT_COORDINATES)
                     .apply {
                         queryMap?.forEach {
@@ -232,7 +238,7 @@ internal class W3WVoiceClient(
                         }
                         // specify non-optional voice language parameter and api key
                         addQueryParameter("voice-language", voiceLanguage.toVoiceApiString())
-                        addQueryParameter("api-key", apiKey)
+                        addQueryParameter("key", apiKey)
                     }.build()
             ).build()
     }
@@ -243,7 +249,7 @@ internal class W3WVoiceClient(
     }
 
     companion object {
-        const val BASE_URL = "wss://voiceapi.what3words.com/v1/"
+        const val BASE_URL = "voiceapi.what3words.com"
         const val URL_WITHOUT_COORDINATES =
             "autosuggest"
         const val URL_WITH_COORDINATES =
