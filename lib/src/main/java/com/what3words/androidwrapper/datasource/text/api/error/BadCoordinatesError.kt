@@ -2,7 +2,7 @@ package com.what3words.androidwrapper.datasource.text.api.error
 
 /**
  * Represents an error that occurs when an invalid coordinate is specified for the convertTo3wa method
- * in the [com.what3words.core.datasource.W3WTextDatasource].
+ * in the [com.what3words.core.datasource.W3WTextDataSource].
  *
  * This error typically indicates that the specified coordinate is not valid or does not conform to the required
  * format for the request. Instances of this error class provide information about the error through the error code

@@ -49,7 +49,8 @@ internal class W3WVoiceClient(
     /**
      * Initializes the client with the necessary parameters.
      *
-     * @param voiceLanguage The audio stream (instance of [W3WAudioStream]) providing audio signals for ASR.
+     * @param voiceLanguage The language used to initialize the ASR engine. Accepts instances
+     * of [W3WRFC5646Language] or [W3WProprietaryLanguage].
      * @param autoSuggestOptions Additional options for tuning the address suggestions.
      * @param audioInputStream The audio input stream to use for voice recognition.
      * @return The initialized client.

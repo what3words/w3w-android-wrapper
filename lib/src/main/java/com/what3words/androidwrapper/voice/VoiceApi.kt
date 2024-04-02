@@ -18,7 +18,7 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import org.json.JSONObject
 
-@Deprecated("Use new W3WApiVoiceDatasource instead")
+@Deprecated("Use new W3WApiVoiceDataSource instead")
 interface VoiceProvider {
     fun initialize(
         sampleRate: Int,
@@ -63,7 +63,7 @@ interface VoiceProvider {
     var baseUrl: String
 }
 
-@Deprecated("Use new W3WApiVoiceDatasource instead")
+@Deprecated("Use new W3WApiVoiceDataSource instead")
 open class VoiceApi(
     private var apiKey: String,
     override var baseUrl: String = BASE_URL,

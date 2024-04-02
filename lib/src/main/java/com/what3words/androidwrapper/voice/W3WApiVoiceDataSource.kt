@@ -66,7 +66,7 @@ class W3WApiVoiceDataSource internal constructor(
     }
 
     /**
-     * Terminates any ongoing autosuggest or speech recognition process within the voice datasource
+     * Terminates any ongoing autosuggest or speech recognition process within the voice data source
      * and releases associated resources.
      */
     override fun terminate() {
