@@ -13,7 +13,7 @@ To obtain an API key, please visit [https://what3words.com/select-plan](https://
 ### Gradle
 
 ```
-implementation 'com.what3words:w3w-android-wrapper:3.2.1'
+implementation 'com.what3words:w3w-android-wrapper:3.2.2'
 ```
 
 ## Documentation
