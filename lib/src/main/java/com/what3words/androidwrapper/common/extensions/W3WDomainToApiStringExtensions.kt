@@ -72,41 +72,36 @@ internal object W3WDomainToApiStringExtensions {
      */
     fun W3WAutosuggestOptions.toQueryMap(): Map<String, String> {
         return buildMap {
-            nResults.let {
-                "n-results" to it
-            }
+            put("n-results", nResults.toString())
             focus?.let {
-                "focus" to it.toAPIString()
+                put("focus", it.toAPIString())
             }
             language?.let {
-                "language" to it.w3wCode
-                "locale" to it.w3wLocale
+                put("language", it.w3wCode)
+                it.w3wLocale?.let { locale ->
+                    put("locale", locale)
+                }
+
             }
             nFocusResults?.let {
-                "n-focus-results" to it
+                put("n-focus-results", it.toString())
             }
-            clipToCountry.let {
-                "clip-to-country to ${
-                    it.joinToString(",") { w3wCountry ->
-                        w3wCountry.twoLetterCode
-                    }
-                }"
+            if (clipToCountry.isNotEmpty()) {
+                put("clip-to-country", clipToCountry.toAPIString())
             }
             clipToCircle?.let {
-                "clip-to-circle" to it.toAPIString()
+                put("clip-to-circle", it.toAPIString())
             }
             clipToPolygon?.let {
-                "clip-to-polygon" to it.toAPIString()
+                put("clip-to-polygon", it.toAPIString())
             }
             clipToBoundingBox?.let {
-                "clip-to-bounding-box" to it.toAPIString()
+                put("clip-to-bounding-box", it.toAPIString())
             }
             inputType?.let {
-                "input-type" to it
+                put("input-type", it.toString())
             }
-            preferLand.let {
-                "prefer-land" to it.toString()
-            }
+            put("prefer-land", preferLand.toString())
 
         }
     }

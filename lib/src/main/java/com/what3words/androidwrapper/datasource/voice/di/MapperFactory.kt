@@ -1,6 +1,6 @@
-package com.what3words.androidwrapper.voice.di
+package com.what3words.androidwrapper.datasource.voice.di
 
-import com.what3words.androidwrapper.voice.mappers.SuggestionWithCoordinatesMapper
+import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionWithCoordinatesMapper
 
 internal object MapperFactory {
 

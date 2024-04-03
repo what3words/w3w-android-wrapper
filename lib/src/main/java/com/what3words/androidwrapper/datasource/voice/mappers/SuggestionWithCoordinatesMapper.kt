@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper.voice.mappers
+package com.what3words.androidwrapper.datasource.voice.mappers
 
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.core.types.domain.W3WAddress

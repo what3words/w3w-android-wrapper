@@ -1,9 +1,9 @@
-package com.what3words.androidwrapper.voice
+package com.what3words.androidwrapper.datasource.voice
 
-import com.what3words.androidwrapper.voice.W3WApiVoiceDataSource.Companion.create
-import com.what3words.androidwrapper.voice.client.W3WVoiceClient
-import com.what3words.androidwrapper.voice.di.MapperFactory
-import com.what3words.androidwrapper.voice.mappers.SuggestionWithCoordinatesMapper
+import com.what3words.androidwrapper.datasource.voice.W3WApiVoiceDataSource.Companion.create
+import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
+import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
+import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionWithCoordinatesMapper
 import com.what3words.core.datasource.voice.W3WVoiceDataSource
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
 import com.what3words.core.types.common.W3WResult
@@ -37,7 +37,7 @@ class W3WApiVoiceDataSource internal constructor(
      *                         providing immediate ASR results. This callback is triggered before initiating
      *                         what3words address suggestion process based on the recognized speech text.
      * @param onResult Callback invoked when the ASR process is completed, providing a [W3WResult] instance
-     *                 containing a list of what3words address suggestions in case of success or [W3WVoiceError]
+     *                 containing a list of what3words address suggestions in case of success or [W3WError]
      *                 in case of failure.
      */
     override fun autosuggest(

@@ -1,4 +1,4 @@
-package com.what3words.androidwrapper.voice.error
+package com.what3words.androidwrapper.datasource.voice.error
 
 import com.what3words.core.types.common.W3WError
 
@@ -20,7 +20,6 @@ sealed class W3WApiVoiceError(errorMessage: String) : W3WError(errorMessage) {
      */
     data class ConnectionError(val code: String, override val message: String) :
         W3WApiVoiceError("$code: $message")
-
 
     /**
      * This is a data class that represents a streaming error.

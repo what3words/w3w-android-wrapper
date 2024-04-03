@@ -1,17 +1,22 @@
-package com.what3words.androidwrapper.voice.client
+package com.what3words.androidwrapper.datasource.voice.client
 
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
+import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toApiString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toVoiceApiString
+import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
+import com.what3words.androidwrapper.datasource.text.api.error.UnknownError
+import com.what3words.androidwrapper.datasource.text.api.mappers.ErrorDtoToDomainMapper
 import com.what3words.androidwrapper.voice.BaseVoiceMessagePayload
 import com.what3words.androidwrapper.voice.ErrorPayload
 import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
 import com.what3words.androidwrapper.voice.W3WErrorPayload
-import com.what3words.androidwrapper.voice.error.W3WApiVoiceError
+import com.what3words.androidwrapper.datasource.voice.error.W3WApiVoiceError
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamProxy
+import com.what3words.core.types.common.W3WError
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
@@ -39,10 +44,12 @@ import java.nio.ByteOrder
 internal class W3WVoiceClient(
     private val apiKey: String,
     private val endPoint: String?,
-    private val client: OkHttpClient = OkHttpClient()
+    private val client: OkHttpClient = OkHttpClient(),
+    private val errorMapper: Mapper<ErrorDto, W3WError> = ErrorDtoToDomainMapper()
 ) {
 
-    private var socket: WebSocket? = null
+    @VisibleForTesting
+    internal var socket: WebSocket? = null
     private lateinit var request: Request
     private lateinit var audioInputStreamProxy: W3WAudioStreamProxy
 
@@ -60,7 +67,7 @@ internal class W3WVoiceClient(
         autoSuggestOptions: W3WAutosuggestOptions?,
         audioInputStream: W3WAudioStream
     ): W3WVoiceClient {
-        request = buildRequest(autoSuggestOptions, voiceLanguage)
+        request = buildRequest(autoSuggestOptions, voiceLanguage, apiKey)
         audioInputStreamProxy = W3WAudioStreamProxy(audioInputStream)
         return this
     }
@@ -72,7 +79,9 @@ internal class W3WVoiceClient(
      * @param onStatusChanged A callback that is called when the status of the voice recognition
      * process changes. Providing a [W3WResult] instance containing a list of what3words address
      * suggestions in case of success or [W3WApiVoiceError] in case of failure.
+     * @throws IllegalStateException If the [initialize] method has never been called before this method.
      */
+    @Throws(IllegalStateException::class)
     internal fun openWebSocketAndStartRecognition(
         onStatusChanged: (recognitionStatus: RecognitionStatus) -> Unit
     ) {
@@ -139,13 +148,14 @@ internal class W3WVoiceClient(
 
                         BaseVoiceMessagePayload.W3WError -> {
                             val result = Gson().fromJson(text, W3WErrorPayload::class.java)
+                            val errorDto = ErrorDto(
+                                code = result.error.code,
+                                message = result.error.message
+                            )
                             audioInputStreamProxy.closeAudioInputStream()
                             onStatusChanged(
                                 RecognitionStatus.Error(
-                                    W3WApiVoiceError.ConnectionError(
-                                        code = result.error.code,
-                                        message = result.error.message
-                                    )
+                                    errorMapper.mapFrom(errorDto)
                                 )
                             )
                         }
@@ -155,7 +165,7 @@ internal class W3WVoiceClient(
                     audioInputStreamProxy.closeAudioInputStream()
                     onStatusChanged(
                         RecognitionStatus.Error(
-                            W3WApiVoiceError.ConnectionError(
+                            UnknownError(
                                 code = "UnknownError",
                                 message = ex.message ?: "Unknown error"
                             )
@@ -191,10 +201,12 @@ internal class W3WVoiceClient(
                             )
                         )
                     } catch (e: Exception) {
-                        RecognitionStatus.Error(
-                            W3WApiVoiceError.ConnectionError(
-                                code = "NetworkError",
-                                message = reason
+                        onStatusChanged(
+                            RecognitionStatus.Error(
+                                W3WApiVoiceError.ConnectionError(
+                                    code = "NetworkError",
+                                    message = reason
+                                )
                             )
                         )
                     }
@@ -224,7 +236,8 @@ internal class W3WVoiceClient(
     @VisibleForTesting
     internal fun buildRequest(
         autoSuggestOptions: W3WAutosuggestOptions?,
-        voiceLanguage: W3WLanguage
+        voiceLanguage: W3WLanguage,
+        apiKey: String
     ): Request {
         val queryMap = autoSuggestOptions?.toQueryMap()
         val requestWithCoordinates = autoSuggestOptions?.includeCoordinates == true
@@ -246,7 +259,7 @@ internal class W3WVoiceClient(
 
     sealed interface RecognitionStatus {
         data class Suggestions(val suggestions: List<SuggestionWithCoordinates>) : RecognitionStatus
-        data class Error(val error: W3WApiVoiceError) : RecognitionStatus
+        data class Error(val error: W3WError) : RecognitionStatus
     }
 
     companion object {
