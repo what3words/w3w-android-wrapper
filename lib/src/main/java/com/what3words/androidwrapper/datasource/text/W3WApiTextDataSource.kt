@@ -153,6 +153,7 @@ class W3WApiTextDataSource internal constructor(
          * @param signature For use within Android applications to provide the application SHA1 signature as part of API key restriction.
          * @param headers Add any custom HTTP headers to send in each request.
          */
+        @JvmStatic
         fun create(
             apiKey: String,
             endPoint: String? = null,

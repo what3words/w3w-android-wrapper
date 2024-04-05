@@ -81,6 +81,7 @@ class W3WApiVoiceDataSource internal constructor(
          * @param endPoint Override the default public API endpoint.
          * @return A new instance of [W3WApiVoiceDataSource].
          */
+        @JvmStatic
         fun create(
             apiKey: String,
             endPoint: String? = null,
