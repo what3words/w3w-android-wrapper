@@ -9,11 +9,11 @@ import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExten
 import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
 import com.what3words.androidwrapper.datasource.text.api.error.UnknownError
 import com.what3words.androidwrapper.datasource.text.api.mappers.ErrorDtoToDomainMapper
+import com.what3words.androidwrapper.datasource.voice.error.W3WApiVoiceError
 import com.what3words.androidwrapper.voice.BaseVoiceMessagePayload
 import com.what3words.androidwrapper.voice.ErrorPayload
 import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
 import com.what3words.androidwrapper.voice.W3WErrorPayload
-import com.what3words.androidwrapper.datasource.voice.error.W3WApiVoiceError
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamProxy
 import com.what3words.core.types.common.W3WError
@@ -85,8 +85,8 @@ internal class W3WVoiceClient(
     internal fun openWebSocketAndStartRecognition(
         onStatusChanged: (recognitionStatus: RecognitionStatus) -> Unit
     ) {
-        if (!::request.isInitialized || !::audioInputStreamProxy.isInitialized) {
-            throw IllegalStateException("initialize() must be called before openWebSocketAndStartRecognition()")
+        check(!(!::request.isInitialized || !::audioInputStreamProxy.isInitialized)) {
+            "initialize() must be called before openWebSocketAndStartRecognition()"
         }
 
         socket?.close(MANUAL_CLOSE_CODE, "Aborted by new request")

@@ -2,7 +2,7 @@ def ossrhUsername = findProperty('OSSRH_USERNAME')
 def ossrhPassword = findProperty('OSSRH_PASSWORD')
 def signingKey = findProperty('SIGNING_KEY')
 def signingKeyPwd = findProperty('SIGNING_KEY_PWD')
-def libVersion = findProperty('VERSION_NAME') // library version stored in the project's gradle.properties file
+def libVersion = "4.0.0"
 
 afterEvaluate {
     publishing {
