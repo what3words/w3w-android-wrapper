@@ -2,6 +2,7 @@ package com.what3words.androidwrapper.datasource.text.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxTooBigError
@@ -12,7 +13,10 @@ import com.what3words.androidwrapper.datasource.text.api.error.NetworkError
 import com.what3words.androidwrapper.datasource.text.api.error.UnknownError
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient.executeApiRequestAndHandleResponse
 import com.what3words.core.types.common.W3WResult
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.what3words.core.types.geometry.W3WCircle
+import com.what3words.core.types.geometry.W3WCoordinates
+import com.what3words.core.types.geometry.W3WDistance
+import com.what3words.core.types.options.W3WAutosuggestOptions
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -24,7 +28,6 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class What3WordsV3ServiceTest {
 
     private var mockWebServer = MockWebServer()
@@ -790,12 +793,12 @@ class What3WordsV3ServiceTest {
         )
 
         // Act
-        val response = what3WordsV3Service.autosuggest(input, null, null, null, null, null, null, null, null, null, null, null)
+        val response = what3WordsV3Service.autosuggest(input, emptyMap())
 
         // Assert
         assert(response.isSuccessful)
         assert(response.body()?.suggestions?.size == 3)
-        assert(response.body()?.suggestions?.get(0)?.words  == "index.home.raft")
+        assert(response.body()?.suggestions?.get(0)?.words == "index.home.raft")
     }
 
     @Test
@@ -815,7 +818,7 @@ class What3WordsV3ServiceTest {
         )
 
         // Act
-        val response = what3WordsV3Service.autosuggest(input, null, null, null, null, null, null, null, null, null, null, null)
+        val response = what3WordsV3Service.autosuggest(input, emptyMap())
 
         // Assert
         assert(response.isSuccessful)
@@ -826,7 +829,7 @@ class What3WordsV3ServiceTest {
     fun `autosuggest with option of 4 n-results should return 4 suggestions`() = runTest {
         // Arrange
         val input = "index.home.raf"
-        val nResults = "4"
+        val options = W3WAutosuggestOptions.Builder().nResults(4).build()
         val expectedResponseData = """
             {
                 "suggestions": [
@@ -869,7 +872,7 @@ class What3WordsV3ServiceTest {
         )
 
         // Act
-        val response = what3WordsV3Service.autosuggest(input, nResults, null, null, null, null, null, null, null, null, null, null)
+        val response = what3WordsV3Service.autosuggest(input, options.toQueryMap())
 
         // Assert
         assert(response.isSuccessful)
@@ -880,7 +883,8 @@ class What3WordsV3ServiceTest {
     fun `autosuggest with invalid focus option should return BadFocusError`() = runTest {
         // Arrange
         val input = "index.home.raf"
-        val focus = "250.842404,4.361177"
+        val options =
+            W3WAutosuggestOptions.Builder().focus(W3WCoordinates(250.842404, 4.361177)).build()
 
         val expectedResponseData = """
             {
@@ -900,7 +904,7 @@ class What3WordsV3ServiceTest {
         // Act
         val response =
             executeApiRequestAndHandleResponse(resultMapper = MappersFactory.providesAutosuggestResponseMapper()) {
-                what3WordsV3Service.autosuggest(input, null, focus, null, null, null, null, null, null, null, null, null)
+                what3WordsV3Service.autosuggest(input, options.toQueryMap())
             }
 
         // Assert
@@ -913,6 +917,11 @@ class What3WordsV3ServiceTest {
     fun `autosuggest with invalid clip to circle option should return BadClipToCircle`() = runTest {
         // Arrange
         val input = "index.home.raf"
+        val options = W3WAutosuggestOptions.Builder()
+            .clipToCircle(
+                W3WCircle(W3WCoordinates(250.842404, 4.361177), W3WDistance(1.0))
+            ).build()
+
         val clipToCircle = "250.842404,4.361177"
 
         val expectedResponseData = """
@@ -933,7 +942,10 @@ class What3WordsV3ServiceTest {
         // Act
         val response =
             executeApiRequestAndHandleResponse(resultMapper = MappersFactory.providesAutosuggestResponseMapper()) {
-                what3WordsV3Service.autosuggest(input, null, null, null, null, null, clipToCircle, null, null, null, null, null)
+                what3WordsV3Service.autosuggest(
+                    input,
+                    options.toQueryMap()
+                )
             }
 
         // Assert
@@ -954,7 +966,10 @@ class What3WordsV3ServiceTest {
         // Act
         val response =
             executeApiRequestAndHandleResponse(resultMapper = MappersFactory.providesAutosuggestResponseMapper()) {
-                what3WordsV3Service.autosuggest(input, null, null, null, null, null, null, null, null, null, null, null)
+                what3WordsV3Service.autosuggest(
+                    input,
+                    emptyMap()
+                )
             }
 
         assert(response is W3WResult.Failure)

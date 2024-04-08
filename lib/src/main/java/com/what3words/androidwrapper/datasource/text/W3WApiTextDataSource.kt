@@ -1,9 +1,10 @@
 package com.what3words.androidwrapper.datasource.text
 
 import com.what3words.androidwrapper.common.Mapper
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
+import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
-import com.what3words.androidwrapper.datasource.text.api.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
 import com.what3words.androidwrapper.datasource.text.api.response.AvailableLanguagesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
@@ -100,32 +101,12 @@ class W3WApiTextDataSource internal constructor(
             if (options?.includeCoordinates == true) {
                 what3WordsV3Service.autosuggestWithCoordinates(
                     input = input,
-                    nResults = options.nResults.toString(),
-                    focus = options.focus?.toString(),
-                    nFocusResults = options.nFocusResults?.toString(),
-                    clipToCountry = options.clipToCountry.toAPIString(),
-                    clipToBoundingBox = options.clipToBoundingBox?.toAPIString(),
-                    clipToCircle = options.clipToCircle?.toAPIString(),
-                    clipToPolygon = options.clipToPolygon?.toAPIString(),
-                    inputType = options.inputType?.value,
-                    lang = options.language?.w3wCode,
-                    locale = options.language?.w3wLocale,
-                    preferLand = options.preferLand.toString(),
+                    options = options.toQueryMap()
                 )
             } else {
                 what3WordsV3Service.autosuggest(
                     input = input,
-                    nResults = options?.nResults?.toString(),
-                    focus = options?.focus?.toString(),
-                    nFocusResults = options?.nFocusResults?.toString(),
-                    clipToCountry = options?.clipToCountry?.toAPIString(),
-                    clipToBoundingBox = options?.clipToBoundingBox?.toAPIString(),
-                    clipToCircle = options?.clipToCircle?.toAPIString(),
-                    clipToPolygon = options?.clipToPolygon?.toAPIString(),
-                    inputType = options?.inputType?.value,
-                    lang = options?.language?.w3wCode,
-                    locale = options?.language?.w3wLocale,
-                    preferLand = options?.preferLand?.toString()
+                    options = options?.toQueryMap() ?: emptyMap()
                 )
             }
         }
@@ -172,6 +153,7 @@ class W3WApiTextDataSource internal constructor(
          * @param signature For use within Android applications to provide the application SHA1 signature as part of API key restriction.
          * @param headers Add any custom HTTP headers to send in each request.
          */
+        @JvmStatic
         fun create(
             apiKey: String,
             endPoint: String? = null,

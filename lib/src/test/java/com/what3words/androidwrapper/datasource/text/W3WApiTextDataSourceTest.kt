@@ -17,7 +17,7 @@ class W3WApiTextDataSourceTest {
 
     private val fakeWhat3WordsV3Service = FakeWhat3WordsV3Service()
 
-    private val w3WApiTextDatasource = W3WApiTextDataSource(
+    private val w3WApiTextDataSource = W3WApiTextDataSource(
         fakeWhat3WordsV3Service,
         MappersFactory.providesConvertTo3waDtoToDomainMapper(),
         MappersFactory.providesConvertToCoordinatesResponseMapper(),
@@ -28,7 +28,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun convertTo3wa_withInvalidCoordinates_returnsBadCoordinatesError() {
-        val result = w3WApiTextDatasource.convertTo3wa(
+        val result = w3WApiTextDataSource.convertTo3wa(
             W3WCoordinates(-91.0, 181.0),
             W3WProprietaryLanguage("en", "en_GB")
         )
@@ -39,7 +39,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun convertTo3wa_withValidCoordinates_returnsW3WAddress() {
-        val result = w3WApiTextDatasource.convertTo3wa(
+        val result = w3WApiTextDataSource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
             W3WProprietaryLanguage("en", "en_GB")
         )
@@ -50,7 +50,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun convertTo3wa_withValidCoordinatesAndRFC5646Language_returnsW3WAddress() {
-        val result = w3WApiTextDatasource.convertTo3wa(
+        val result = w3WApiTextDataSource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
             W3WRFC5646Language.EN_GB
         )
@@ -61,7 +61,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun convertToCoordinates_withValidAddress_returnsW3WCoordinates() {
-        val result = w3WApiTextDatasource.convertToCoordinates("country.square.words")
+        val result = w3WApiTextDataSource.convertToCoordinates("country.square.words")
         assert(result is W3WResult.Success)
         result as W3WResult.Success
         assert(result.value.lat == fakeWhat3WordsV3Service.coordinatesDto.lat)
@@ -70,7 +70,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun convertToCoordinates_withInvalidAddress_returnsBadWordsError() {
-        val result = w3WApiTextDatasource.convertToCoordinates("invalid.address")
+        val result = w3WApiTextDataSource.convertToCoordinates("invalid.address")
         assert(result is W3WResult.Failure)
         result as W3WResult.Failure
         assert(result.error is BadWordsError)
@@ -78,7 +78,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun autosuggest_withoutCoordinates_returnsSuggestionsWithoutCoordinates() {
-        val result = w3WApiTextDatasource.autosuggest(
+        val result = w3WApiTextDataSource.autosuggest(
             "country.square.wor",
             options = W3WAutosuggestOptions.Builder().includeCoordinates(false).build()
         )
@@ -89,7 +89,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun autosuggest_withCoordinates_returnsSuggestionsWithCoordinates() {
-        val result = w3WApiTextDatasource.autosuggest(
+        val result = w3WApiTextDataSource.autosuggest(
             "country.square.wor",
             options = W3WAutosuggestOptions.Builder().includeCoordinates(true).build()
         )
@@ -100,7 +100,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun autosuggest_withNullOptions_returnsSuggestionsWithoutCoordinates() {
-        val result = w3WApiTextDatasource.autosuggest(
+        val result = w3WApiTextDataSource.autosuggest(
             "country.square.wor",
             options = null
         )
@@ -111,7 +111,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun gridSection_withValidBoundingBox_returnsGridSection() {
-        val result = w3WApiTextDatasource.gridSection(
+        val result = w3WApiTextDataSource.gridSection(
             W3WRectangle(W3WCoordinates(51.0, 0.0), W3WCoordinates(52.0, 0.1))
         )
         assert(result is W3WResult.Success)
@@ -120,7 +120,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun gridSection_withInvalidBoundingBox_returnsBadBoundingBoxError() {
-        val result = w3WApiTextDatasource.gridSection(
+        val result = w3WApiTextDataSource.gridSection(
             fakeWhat3WordsV3Service.invalidRectangle
         )
         assert(result is W3WResult.Failure)
@@ -130,7 +130,7 @@ class W3WApiTextDataSourceTest {
 
     @Test
     fun availableLanguages_returnsLanguages() {
-        val result = w3WApiTextDatasource.availableLanguages()
+        val result = w3WApiTextDataSource.availableLanguages()
         assert(result is W3WResult.Success)
         result as W3WResult.Success
         assert(result.value.isNotEmpty())
