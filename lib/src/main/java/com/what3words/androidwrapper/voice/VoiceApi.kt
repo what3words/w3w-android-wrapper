@@ -89,8 +89,6 @@ open class VoiceApi(
         private val map = mapOf(
             W3WLanguage.AR to VoiceApiCodes.AR,
             W3WLanguage.ZH_HANS to VoiceApiCodes.CMN,
-            W3WLanguage.ZH_HANT_HK to VoiceApiCodes.CMN,
-            W3WLanguage.ZH_HANT_TW to VoiceApiCodes.CMN,
             W3WLanguage.DE to VoiceApiCodes.DE,
             W3WLanguage.EN_CA to VoiceApiCodes.EN,
             W3WLanguage.EN_AU to VoiceApiCodes.EN,
