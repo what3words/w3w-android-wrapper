@@ -26,6 +26,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
+        buildConfigField "String", "VERSION_NAME", "\"${findProperty('VERSION_NAME')}\""
         // for robolectric
         testOptions.unitTests.includeAndroidResources = true
     }
@@ -68,6 +69,8 @@ dependencies {
     // w3w java wrapper
     api "com.what3words:w3w-java-wrapper:$what3words_java_wrapper_version"
 
+    // w3w core library
+    api "com.what3words:w3w-core-android:0.1.0"
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
@@ -80,6 +83,17 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$android_arch_testing_version"
     testImplementation "org.robolectric:robolectric:$robolectric_version"
     testImplementation "org.json:json:$json_version"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$mock_webserver_version"
     androidTestImplementation "androidx.test.ext:junit:$androidx_junit_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_moshi_version"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$retrofit_coroutines_adapter_version"
+
+    // Moshi
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    annotationProcessor "com.squareup.moshi:moshi-kotlin-codegen:$moshi_codegen_version"
 }
