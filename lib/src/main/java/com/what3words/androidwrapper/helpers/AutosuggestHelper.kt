@@ -106,7 +106,7 @@ class AutosuggestHelper(
             delay(250)
             val res = dataSource.autosuggest(finalQuery, options)
 
-            withContext(Dispatchers.Main) {
+            withContext(dispatchers.main()) {
                 when (res) {
                     is W3WResult.Success -> {
                         if (isDidYouMean) {
@@ -184,7 +184,7 @@ class AutosuggestHelper(
             )
 
             val res = dataSource.convertToCoordinates(word)
-            withContext(Dispatchers.Main) {
+            withContext(dispatchers.main()) {
                 when (res) {
                     is W3WResult.Success -> {
                         val newSuggestion = W3WSuggestion(

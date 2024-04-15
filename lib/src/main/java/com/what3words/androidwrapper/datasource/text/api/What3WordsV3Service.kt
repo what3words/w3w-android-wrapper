@@ -5,10 +5,8 @@ import com.what3words.androidwrapper.datasource.text.api.response.AvailableLangu
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoordinatesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.HeaderMap
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
