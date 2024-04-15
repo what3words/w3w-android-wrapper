@@ -3,6 +3,7 @@ package com.what3words.androidwrapper.datasource.text.api.retrofit
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.error.NetworkError
@@ -18,7 +19,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
 
 internal object W3WV3RetrofitApiClient {
-    private const val DEFAULT_ENDPOINT = "https://api.what3words.com/v3/"
+    private const val DEFAULT_ENDPOINT = "${BuildConfig.BASE_TEXT_API_ENDPOINT}/${BuildConfig.TEXT_API_VERSION}/"
 
     const val HEADER_CONTENT_TYPE = "Content-Type"
     const val CONTENT_TYPE_JSON = "application/json"
