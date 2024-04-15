@@ -3,20 +3,21 @@ package com.what3words.androidwrapper
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.core.util.Consumer
 import com.google.gson.Gson
+import com.what3words.androidwrapper.datasource.text.W3WApiTextDataSource
+import com.what3words.androidwrapper.datasource.text.api.error.BadWordsError
+import com.what3words.androidwrapper.datasource.text.api.error.InvalidKeyError
+import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionMapper
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
-import com.what3words.javawrapper.request.AutosuggestOptions
-import com.what3words.javawrapper.request.AutosuggestRequest
-import com.what3words.javawrapper.request.AutosuggestSelectionRequest
-import com.what3words.javawrapper.request.BoundingBox
-import com.what3words.javawrapper.request.ConvertToCoordinatesRequest
+import com.what3words.core.types.common.W3WError
+import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.domain.W3WCountry
+import com.what3words.core.types.domain.W3WSuggestion
+import com.what3words.core.types.geometry.W3WCoordinates
+import com.what3words.core.types.geometry.W3WPolygon
+import com.what3words.core.types.geometry.W3WRectangle
+import com.what3words.core.types.options.W3WAutosuggestOptions
 import com.what3words.javawrapper.request.SourceApi
-import com.what3words.javawrapper.response.APIResponse
-import com.what3words.javawrapper.response.Autosuggest
-import com.what3words.javawrapper.response.ConvertToCoordinates
-import com.what3words.javawrapper.response.Coordinates
-import com.what3words.javawrapper.response.Square
 import com.what3words.javawrapper.response.Suggestion
-import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.justRun
@@ -38,31 +39,37 @@ class AutosuggestHelperTests {
     @get:Rule
     val testInstantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
+    private lateinit var expectedSuggestions: List<W3WSuggestion>
+
     private lateinit var helper: AutosuggestHelper
 
-    @MockK
-    private var api: What3WordsV3 = mockk()
+    private val suggestionMapper = SuggestionMapper()
 
     @MockK
-    private var suggestionsCallback = mockk<Consumer<List<Suggestion>>>()
+    private var dataSource: W3WApiTextDataSource = mockk()
 
     @MockK
-    private var suggestionCallback = mockk<Consumer<Suggestion>>()
+    private var suggestionsCallback = mockk<Consumer<List<W3WSuggestion>>>()
 
     @MockK
-    private var convertCallback = mockk<Consumer<SuggestionWithCoordinates>>()
+    private var suggestionCallback = mockk<Consumer<W3WSuggestion>>()
 
     @MockK
-    private var errorCallback = mockk<Consumer<APIResponse.What3WordsError>>()
+    private var convertCallback = mockk<Consumer<W3WSuggestion>>()
 
     @MockK
-    private var didYouMeanCallback = mockk<Consumer<Suggestion>>()
+    private var errorCallback = mockk<Consumer<W3WError>>()
+
+    @MockK
+    private var didYouMeanCallback = mockk<Consumer<W3WSuggestion>>()
 
     @Before
     fun setup() {
         suggestionsCallback = mockk()
         errorCallback = mockk()
-        helper = AutosuggestHelper(api, coroutinesTestRule.testDispatcherProvider)
+        helper = AutosuggestHelper(dataSource, coroutinesTestRule.testDispatcherProvider)
+
+        loadAsset()
 
         justRun {
             suggestionsCallback.accept(any())
@@ -70,14 +77,23 @@ class AutosuggestHelperTests {
             suggestionCallback.accept(any())
             convertCallback.accept(any())
             didYouMeanCallback.accept(any())
-            api.autosuggestionSelection(any(), any(), any(), any()).execute()
         }
+    }
+
+    private fun loadAsset() {
+        val suggestionsJson =
+            ClassLoader.getSystemResource("suggestions.json").readText()
+
+        expectedSuggestions =
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList().map {
+                suggestionMapper.mapFrom(it)
+            }
     }
 
     @Test
     fun `invalid 3wa return empty list`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         // given
-        val list = emptyList<Suggestion>()
+        val list = emptyList<W3WSuggestion>()
 
         // when
         helper.update("index", suggestionsCallback, errorCallback)
@@ -90,35 +106,24 @@ class AutosuggestHelperTests {
     @Test
     fun `valid 3wa returns suggestions`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         // given
-        val helper = AutosuggestHelper(api, coroutinesTestRule.testDispatcherProvider)
+        val helper = AutosuggestHelper(dataSource, coroutinesTestRule.testDispatcherProvider)
         val suggestionsJson =
             ClassLoader.getSystemResource("suggestions.json").readText()
         val suggestions =
-            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-        val autosuggest = mockk<Autosuggest>()
+            Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList().map {
+                suggestionMapper.mapFrom(it)
+            }
 
         every {
-            autosuggest.isSuccessful
+            dataSource.autosuggest("index.home.r", null)
         } answers {
-            true
+            W3WResult.Success(suggestions)
         }
 
         every {
-            autosuggest.suggestions
+            dataSource.autosuggest("index.home.ra", null)
         } answers {
-            suggestions
-        }
-
-        every {
-            api.autosuggest("index.home.r").execute()
-        } answers {
-            autosuggest
-        }
-
-        every {
-            api.autosuggest("index.home.ra").execute()
-        } answers {
-            autosuggest
+            W3WResult.Success(suggestions)
         }
 
         // when
@@ -140,34 +145,17 @@ class AutosuggestHelperTests {
     fun `did you mean 3wa returns suggestions`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val suggestionsJson =
-                ClassLoader.getSystemResource("suggestions.json").readText()
-            val suggestions =
-                Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-            val autosuggest = mockk<Autosuggest>()
 
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("star.words.f", null)
             } answers {
-                true
+                W3WResult.Success(expectedSuggestions)
             }
 
             every {
-                autosuggest.suggestions
+                dataSource.autosuggest("star.words.forced", null)
             } answers {
-                suggestions
-            }
-
-            every {
-                api.autosuggest("star.words.f").execute()
-            } answers {
-                autosuggest
-            }
-
-            every {
-                api.autosuggest("star.words.forced").execute()
-            } answers {
-                autosuggest
+                W3WResult.Success(expectedSuggestions)
             }
 
             // when
@@ -185,7 +173,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
-            verify(exactly = 1) { didYouMeanCallback.accept(suggestions.first()) }
+            verify(exactly = 1) { didYouMeanCallback.accept(expectedSuggestions.first()) }
             verify(exactly = 0) { errorCallback.accept(any()) }
         }
 
@@ -193,34 +181,16 @@ class AutosuggestHelperTests {
     fun `did you mean 3wa returns suggestions with capital letters`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val suggestionsJson =
-                ClassLoader.getSystemResource("suggestions.json").readText()
-            val suggestions =
-                Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-            val autosuggest = mockk<Autosuggest>()
-
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("star.words.f", null)
             } answers {
-                true
+                W3WResult.Success(expectedSuggestions)
             }
 
             every {
-                autosuggest.suggestions
+                dataSource.autosuggest("Star.words.forced", null)
             } answers {
-                suggestions
-            }
-
-            every {
-                api.autosuggest("star.words.f").execute()
-            } answers {
-                autosuggest
-            }
-
-            every {
-                api.autosuggest("Star.words.forced").execute()
-            } answers {
-                autosuggest
+                W3WResult.Success(expectedSuggestions)
             }
 
             // when
@@ -238,7 +208,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
-            verify(exactly = 1) { didYouMeanCallback.accept(suggestions.first()) }
+            verify(exactly = 1) { didYouMeanCallback.accept(expectedSuggestions.first()) }
             verify(exactly = 0) { errorCallback.accept(any()) }
         }
 
@@ -247,34 +217,17 @@ class AutosuggestHelperTests {
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
             helper.allowFlexibleDelimiters(true)
-            val suggestionsJson =
-                ClassLoader.getSystemResource("suggestions.json").readText()
-            val suggestions =
-                Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-            val autosuggest = mockk<Autosuggest>()
 
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("star.words.f", null)
             } answers {
-                true
+                W3WResult.Success(expectedSuggestions)
             }
 
             every {
-                autosuggest.suggestions
+                dataSource.autosuggest("star.words.forced", null)
             } answers {
-                suggestions
-            }
-
-            every {
-                api.autosuggest("star.words.f").execute()
-            } answers {
-                autosuggest
-            }
-
-            every {
-                api.autosuggest("star.words.forced").execute()
-            } answers {
-                autosuggest
+                W3WResult.Success(expectedSuggestions)
             }
 
             // when
@@ -292,7 +245,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
-            verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
+            verify(exactly = 1) { suggestionsCallback.accept(expectedSuggestions) }
             verify(exactly = 0) { didYouMeanCallback.accept(any()) }
             verify(exactly = 0) { errorCallback.accept(any()) }
         }
@@ -301,30 +254,24 @@ class AutosuggestHelperTests {
     fun `valid 3wa returns ApiError and callback is set`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val autosuggest = mockk<Autosuggest>()
+
+            val error = InvalidKeyError("invalid_key", "Invalid key")
+            val failureResult =
+                W3WResult.Failure<List<W3WSuggestion>>(
+                    "Error",
+                    error
+                )
 
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("index.home.r", null)
             } answers {
-                false
+                failureResult
             }
 
             every {
-                autosuggest.error
+                dataSource.autosuggest("index.home.ra", null)
             } answers {
-                APIResponse.What3WordsError.INVALID_KEY
-            }
-
-            every {
-                api.autosuggest("index.home.r").execute()
-            } answers {
-                autosuggest
-            }
-
-            every {
-                api.autosuggest("index.home.ra").execute()
-            } answers {
-                autosuggest
+                failureResult
             }
 
             // when
@@ -337,37 +284,30 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(any()) }
-            verify(exactly = 1) { errorCallback.accept(APIResponse.What3WordsError.INVALID_KEY) }
+            verify(exactly = 1) { errorCallback.accept(error) }
         }
 
     @Test
     fun `valid 3wa returns ApiError and callback is not set`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val autosuggest = mockk<Autosuggest>()
+            val error = InvalidKeyError("invalid_key", "Invalid key")
+            val failureResult =
+                W3WResult.Failure<List<W3WSuggestion>>(
+                    "Error",
+                    error
+                )
 
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("index.home.r", null)
             } answers {
-                false
+                failureResult
             }
 
             every {
-                autosuggest.error
+                dataSource.autosuggest("index.home.ra", null)
             } answers {
-                APIResponse.What3WordsError.INVALID_KEY
-            }
-
-            every {
-                api.autosuggest("index.home.r").execute()
-            } answers {
-                autosuggest
-            }
-
-            every {
-                api.autosuggest("index.home.ra").execute()
-            } answers {
-                autosuggest
+                failureResult
             }
 
             // when
@@ -380,20 +320,19 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(any()) }
-            verify(exactly = 0) { errorCallback.accept(APIResponse.What3WordsError.INVALID_KEY) }
+            verify(exactly = 0) { errorCallback.accept(error) }
         }
 
     @Test
     fun `selected suggestion without coordinates`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val suggestion = mockk<Suggestion>()
-            val selectionBuilder = mockk<AutosuggestSelectionRequest.Builder>()
+            val suggestion = mockk<W3WSuggestion>()
 
             every {
-                suggestion.words
+                suggestion.w3wAddress.address
             } answers {
-                "index.home.raft"
+                "///index.home.raft"
             }
 
             every {
@@ -403,13 +342,7 @@ class AutosuggestHelperTests {
             }
 
             every {
-                api.autosuggestionSelection(any(), any(), any(), any())
-            } answers {
-                selectionBuilder
-            }
-
-            every {
-                selectionBuilder.execute()
+                dataSource.autosuggestionSelection(any(), any(), any(), any())
             } answers {
                 mockk()
             }
@@ -419,7 +352,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 1) {
-                api.autosuggestionSelection(
+                dataSource.autosuggestionSelection(
                     "index.home.r",
                     "index.home.raft",
                     1,
@@ -433,44 +366,47 @@ class AutosuggestHelperTests {
     fun `selected suggestion with coordinates`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val suggestion = mockk<Suggestion>()
-            val convert = mockk<ConvertToCoordinates>()
-            val coordinates = mockk<Coordinates>()
-            val selectionBuilder = mockk<AutosuggestSelectionRequest.Builder>()
-            val convertBuilder = mockk<ConvertToCoordinatesRequest.Builder>()
+            val suggestion = mockk<W3WSuggestion>()
+            val coordinates = mockk<W3WCoordinates>()
 
             every {
-                suggestion.words
+                suggestion.w3wAddress.address
             } answers {
-                "index.home.raft"
+                "///index.home.raft"
             }
 
             every {
-                suggestion.country
+                suggestion.w3wAddress.square
+            } answers {
+                W3WRectangle(W3WCoordinates(51.2, 0.234), W3WCoordinates(51.2, 0.234))
+            }
+
+            every {
+                suggestion.w3wAddress.country.twoLetterCode
             } answers {
                 "UK"
             }
 
             every {
-                suggestion.distanceToFocusKm
+                suggestion.distanceToFocus?.km()
             } answers {
-                1
+                1.0
             }
 
             every {
-                suggestion.nearestPlace
+                suggestion.w3wAddress.nearestPlace
             } answers {
                 "Bayswater, London"
             }
 
             every {
-                suggestion.language
+                suggestion.w3wAddress.language.w3wCode
             } answers {
                 "en"
             }
 
             every {
-                suggestion.locale
+                suggestion.w3wAddress.language.w3wLocale
             } answers {
                 "en-GB"
             }
@@ -494,49 +430,14 @@ class AutosuggestHelperTests {
             }
 
             every {
-                convert.coordinates
+                dataSource.convertToCoordinates(any())
             } answers {
-                coordinates
+                W3WResult.Success(coordinates)
             }
 
-            every {
-                convert.isSuccessful
-            } answers {
-                true
-            }
 
             every {
-                convert.map
-            } answers {
-                "map"
-            }
-
-            every {
-                convert.square
-            } answers {
-                Square(51.0, 12.0, 12.0, 12.3)
-            }
-
-            every {
-                api.autosuggestionSelection(any(), any(), any(), any())
-            } answers {
-                selectionBuilder
-            }
-
-            every {
-                api.convertToCoordinates("index.home.raft")
-            } answers {
-                convertBuilder
-            }
-
-            every {
-                convertBuilder.execute()
-            } answers {
-                convert
-            }
-
-            every {
-                selectionBuilder.execute()
+                dataSource.autosuggestionSelection(any(), any(), any(), any())
             } answers {
                 mockk()
             }
@@ -552,7 +453,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 1) {
-                api.autosuggestionSelection(
+                dataSource.autosuggestionSelection(
                     "index.home.r",
                     "index.home.raft",
                     1,
@@ -560,7 +461,7 @@ class AutosuggestHelperTests {
                 )
             }
             verify(exactly = 1) {
-                api.convertToCoordinates(
+                dataSource.convertToCoordinates(
                     "index.home.raft",
                 )
             }
@@ -572,16 +473,14 @@ class AutosuggestHelperTests {
     fun `selectedWithCoordinates returns error`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
             // given
-            val suggestion = mockk<Suggestion>()
-            val convert = mockk<ConvertToCoordinates>()
-            val coordinates = mockk<Coordinates>()
-            val selectionBuilder = mockk<AutosuggestSelectionRequest.Builder>()
-            val convertBuilder = mockk<ConvertToCoordinatesRequest.Builder>()
+            val suggestion = mockk<W3WSuggestion>()
+            val coordinates = mockk<W3WCoordinates>()
+            val error = BadWordsError("bad_words", "Bad words")
 
             every {
-                suggestion.words
+                suggestion.w3wAddress.address
             } answers {
-                "index.home.raft"
+                "///index.home.raft"
             }
 
             every {
@@ -603,37 +502,13 @@ class AutosuggestHelperTests {
             }
 
             every {
-                convert.error
+                dataSource.convertToCoordinates("index.home.raft")
             } answers {
-                APIResponse.What3WordsError.BAD_WORDS
+                W3WResult.Failure("Bad word", error)
             }
 
             every {
-                convert.isSuccessful
-            } answers {
-                false
-            }
-
-            every {
-                api.autosuggestionSelection(any(), any(), any(), any())
-            } answers {
-                selectionBuilder
-            }
-
-            every {
-                api.convertToCoordinates("index.home.raft")
-            } answers {
-                convertBuilder
-            }
-
-            every {
-                convertBuilder.execute()
-            } answers {
-                convert
-            }
-
-            every {
-                selectionBuilder.execute()
+                dataSource.autosuggestionSelection(any(), any(), any(), any())
             } answers {
                 mockk()
             }
@@ -647,12 +522,12 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 1) {
-                api.convertToCoordinates(
+                dataSource.convertToCoordinates(
                     "index.home.raft",
                 )
             }
             verify(exactly = 1) {
-                api.autosuggestionSelection(
+                dataSource.autosuggestionSelection(
                     "index.home.r",
                     "index.home.raft",
                     1,
@@ -660,56 +535,26 @@ class AutosuggestHelperTests {
                 )
             }
             verify(exactly = 0) { convertCallback.accept(any()) }
-            verify(exactly = 1) { errorCallback.accept(APIResponse.What3WordsError.BAD_WORDS) }
+            verify(exactly = 1) { errorCallback.accept(error) }
         }
 
     @Test
     fun `filters are set expect autosuggestBuilder filters to be called`() =
         coroutinesTestRule.testDispatcher.runBlockingTest {
-            val suggestionsJson =
-                ClassLoader.getSystemResource("suggestions.json").readText()
-            val suggestions =
-                Gson().fromJson(suggestionsJson, Array<Suggestion>::class.java).toList()
-            val autosuggest = mockk<Autosuggest>()
-            val autosuggestRequestBuilder = mockk<AutosuggestRequest.Builder>()
-            val focus = com.what3words.javawrapper.request.Coordinates(51.2, 0.234)
-            val countries = listOf("GB", "FR")
-            val boundingBox = BoundingBox(focus, focus)
-            val polygon = listOf(focus, focus)
-            val autosuggestOptions = AutosuggestOptions()
-            autosuggestOptions.focus = focus
-            autosuggestOptions.clipToCountry = countries
-            autosuggestOptions.clipToBoundingBox = boundingBox
-            autosuggestOptions.clipToPolygon = polygon
+            val focus = W3WCoordinates(51.2, 0.234)
+            val boundingBox = W3WRectangle(focus, focus)
+            val polygon = W3WPolygon(listOf(focus, focus, focus))
+            val autosuggestOptions = W3WAutosuggestOptions.Builder()
+                .focus(focus)
+                .clipToCountry(*arrayOf(W3WCountry("GB"), W3WCountry("FR")))
+                .clipToBoundingBox(boundingBox)
+                .clipToPolygon(polygon)
+                .build()
 
             every {
-                autosuggest.isSuccessful
+                dataSource.autosuggest("index.home.ra", options = autosuggestOptions)
             } answers {
-                true
-            }
-
-            every {
-                autosuggest.suggestions
-            } answers {
-                suggestions
-            }
-
-            every {
-                autosuggestRequestBuilder.options(any())
-            } answers {
-                autosuggestRequestBuilder
-            }
-
-            every {
-                api.autosuggest("index.home.ra")
-            } answers {
-                autosuggestRequestBuilder
-            }
-
-            every {
-                autosuggestRequestBuilder.execute()
-            } answers {
-                autosuggest
+                W3WResult.Success(expectedSuggestions)
             }
 
             // when
@@ -721,8 +566,7 @@ class AutosuggestHelperTests {
 
             // then
             verify(exactly = 2) { suggestionsCallback.accept(emptyList()) }
-            verify(exactly = 1) { suggestionsCallback.accept(suggestions) }
-            verify(exactly = 1) { autosuggestRequestBuilder.options(any()) }
+            verify(exactly = 1) { suggestionsCallback.accept(expectedSuggestions) }
             verify(exactly = 0) { errorCallback.accept(any()) }
         }
 }
