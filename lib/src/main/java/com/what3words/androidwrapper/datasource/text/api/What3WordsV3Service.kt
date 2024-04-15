@@ -5,8 +5,10 @@ import com.what3words.androidwrapper.datasource.text.api.response.AvailableLangu
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoordinatesResponse
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.HeaderMap
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -51,4 +53,13 @@ internal interface What3WordsV3Service {
     suspend fun availableLanguages(
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<AvailableLanguagesResponse>
+
+    @GET("autosuggest-selection")
+    fun autosuggestSelection(
+        @Query("raw-input") rawInput: String?,
+        @Query("selection") selection: String?,
+        @Query("rank") rank: String?,
+        @Query("source-api") sourceApi: String?,
+        @HeaderMap header: Map<String, String> = emptyMap()
+    )
 }

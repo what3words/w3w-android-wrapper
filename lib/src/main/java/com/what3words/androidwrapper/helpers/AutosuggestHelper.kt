@@ -1,66 +1,66 @@
 package com.what3words.androidwrapper.helpers
 
 import androidx.core.util.Consumer
-import com.what3words.androidwrapper.What3WordsAndroidWrapper
+import com.what3words.androidwrapper.datasource.text.W3WApiTextDataSource
+import com.what3words.core.datasource.text.W3WTextDataSource
+import com.what3words.core.types.common.W3WError
+import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.domain.W3WAddress
+import com.what3words.core.types.domain.W3WSuggestion
+import com.what3words.core.types.options.W3WAutosuggestOptions
 import com.what3words.javawrapper.What3WordsV3.didYouMean3wa
 import com.what3words.javawrapper.What3WordsV3.isPossible3wa
-import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.APIResponse
 import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
-import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 interface IAutosuggestHelper {
     fun update(
         searchText: String,
-        onSuccessListener: Consumer<List<Suggestion>>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
-        onDidYouMeanListener: Consumer<Suggestion>? = null
+        onSuccessListener: Consumer<List<W3WSuggestion>>,
+        onFailureListener: Consumer<W3WError>? = null,
+        onDidYouMeanListener: Consumer<W3WSuggestion>? = null
     )
 
     fun selected(
         rawString: String,
-        suggestion: Suggestion,
-        onSuccessListener: Consumer<Suggestion>
+        suggestion: W3WSuggestion,
+        onSuccessListener: Consumer<W3WSuggestion>
     )
 
     fun selectedWithCoordinates(
         rawString: String,
-        suggestion: Suggestion,
-        onSuccessListener: Consumer<SuggestionWithCoordinates>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>? = null
+        suggestion: W3WSuggestion,
+        onSuccessListener: Consumer<W3WSuggestion>,
+        onFailureListener: Consumer<W3WError>? = null
     )
 
-    fun options(options: AutosuggestOptions): IAutosuggestHelper
+    fun options(options: W3WAutosuggestOptions): IAutosuggestHelper
+
     fun allowFlexibleDelimiters(boolean: Boolean): IAutosuggestHelper
 }
 
 class AutosuggestHelper(
-    private val api: What3WordsAndroidWrapper,
+    private val dataSource: W3WTextDataSource,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 ) : IAutosuggestHelper {
     private var allowFlexibleDelimiters: Boolean = false
-    private var options: AutosuggestOptions? = null
+    private var options: W3WAutosuggestOptions? = null
     private var searchJob: Job? = null
 
-    /**
-     * Update AutosuggestHelper query and receive suggestions (strong regex applied) or a did you mean (flexible regex applied) from our Autosuggest API.
-     *
-     * @param searchText the updated query.
-     * @param onSuccessListener the callback for suggestions.
-     * @param onFailureListener the callback for API errors [APIResponse.What3WordsError].
-     * @param onDidYouMeanListener the callback for did you mean results.
-     */
     override fun update(
         searchText: String,
-        onSuccessListener: Consumer<List<Suggestion>>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>?,
-        onDidYouMeanListener: Consumer<Suggestion>?
+        onSuccessListener: Consumer<List<W3WSuggestion>>,
+        onFailureListener: Consumer<W3WError>?,
+        onDidYouMeanListener: Consumer<W3WSuggestion>?
     ) {
         var isDidYouMean = false
         val searchFiltered: String? = when {
@@ -69,10 +69,12 @@ class AutosuggestHelper(
                 isDidYouMean = true
                 searchText.split(splitRegex, 3).joinToString(".")
             }
+
             allowFlexibleDelimiters && didYouMean3wa(searchText) -> searchText.split(
                 splitRegex,
                 3
             ).joinToString(".")
+
             else -> null
         }
         if (searchFiltered == null) {
@@ -91,31 +93,38 @@ class AutosuggestHelper(
     private fun performAutosuggest(
         finalQuery: String,
         isDidYouMean: Boolean,
-        onSuccessListener: Consumer<List<Suggestion>>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>? = null,
-        onDidYouMeanListener: Consumer<Suggestion>? = null
+        onSuccessListener: Consumer<List<W3WSuggestion>>,
+        onFailureListener: Consumer<W3WError>? = null,
+        onDidYouMeanListener: Consumer<W3WSuggestion>? = null
     ) {
+        check(dataSource != null) {
+            "AutosuggestHelper must be constructed with W3WTextDataSource to use this method."
+        }
+
         searchJob?.cancel()
         searchJob = CoroutineScope(dispatchers.io()).launch {
             delay(250)
-            val builder = api.autosuggest(finalQuery)
-            if (options != null) builder.options(options)
-            val res = builder.execute()
-            CoroutineScope(dispatchers.main()).launch {
-                if (res.isSuccessful) {
-                    if (isDidYouMean) {
-                        res.suggestions.firstOrNull {
-                            it.words.lowercase(Locale.getDefault()) == finalQuery.lowercase(
-                                Locale.getDefault()
-                            )
-                        }?.let {
-                            onDidYouMeanListener?.accept(it)
+            val res = dataSource.autosuggest(finalQuery, options)
+
+            withContext(Dispatchers.Main) {
+                when (res) {
+                    is W3WResult.Success -> {
+                        if (isDidYouMean) {
+                            res.value.firstOrNull {
+                                it.w3wAddress.address.lowercase(Locale.getDefault()) == "///${finalQuery}".lowercase(
+                                    Locale.getDefault()
+                                )
+                            }?.let {
+                                onDidYouMeanListener?.accept(it)
+                            }
+                        } else {
+                            onSuccessListener.accept(res.value)
                         }
-                    } else {
-                        onSuccessListener.accept(res.suggestions)
                     }
-                } else {
-                    onFailureListener?.accept(res.error)
+
+                    is W3WResult.Failure -> {
+                        onFailureListener?.accept(res.error)
+                    }
                 }
             }
         }
@@ -130,19 +139,21 @@ class AutosuggestHelper(
      */
     override fun selected(
         rawString: String,
-        suggestion: Suggestion,
-        onSuccessListener: Consumer<Suggestion>
+        suggestion: W3WSuggestion,
+        onSuccessListener: Consumer<W3WSuggestion>
     ) {
-        CoroutineScope(dispatchers.io()).launch {
-            val builder = api.autosuggestionSelection(
-                rawString,
-                suggestion.words,
-                suggestion.rank,
-                SourceApi.TEXT
-            )
-            if (options != null) builder.options(options)
-            builder.execute()
+        (dataSource as? W3WApiTextDataSource)?.let {
+            CoroutineScope(dispatchers.io()).launch {
+                it.autosuggestionSelection(
+                    rawString,
+                    suggestion.w3wAddress.address.substring(3), // remove "///",
+                    suggestion.rank,
+                    SourceApi.TEXT,
+                    options
+                )
+            }
         }
+
         onSuccessListener.accept(suggestion)
     }
 
@@ -157,39 +168,55 @@ class AutosuggestHelper(
      */
     override fun selectedWithCoordinates(
         rawString: String,
-        suggestion: Suggestion,
-        onSuccessListener: Consumer<SuggestionWithCoordinates>,
-        onFailureListener: Consumer<APIResponse.What3WordsError>?
+        suggestion: W3WSuggestion,
+        onSuccessListener: Consumer<W3WSuggestion>,
+        onFailureListener: Consumer<W3WError>?
     ) {
+        val word = suggestion.w3wAddress.address.substring(3) // remove "///"
+
         CoroutineScope(dispatchers.io()).launch {
-            val builder = api.autosuggestionSelection(
+            (dataSource as? W3WApiTextDataSource)?.autosuggestionSelection(
                 rawString,
-                suggestion.words,
+                word,
                 suggestion.rank,
-                SourceApi.TEXT
+                SourceApi.TEXT,
+                options
             )
-            if (options != null) builder.options(options)
-            val builderConvert = api.convertToCoordinates(suggestion.words)
-            builder.execute()
-            val res = builderConvert.execute()
-            CoroutineScope(dispatchers.main()).launch {
-                if (res.isSuccessful) {
-                    val newSuggestion = SuggestionWithCoordinates(suggestion, res)
-                    onSuccessListener.accept(newSuggestion)
-                } else {
-                    onFailureListener?.accept(res.error)
+
+            val res = dataSource.convertToCoordinates(word)
+            withContext(Dispatchers.Main) {
+                when (res) {
+                    is W3WResult.Success -> {
+                        val newSuggestion = W3WSuggestion(
+                            w3wAddress = W3WAddress(
+                                words = word,
+                                center = res.value,
+                                square = suggestion.w3wAddress.square,
+                                language = suggestion.w3wAddress.language,
+                                country = suggestion.w3wAddress.country,
+                                nearestPlace = suggestion.w3wAddress.nearestPlace
+                            ),
+                            distanceToFocus = suggestion.distanceToFocus,
+                            rank = suggestion.rank
+                        )
+                        onSuccessListener.accept(newSuggestion)
+                    }
+
+                    is W3WResult.Failure -> {
+                        onFailureListener?.accept(res.error)
+                    }
                 }
             }
         }
     }
 
     /**
-     * Set all options at once using [AutosuggestOptions]
+     * Set all options at once using [W3WAutosuggestOptions]
      *
-     * @param options the [AutosuggestOptions] with all filters/clipping needed to be applied to the search
+     * @param options the [W3WAutosuggestOptions] with all filters/clipping needed to be applied to the search
      * @return a [AutosuggestHelper] instance suitable for invoking a autosuggest API request
      */
-    override fun options(options: AutosuggestOptions): AutosuggestHelper {
+    override fun options(options: W3WAutosuggestOptions): IAutosuggestHelper {
         this.options = options
         return this
     }
