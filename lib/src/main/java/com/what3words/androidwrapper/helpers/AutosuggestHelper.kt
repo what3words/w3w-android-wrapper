@@ -48,6 +48,10 @@ interface IAutosuggestHelper {
     fun allowFlexibleDelimiters(boolean: Boolean): IAutosuggestHelper
 }
 
+/**
+ * The helper class to incorporate the what3words autosuggest API into a Text field. For more details, refer to the tutorial:
+ * https://github.com/what3words/w3w-android-wrapper/blob/master/autosuggest-helper-tutorial.md
+ */
 class AutosuggestHelper(
     private val dataSource: W3WTextDataSource,
     private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
@@ -97,10 +101,6 @@ class AutosuggestHelper(
         onFailureListener: Consumer<W3WError>? = null,
         onDidYouMeanListener: Consumer<W3WSuggestion>? = null
     ) {
-        check(dataSource != null) {
-            "AutosuggestHelper must be constructed with W3WTextDataSource to use this method."
-        }
-
         searchJob?.cancel()
         searchJob = CoroutineScope(dispatchers.io()).launch {
             delay(250)
