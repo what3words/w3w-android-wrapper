@@ -27,6 +27,10 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         buildConfigField "String", "VERSION_NAME", "\"${findProperty('VERSION_NAME')}\""
+        buildConfigField "String", "BASE_TEXT_API_ENDPOINT", "\"${findProperty('BASE_TEXT_API_ENDPOINT')}\""
+        buildConfigField "String", "TEXT_API_VERSION", "\"${findProperty('TEXT_API_VERSION')}\""
+        buildConfigField "String", "BASE_VOICE_API_ENDPOINT", "\"${findProperty('BASE_VOICE_API_ENDPOINT')}\""
+        buildConfigField "String", "VOICE_API_VERSION", "\"${findProperty('VOICE_API_VERSION')}\""
         // for robolectric
         testOptions.unitTests.includeAndroidResources = true
     }

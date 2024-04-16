@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.text
 
+import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
@@ -126,6 +127,14 @@ class W3WApiTextDataSource internal constructor(
             what3WordsV3Service.gridSection(
                 bbox = boundingBox.toAPIString()
             )
+        }
+    }
+
+    override fun version(version: W3WTextDataSource.Version): String? {
+        return when(version) {
+            W3WTextDataSource.Version.Library -> BuildConfig.VERSION_NAME
+            W3WTextDataSource.Version.DataSource -> BuildConfig.TEXT_API_VERSION
+            W3WTextDataSource.Version.Data -> null
         }
     }
 

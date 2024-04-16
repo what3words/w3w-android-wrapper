@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.voice
 
+import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.datasource.voice.W3WApiVoiceDataSource.Companion.create
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
 import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
@@ -71,6 +72,13 @@ class W3WApiVoiceDataSource internal constructor(
      */
     override fun terminate() {
         client.close("Terminated by user")
+    }
+
+    override fun version(version: W3WVoiceDataSource.Version): String? {
+        return when(version) {
+            W3WVoiceDataSource.Version.Library -> BuildConfig.VERSION_NAME
+            W3WVoiceDataSource.Version.DataSource -> BuildConfig.VOICE_API_VERSION
+        }
     }
 
     companion object {

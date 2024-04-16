@@ -2,6 +2,7 @@ package com.what3words.androidwrapper.datasource.voice.client
 
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
+import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toApiString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
@@ -244,7 +245,7 @@ internal class W3WVoiceClient(
         return Request.Builder()
             .url(
                 HttpUrl.Builder().scheme("https").host(endPoint ?: BASE_URL)
-                    .addEncodedPathSegment("v1")
+                    .addEncodedPathSegment(VOICE_API_VERSION)
                     .addEncodedPathSegment(if (requestWithCoordinates) URL_WITH_COORDINATES else URL_WITHOUT_COORDINATES)
                     .apply {
                         queryMap?.forEach {
@@ -263,7 +264,8 @@ internal class W3WVoiceClient(
     }
 
     companion object {
-        const val BASE_URL = "voiceapi.what3words.com"
+        const val BASE_URL = BuildConfig.BASE_VOICE_API_ENDPOINT
+        const val VOICE_API_VERSION = BuildConfig.VOICE_API_VERSION
         const val URL_WITHOUT_COORDINATES =
             "autosuggest"
         const val URL_WITH_COORDINATES =
