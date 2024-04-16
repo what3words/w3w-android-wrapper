@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
+import com.what3words.androidwrapper.datasource.text.W3WApiTextDataSource
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
@@ -66,7 +67,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(
@@ -82,7 +83,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         this.voiceProvider = voiceProvider
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     internal constructor(
@@ -97,7 +98,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         this.dispatchers = dispatchers
         this.voiceProvider = voiceProvider
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(apiKey: String, context: Context, headers: Map<String, String>) : super(
@@ -108,7 +109,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, context: Context) : super(
@@ -120,7 +121,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context) : super(
@@ -132,7 +133,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey, voiceEndpoint)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(
@@ -143,7 +144,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) : super(apiKey, endpoint, context.packageName, getSignature(context), headers) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(
@@ -161,7 +162,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey, voiceEndpoint)
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     constructor(
@@ -179,7 +180,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         this.voiceProvider = voiceProvider
-        helper = AutosuggestHelper(this, dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
     }
 
     companion object {

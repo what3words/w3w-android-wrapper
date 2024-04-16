@@ -189,6 +189,16 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
         )
     }
 
+    override fun autosuggestSelection(
+        rawInput: String?,
+        selection: String?,
+        rank: String?,
+        sourceApi: String?,
+        header: Map<String, String>
+    ) {
+        // Do nothing
+    }
+
     private fun verifyLatLng(lat: Double, lng: Double): Boolean {
         if (lat < -90 || lat > 90) {
             return false

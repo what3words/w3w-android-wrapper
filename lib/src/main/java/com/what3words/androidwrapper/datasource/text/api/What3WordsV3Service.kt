@@ -51,4 +51,13 @@ internal interface What3WordsV3Service {
     suspend fun availableLanguages(
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<AvailableLanguagesResponse>
+
+    @GET("autosuggest-selection")
+    fun autosuggestSelection(
+        @Query("raw-input") rawInput: String?,
+        @Query("selection") selection: String?,
+        @Query("rank") rank: String?,
+        @Query("source-api") sourceApi: String?,
+        @HeaderMap header: Map<String, String> = emptyMap()
+    )
 }

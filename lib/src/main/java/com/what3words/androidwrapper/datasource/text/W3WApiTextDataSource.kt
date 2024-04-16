@@ -23,6 +23,7 @@ import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
+import com.what3words.javawrapper.request.SourceApi
 
 /**
  * Rest API implementation of the [com.what3words.core.datasource.text.W3WTextDataSource] interface.
@@ -151,6 +152,23 @@ class W3WApiTextDataSource internal constructor(
             what3WordsV3Service.availableLanguages()
         }
     }
+
+    internal fun autosuggestionSelection(
+        rawInput: String,
+        selection: String,
+        rank: Int,
+        sourceApi: SourceApi,
+        options: W3WAutosuggestOptions? = null
+    ) {
+        return what3WordsV3Service.autosuggestSelection(
+            rawInput,
+            selection,
+            rank.toString(),
+            sourceApi.toString().lowercase(),
+            options?.toQueryMap() ?: emptyMap()
+        )
+    }
+
 
     companion object {
         /**
