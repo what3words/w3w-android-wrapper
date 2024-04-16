@@ -148,8 +148,6 @@ This method retrieves a set of all available languages that what3words is suppor
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ...
-
-        val incompletedW3WAddress = "filled.count.so"
         
         CoroutineScope(Dispatchers.IO).launch { 
             // Run to availableLanguages method in Dispatchers.IO   
@@ -180,13 +178,11 @@ Returns a section of the 3m x 3m what3words grid for a bounding box. The boundin
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ...
-
-        val incompletedW3WAddress = "filled.count.so"
         
         CoroutineScope(Dispatchers.IO).launch { 
-            // Run to availableLanguages method in Dispatchers.IO   
+            // Run to gridSection method in Dispatchers.IO   
             val result = w3WApiTextDataSource.gridSection(
-            W3WRectangle(W3WCoordinates(51.0, 0.0), W3WCoordinates(52.0, 0.1)))
+                W3WRectangle(W3WCoordinates(51.0, 0.0), W3WCoordinates(52.0, 0.1)))
             
             //Switch to Dispatcher.Main to update your views with the results if needed
             withContext(Dispatchers.Main) {
