@@ -4,6 +4,35 @@
 
 An Android library to use the [what3words v3 API](https://docs.what3words.com/api/v3/).
 
+## Table of contents
+- [Table of contents](#table-of-contents)
+- [Useful links](#useful-links)
+- [Download](#download)
+- [Example usage](#example-usage)
+  - [W3WApiTextDataSource](#w3wapitextdatasource)
+    - [Get the instance](#get-the-w3wapitextdatasource)
+    - [convertTo3wa](#convertto3wa-example)
+    - [convertToCoordinates](#converttocoordinates-example)
+    - [autosuggest](#autosuggest-example)
+    - [availableLanguages](#availablelanguages-example)
+    - [gridSection](#gridsection-example)
+  - [W3WApiVoiceDataSource](#w3wapivoicedatasource)
+    - [Get the instance](#create-a-w3wapivoicedatasource-instance)
+    - [Initialize the microphone](#create-a-w3wmicrophone-instance-to-handle-voice-recording)
+    - [Set up microphone callbacks](#you-can-set-up-callbacks-to-receive-information-about-the-recording-progress)
+    - [Perform voice autosuggestion](#perform-voice-autosuggest)
+- [Integrate what3words to the existing textfield](#add-what3words-autosuggest-to-an-existing-autosuggest-field)
+- [UX guidelines](#ux-guidelines)
+- [Migration from version 3.x to 4.x](#migrate-from-version-3x-to-4x)
+  - [Introduce of the core library](#introduce-of-the-core-libary)
+  - [Transition from What3WordsV3 to W3WApiTextDataSource and W3WApiVoiceDataSource](#transition-from-what3wordsv3-to-w3wapitextdatasource-and-w3wapivoicedatasource)
+    - [convertToCoordinates](#converttocoordinates-1)
+    - [convertTo3wa](#convertto3wa-1)
+    - [autosuggest](#autosuggest-1)
+    - [availableLanguages](#availablelanguages-1)
+    - [gridSection](#gridsection-1)
+    - [AutosuggestHelper constructor change](#autosuggesthelper-1)
+
 ## Useful Links
 [what3words API documentation](https://docs.what3words.com/api/v3/)
 
@@ -30,7 +59,7 @@ dependencies {
 This example demonstrates the usage of the library using Kotlin Coroutines. For a cleaner architecture or Java example, you can refer to our [sample app](https://github.com/what3words/w3w-android-samples/tree/main/api-wrapper-sample).
 
 ### W3WApiTextDataSource
-The W3WApiTextDataSource class facilitates the conversion of coordinates to What3words addresses and vice versa, as well as providing suggestions for slightly incomplete What3words addresses.
+The W3WApiTextDataSource class facilitates the conversion of coordinates to what3words addresses and vice versa, as well as providing suggestions for slightly incomplete what3words addresses.
 
 #### Get the W3WApiTextDataSource
 
@@ -209,7 +238,7 @@ class MainActivity : AppCompatActivity() {
 ### W3WApiVoiceDataSource
 The W3WApiVoiceDataSource class allows searching for what3words addresses using voice input. Ensure you have a Voice API plan enabled in your account to use this feature.
 
-Create a W3WApiVoiceDataSource instance
+#### Create a W3WApiVoiceDataSource instance
 ```kotlin
 val voiceDataSource = W3WApiVoiceDataSource("YOUR_API_KEY")
 ```
@@ -220,13 +249,13 @@ If you are running your own Enterprise Suite API Server, you can specify the URL
 val voiceDataSource = W3WApiVoiceDataSource("YOUR_API_KEY", "YOUR_SERVER_ENDPOINT")
 ```
 
-Create a W3WMicrophone instance to handle voice recording.
+#### Create a W3WMicrophone instance to handle voice recording.
 
 ```kotlin
 val microphone = W3WMicrophone()
 ```
 
-You can set up callbacks to receive information about the recording progress.
+#### You can set up callbacks to receive information about the recording progress.
 
 ```kotlin
 microphone.setEventsListener(object : W3WAudioStream.EventsListener {
@@ -244,7 +273,7 @@ microphone.setEventsListener(object : W3WAudioStream.EventsListener {
 })
 ```
 
-Perform voice autosuggest
+#### Perform voice autosuggest
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -373,27 +402,218 @@ We've restructured What3WordsV3 into two distinct classes, each serving specific
 - W3WApiTextDataSource: Handles text-based tasks like address searching and conversions.
 - W3WApiVoiceDataSource: Specializes in voice-based address suggestions.
 
-Please refer to the sections above for usage guidelines on these two classes. The table below offers a concise overview of the methods in What3WordsV3 and their corresponding replacements.
+#### Method changes list
 
-| What3WordsV3                                               |                                                                                                        *DataSource                                                                                                       |
-|------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| convertTo3wa(coordinates: Coordinates)                     | W3WApiTextDataSource.convertTo3wa(coordinates: W3WCoordinates, language: W3WLanguage)                                                                                                                                    |
-| convertToCoordinates(word: String)                         | W3WApiTextDataSource.convertToCoordinates(word: String)                                                                                                                                                                  |
-| autosuggest(input: String)                                 | W3WApiTextDataSource.autosuggest(input: String, options: W3WAutosuggestOptions?,)                                                                                                                                        |
-| autosuggest(microphone: Microphone, voiceLanguage: String) | W3WApiVoiceDataSource.autosuggest(input: W3WAudioStream, voiceLanguage: W3WLanguage, options: W3WAutosuggestOptions?, onSpeechDetected: ((String) -> Unit)?, onResult: (result: W3WResult<List<W3WSuggestion>>) -> Unit) |
+---
+#### <code style="color : LightSkyBlue">convertToCoordinates</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.convertToCoordinates(words).execute()
+```
+Parameters: 
+- words: ```String```
 
-### Constructor Modifications in AutosuggestHelper
+Return ```ConvertToCoordinates```
+<br>
 
-In the previous version, AutosuggestHelper relied on What3WordsV3. Now, we've transitioned to using W3WApiTextDataSource. Therefore, update your code from:
+**In version 4.0**
+<br>
+```kotlin
+val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val result = textDataSource.convertToCoordinates(words) // Must run on background thread
+```
+Parameters: 
+- words: ```String```
 
+Return ```W3WResult<W3WCoordinates>```
+
+For more details and instructions, see [Convert to coordinates example](#converttocoordinates-example).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">convertTo3wa</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.convertTo3wa(coordinates).execute()
+```
+Parameters: 
+- coordinates: ```Coordinates```
+
+Return ```ConvertTo3WA```
+<br>
+
+**In version 4.0**
+<br>
+```kotlin
+val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val result = textDataSource.convertTo3wa(coordinates, language) // Must run on background thread
+```
+Parameters: 
+- coordinates: ```W3WCoordinates```
+- languge: ```W3WLanguage```
+
+Return ```W3WResult<W3WAddress>```
+
+For more details and instructions, see [Convert to what3words address example](#convertto3wa-example).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">autosuggest</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.autosuggest(word).execute()
+```
+Parameters: 
+- word: ```String```
+
+Return ```Autosuggest```
+<br>
+
+**In version 4.0**
+<br>
+```kotlin
+val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val result = textDataSource.autosuggest(word, options) // Must run on background thread
+```
+Parameters: 
+- word: ```String```
+- options: ```W3WAutosuggestOptions?```
+
+Return ```W3WResult<List<W3WSuggestion>>```
+
+For more details and instructions, see [Autosuggest example](#autosuggest-example).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">availableLanguages</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.availableLanguages().execute()
+```
+
+Return ```AvailableLanguages```
+<br>
+
+**In version 4.0**
+<br>
+```kotlin
+val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val result = textDataSource.availableLanguages() // Must run on background thread
+```
+Return ```W3WResult<Set<W3WProprietaryLanguage>>```
+
+For more details and instructions, see [Get available languages example](#availablelanguages-example).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">gridSection</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.gridSection(boudingBox).execute()
+```
+Parameters:
+- boudingBox: ```BoundingBox```
+
+Return ```GridSection```
+<br>
+
+**In version 4.0**
+<br>
+```kotlin
+val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val result = textDataSource.gridSection(boundingBox) // Must run on background thread
+```
+Parameters:
+- boudingBox: ```W3WRectangle```
+
+Return ```W3WResult<W3WGridSection>```
+
+For more details and instructions, see [Grid section example](#gridsection-example).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">Voice autosuggest</code>
+**In version 3.x**
+<br>
+```kotlin
+val wrapper = What3WordsV3(API_KEY, activityContext)
+val result = wrapper.autosuggest(microphone, voiceLanguage)
+    .onSuggstions { suggestions ->
+        // Handle the suggestions
+    }
+    .onError { error ->
+        // Handle the error
+    }
+```
+Parameters:
+- mircophone: ```Microphone```
+- voiceLanguage: ```String```
+
+Return:
+- suggestions: ```List<Suggestion>!```
+- error: ```APIResponse.What3WordsError!```
+<br>
+
+**In version 4.0**
+<br>
+```kotlin
+val voiceDataSource = W3WApiVoiceDataSource.create(API_KEY) 
+val result = voiceDataSource.autosuggest(
+        audioStream,
+        voiceLanguage,
+        options,
+        onSpeechDetected,
+    ) { result ->
+        // Handle result
+    }
+```
+Parameters:
+- input: ```W3WAudioStream```
+- voiceLanguage: ```W3WLanguage```,
+- options: ```W3WAutosuggestOptions?```,
+- onSpeechDetected: ```((String) -> Unit)?``` 
+
+Return
+- result: ```W3WResult<List<W3WSuggestion>>```
+
+For more details and instructions, see [Voice autosugge example](#w3wapivoicedatasource).
+<br><br>
+
+---
+
+#### <code style="color : LightSkyBlue">AutosuggestHelper</code>
+In the previous version, AutosuggestHelper relied on What3WordsV3. Now, we've transitioned to using W3WApiTextDataSource. 
+
+Therefore, update your code from:
+<br>
 ```kotlin
 val what3words = What3WordsV3("YOUR_API_KEY_HERE", this)
 val autosuggestHelper = AutosuggestHelper(what3words)
 ```
-
-to:
+<br>
+To:
+<br>
 
 ```kotlin
 val dataSource = W3WApiTextDataSource.create("YOUR_API_KEY_HERE")
 val autosuggestHelper = AutosuggestHelper(dataSource)
 ```
+
+For more details and instructions, see [AutoSuggestHelper](#using-autosuggesthelper-class).
+<br><br>
+
