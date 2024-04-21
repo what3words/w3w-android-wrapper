@@ -7,28 +7,29 @@ An Android library to use the [what3words v3 API](https://docs.what3words.com/ap
 ## Table of contents
 - [Table of contents](#table-of-contents)
 - [Useful links](#useful-links)
-- [Download](#download)
-- [Example usage](#example-usage)
+- [Installation](#installation)
+- [Method Overview](#method-overview)
+- [Usage](#usage)
   - [W3WApiTextDataSource](#w3wapitextdatasource)
     - [Get the instance](#get-the-w3wapitextdatasource)
     - [convertTo3wa](#convertto3wa-example)
     - [convertToCoordinates](#converttocoordinates-example)
-    - [autosuggest](#autosuggest-example)
+    - [AutoSuggest](#autosuggest-example)
     - [availableLanguages](#availablelanguages-example)
     - [gridSection](#gridsection-example)
   - [W3WApiVoiceDataSource](#w3wapivoicedatasource)
     - [Get the instance](#create-a-w3wapivoicedatasource-instance)
     - [Initialize the microphone](#create-a-w3wmicrophone-instance-to-handle-voice-recording)
     - [Set up microphone callbacks](#you-can-set-up-callbacks-to-receive-information-about-the-recording-progress)
-    - [Perform voice autosuggestion](#perform-voice-autosuggest)
+    - [Perform Voice AutoSuggest](#perform-voice-autosuggest)
 - [Integrate what3words to the existing textfield](#add-what3words-autosuggest-to-an-existing-autosuggest-field)
 - [UX guidelines](#ux-guidelines)
 - [Migration from version 3.x to 4.x](#migrate-from-version-3x-to-4x)
-  - [Introduce of the core library](#introduce-of-the-core-libary)
+  - [Introduce of the core library](#introduce-of-the-core-library)
   - [Transition from What3WordsV3 to W3WApiTextDataSource and W3WApiVoiceDataSource](#transition-from-what3wordsv3-to-w3wapitextdatasource-and-w3wapivoicedatasource)
     - [convertToCoordinates](#converttocoordinates-1)
     - [convertTo3wa](#convertto3wa-1)
-    - [autosuggest](#autosuggest-1)
+    - [AutoSuggest](#autosuggest-1)
     - [availableLanguages](#availablelanguages-1)
     - [gridSection](#gridsection-1)
     - [AutosuggestHelper constructor change](#autosuggesthelper-1)
@@ -40,12 +41,21 @@ An Android library to use the [what3words v3 API](https://docs.what3words.com/ap
 
 [Sample app](https://github.com/what3words/w3w-android-samples/tree/main/api-wrapper-sample)
 
-## Download
+## Installation
 
 ### Gradle
 
 To integrate the library into your project, add the following dependency:
 ```kotlin
+android {
+    ...
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+
 repositories {
     mavenCentral()
 }
@@ -55,7 +65,36 @@ dependencies {
 }
 ```
 
-## Example Usage
+### Android Manifest
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yourpackage.yourapp">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- add if using voice api autosuggest -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+</manifest>
+```
+
+## Method Overview
+This table offers a succinct overview of the methods available in this library along with their descriptions.
+
+| DataSource method     | Function                | Description                                                                                                      |
+|-----------------------|-------------------------|------------------------------------------------------------------------------------------------------------------|
+| W3WApiTextDataSource  | create                  | Create an instance of W3WApiTextDataSource with your API key and optional server endpoint.                       |
+| W3WApiTextDataSource  | convertTo3wa            | Convert latitude and longitude to a what3words address.                                                          |
+| W3WApiTextDataSource  | convertToCoordinates    | Convert a what3words address to latitude and longitude.                                                          |
+| W3WApiTextDataSource  | autosuggest             | Get suggestions for a slightly incomplete what3words address.                                                    |
+| W3WApiTextDataSource  | availableLanguages      | Retrieve a set of all available languages that what3words supports.                                              |
+| W3WApiTextDataSource  | gridSection             | Get a section of the 3m x 3m what3words grid for a bounding box and convert it into GeoJSON format.              |
+| W3WApiVoiceDataSource | create                  | Create an instance of W3WApiVoiceDataSource with your API key and optional server endpoint.                      |
+| W3WApiVoiceDataSource | autosuggest             | Perform voice autosuggestion using a microphone input.                                                           |
+| AutosuggestHelper     | update                  | Update autosuggestion options dynamically.                                                                       |
+| AutosuggestHelper     | selected                | Retrieve the full what3words address once the user has selected a row from the RecyclerView without coordinates. |
+| AutosuggestHelper     | selectedWithCoordinates | Retrieve the full what3words address with coordinates once the user has selected a row from the RecyclerView.    |
+
+## Usage
 This example demonstrates the usage of the library using Kotlin Coroutines. For a cleaner architecture or Java example, you can refer to our [sample app](https://github.com/what3words/w3w-android-samples/tree/main/api-wrapper-sample).
 
 ### W3WApiTextDataSource
@@ -136,7 +175,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-#### autosuggest example
+#### AutoSuggest example
 AutoSuggest can take a slightly incorrect what3words address and suggest a list of valid what3words address.
 
 ```kotlin
@@ -269,7 +308,7 @@ microphone.setEventsListener(object : W3WAudioStream.EventsListener {
 })
 ```
 
-#### Perform voice autosuggest
+#### Perform Voice AutoSuggest
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -279,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         val voiceLanguage = W3WRFC5646Language.EN_GB
 
         CoroutineScope(Dispatchers.IO).launch { 
-            // Perform the voice autosuggest in Dispatchers.IO
+            // Perform the Voice AutoSuggest in Dispatchers.IO
             voiceDataSource.autosuggest(
                 microphone,
                 voiceLanguage,
@@ -305,7 +344,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-### Add what3words autosuggest to an existing autosuggest field
+### Add what3words AutoSuggest to an existing text field
 
 #### Using AutosuggestHelper class
 
@@ -321,7 +360,7 @@ val autosuggestOptions = W3WAutosuggestOptions.Builder().
 
 val autosuggestHelper = AutosuggestHelper(dataSource).options(autosuggestOptions)
 ```
-Next step is to use a TextWatcher (or doOnTextChanged EditText extension) and let **autosuggestHelper** know about the changed text and add what3words suggestion data to your existing RecyclerView/Adapter. (check sample for complete working example with [custom data model and RecyclerView adapter](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/SuggestionsAdapter.kt) to show different autosuggest sources and [EditText and RecyclerView](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/MainActivity.kt) setup.
+Next step is to use a TextWatcher (or doOnTextChanged EditText extension) and let **AutoSuggestHelper** know about the changed text and add what3words suggestion data to your existing RecyclerView/Adapter. (check sample for complete working example with [custom data model and RecyclerView adapter](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/SuggestionsAdapter.kt) to show different autosuggest sources and [EditText and RecyclerView](https://github.com/what3words/w3w-android-wrapper/blob/master/sample-multi-autosuggest-providers/src/main/java/com/what3words/sample_multi_autosuggest_providers/MainActivity.kt) setup.
 
 ```Kotlin
 editText.doOnTextChanged { text, _, _, _ -> 
@@ -368,15 +407,15 @@ autosuggestHelper.selectedWithCoordinates(
 
 ![alt text](https://github.com/what3words/w3w-android-wrapper/blob/master/assets/autosuggest.png?raw=true "Autosuggest UX guideline")
 
-- Once the user has entered the first letter of the 3rd word the autosuggest feature should be displayed
+- Once the user has entered the first letter of the 3rd word the AutoSuggest feature should be displayed
 - For simplicity, we recommend only displaying 3 suggested results
-- Every address should be accompanied by it’s nearest location.
+- Every address should be accompanied by its nearest location.
 
 ## Migrate from version 3.x to 4.x
 
 In version 4.0, the API of android-wrapper library changed significantly. This is a guide for gradually adapting the existing code to the new API.
 
-### Introduce of the core libary
+### Introduce of the core library
 
 [Core library](https://github.com/what3words/w3w-core-library) establishes essential models and interfaces that maintain consistency across various other libraries. Within our Android-wrapper libraries, we've implemented numerous changes by substituting existing models with those from the core library. It's imperative to update your code accordingly to utilize these new models. Please consult the table below for key models and their corresponding replacements:
 
@@ -451,7 +490,7 @@ val result = textDataSource.convertTo3wa(coordinates, language) // Must run on b
 ```
 Parameters: 
 - coordinates: ```W3WCoordinates```
-- languge: ```W3WLanguage```
+- language: ```W3WLanguage```
 
 Return ```W3WResult<W3WAddress>```
 
@@ -460,7 +499,7 @@ For more details and instructions, see [Convert to what3words address example](#
 
 ---
 
-#### <code style="color : LightSkyBlue">autosuggest</code>
+#### <code style="color : LightSkyBlue">AutoSuggest</code>
 **In version 3.x**
 <br>
 ```kotlin
@@ -543,7 +582,7 @@ For more details and instructions, see [Grid section example](#gridsection-examp
 
 ---
 
-#### <code style="color : LightSkyBlue">Voice autosuggest</code>
+#### <code style="color : LightSkyBlue">Voice AutoSuggest</code>
 **In version 3.x**
 <br>
 ```kotlin
@@ -612,4 +651,3 @@ val autosuggestHelper = AutosuggestHelper(dataSource)
 
 For more details and instructions, see [AutoSuggestHelper](#using-autosuggesthelper-class).
 <br><br>
-

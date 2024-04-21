@@ -5,12 +5,26 @@
 
 This tutorial is intended for anyone that already has an autocomplete UI element in their app showing possible addresses in a AutoCompleteTextView/EditText/RecyclerView. It explains a method of adding what3words suggestions alongside your existing address results.
 
-## Usage
+## Installation
 
 ### Gradle
 
-```
-implementation 'com.what3words:w3w-android-wrapper:$latest_version'
+```kotlin
+android {
+    ...
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.what3words:w3w-android-wrapper:$latest_version")
+}
 ```
 
 AndroidManifest.xml
@@ -19,6 +33,8 @@ AndroidManifest.xml
     package="com.yourpackage.yourapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    
+</manifest>
 ```
 
 build.gradle (app level)
@@ -32,13 +48,7 @@ android {
 }
 ```
 
-add the following ProGuard rules
-```
--keep class com.what3words.javawrapper.request.* { *; }
--keep class com.what3words.javawrapper.response.* { *; }
-```
-
-### Using AutosuggestHelper class
+## Using AutosuggestHelper class
 
 Add the api and helper wherever you put your class variables and be sure to use your [API key](https://what3words.com/select-plan):
 
@@ -76,9 +86,9 @@ editText.doOnTextChanged { text, _, _, _ ->
 }
 ```
 
-### Get the full three word address once the user has selected a row
+### Get the full what3words address once the user has selected a row
 
-When user selects a row from the RecyclerView *autosuggestHelper.selected()* or *autosuggestHelper.selectedWithCoordinates()* should be called to retrieve the full three word address with or without coordinates. 
+When user selects a row from the RecyclerView *autosuggestHelper.selected()* or *autosuggestHelper.selectedWithCoordinates()* should be called to retrieve the full what3words address with or without coordinates. 
 
 ```Kotlin
 autosuggestHelper.selectedWithCoordinates(  
@@ -93,4 +103,4 @@ autosuggestHelper.selectedWithCoordinates(
 )
 ```
 
-***Note*** *that selectedWithCoordinates() will convert the three word address to a lat/lng which will count against your plan's quota.*
+***Note*** *that selectedWithCoordinates() will convert the what3words address to a lat/lng which will count against your plan's quota.*
