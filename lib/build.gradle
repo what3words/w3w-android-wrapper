@@ -74,7 +74,8 @@ dependencies {
     api "com.what3words:w3w-java-wrapper:$what3words_java_wrapper_version"
 
     // w3w core library
-    api "com.what3words:w3w-core-android:0.1.0"
+    api "com.what3words:w3w-core-android:$what3words_core_android_version"
+
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
