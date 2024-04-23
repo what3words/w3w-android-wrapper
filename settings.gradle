@@ -3,9 +3,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // what3words android core library staging url
         maven {
-            url "https://s01.oss.sonatype.org/content/repositories/comwhat3words-1403"
+            url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
         }
     }
 }
