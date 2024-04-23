@@ -2,7 +2,12 @@ def ossrhUsername = findProperty('OSSRH_USERNAME')
 def ossrhPassword = findProperty('OSSRH_PASSWORD')
 def signingKey = findProperty('SIGNING_KEY')
 def signingKeyPwd = findProperty('SIGNING_KEY_PWD')
-def libVersion = "4.0.0"
+/**
+ * IS_SNAPSHOT_RELEASE property will be automatically added to the root gradle.properties file by the CI pipeline, depending on the GitHub branch.
+ * A snapshot release is generated for every pull request merged or commit made into an epic branch.
+ */
+def isSnapshotRelease = findProperty('IS_SNAPSHOT_RELEASE') == 'true'
+def libVersion = isSnapshotRelease ? "${findProperty('VERSION_NAME')}-SNAPSHOT" : findProperty('VERSION_NAME')
 
 afterEvaluate {
     publishing {
@@ -45,7 +50,7 @@ afterEvaluate {
 
                 def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = libVersion.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
                 credentials {
                     username ossrhUsername
