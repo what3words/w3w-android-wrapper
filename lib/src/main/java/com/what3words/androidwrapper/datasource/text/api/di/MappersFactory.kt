@@ -39,7 +39,10 @@ internal object MappersFactory {
     }
 
     private val convertToCoordinatesResponseMapper: ConvertToCoordinatesResponseMapper by lazy {
-        ConvertToCoordinatesResponseMapper(coordinatesDtoToDomainMapper = coordinatesDtoToDomainMapper)
+        ConvertToCoordinatesResponseMapper(
+            coordinatesDtoToDomainMapper = coordinatesDtoToDomainMapper,
+            squareDtoToDomainMapper = squareDtoToDomainMapper
+        )
     }
 
     private val convertTo3waDtoToDomainMapper: ConvertTo3waResponseMapper by lazy {
@@ -75,7 +78,7 @@ internal object MappersFactory {
     fun providesAutosuggestResponseMapper(): Mapper<AutosuggestResponse, List<W3WSuggestion>> =
         autosuggestResponseMapper
 
-    fun providesConvertToCoordinatesResponseMapper(): Mapper<ConvertToCoordinatesResponse, W3WCoordinates> =
+    fun providesConvertToCoordinatesResponseMapper(): Mapper<ConvertToCoordinatesResponse, W3WAddress> =
         convertToCoordinatesResponseMapper
 
     fun providesConvertTo3waDtoToDomainMapper(): Mapper<ConvertTo3waResponse, W3WAddress> =

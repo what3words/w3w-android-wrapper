@@ -40,7 +40,7 @@ import com.what3words.javawrapper.request.SourceApi
 class W3WApiTextDataSource internal constructor(
     private val what3WordsV3Service: What3WordsV3Service,
     private val convertTo3waDtoToDomainMapper: Mapper<ConvertTo3waResponse, W3WAddress>,
-    private val convertToCoordinatesResponseMapper: Mapper<ConvertToCoordinatesResponse, W3WCoordinates>,
+    private val convertToCoordinatesResponseMapper: Mapper<ConvertToCoordinatesResponse, W3WAddress>,
     private val autosuggestResponseMapper: Mapper<AutosuggestResponse, List<W3WSuggestion>>,
     private val availableLanguagesResponseMapper: Mapper<AvailableLanguagesResponse, Set<W3WProprietaryLanguage>>,
     private val gridSectionResponseMapper: Mapper<GridSectionResponse, W3WGridSection>
@@ -78,7 +78,7 @@ class W3WApiTextDataSource internal constructor(
      * @return A [W3WResult] instance containing the what3words coordinates.
      */
     @Throws(InterruptedException::class)
-    override fun convertToCoordinates(words: String): W3WResult<W3WCoordinates> {
+    override fun convertToCoordinates(words: String): W3WResult<W3WAddress> {
         return executeApiRequestAndHandleResponse(convertToCoordinatesResponseMapper) {
             what3WordsV3Service.convertToCoordinates(
                 address = words

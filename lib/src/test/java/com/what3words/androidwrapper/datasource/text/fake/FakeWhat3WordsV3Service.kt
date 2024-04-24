@@ -85,7 +85,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
                     squareDto,
                     "",
                     coordinatesDto,
-                    null,
+                    w3w,
                     "",
                     "",
                     "",

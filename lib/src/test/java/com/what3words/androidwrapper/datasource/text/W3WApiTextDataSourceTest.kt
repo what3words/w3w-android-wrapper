@@ -64,8 +64,8 @@ class W3WApiTextDataSourceTest {
         val result = w3WApiTextDataSource.convertToCoordinates("country.square.words")
         assert(result is W3WResult.Success)
         result as W3WResult.Success
-        assert(result.value.lat == fakeWhat3WordsV3Service.coordinatesDto.lat)
-        assert(result.value.lng == fakeWhat3WordsV3Service.coordinatesDto.lng)
+        assert(result.value.center?.lat == fakeWhat3WordsV3Service.coordinatesDto.lat)
+        assert(result.value.center?.lng == fakeWhat3WordsV3Service.coordinatesDto.lng)
     }
 
     @Test
