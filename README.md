@@ -187,7 +187,7 @@ class MainActivity : AppCompatActivity() {
                         Log.e("MainActivity", "Error: ${result.message}")
                     }
                     is W3WResult.Success -> {
-                        Log.d("MainActivity", "Coordinates: ${result.value.lat}, ${result.value.lng}")
+                        Log.d("MainActivity", "Coordinates: ${result.value.center.lat}, ${result.value.center.lng}")
                     }
                 }
             }
@@ -483,7 +483,7 @@ val result = textDataSource.convertToCoordinates(words) // Must run on backgroun
 Parameters: 
 - words: ```String```
 
-Return ```W3WResult<W3WCoordinates>```
+Return ```W3WResult<W3WAddress>```
 
 For more details and instructions, see [Convert to coordinates example](#converttocoordinates-example).
 <br><br>

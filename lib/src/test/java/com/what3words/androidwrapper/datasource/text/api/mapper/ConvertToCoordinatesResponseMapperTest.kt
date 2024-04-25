@@ -5,14 +5,16 @@ import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
 import com.what3words.androidwrapper.datasource.text.api.dto.SquareDto
 import com.what3words.androidwrapper.datasource.text.api.mappers.ConvertToCoordinatesResponseMapper
 import com.what3words.androidwrapper.datasource.text.api.mappers.CoordinatesDtoToDomainMapper
+import com.what3words.androidwrapper.datasource.text.api.mappers.SquareDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoordinatesResponse
 import org.junit.Assert
 import org.junit.Test
 
 class ConvertToCoordinatesResponseMapperTest {
 
+    private val coordinatesDtoToDomainMapper = CoordinatesDtoToDomainMapper()
     private val convertToCoordinatesResponseMapper =
-        ConvertToCoordinatesResponseMapper(CoordinatesDtoToDomainMapper())
+        ConvertToCoordinatesResponseMapper(coordinatesDtoToDomainMapper, SquareDtoToDomainMapper(coordinatesDtoToDomainMapper))
 
     @Test
     fun `mapFrom should return W3WCoordinates`() {
@@ -25,7 +27,7 @@ class ConvertToCoordinatesResponseMapperTest {
                 CoordinatesDto(lng = -0.203607, lat = 51.521238),
                 CoordinatesDto(lng = -0.203564, lat = 51.521265)
             ),
-            country = null,
+            country = "GB",
             nearestPlace = "Bayswater, London",
             locale = null,
             error = null,
@@ -36,8 +38,8 @@ class ConvertToCoordinatesResponseMapperTest {
         val result = convertToCoordinatesResponseMapper.mapFrom(convertToCoordinatesResponse)
 
         // Assert
-        assert(result.lat == 51.521251)
-        assert(result.lng == -0.203586)
+        assert(result.center?.lat == 51.521251)
+        assert(result.center?.lng == -0.203586)
     }
 
     @Test

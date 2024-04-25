@@ -190,7 +190,7 @@ class AutosuggestHelper(
                         val newSuggestion = W3WSuggestion(
                             w3wAddress = W3WAddress(
                                 words = word,
-                                center = res.value,
+                                center = res.value.center,
                                 square = suggestion.w3wAddress.square,
                                 language = suggestion.w3wAddress.language,
                                 country = suggestion.w3wAddress.country,

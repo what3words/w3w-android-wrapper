@@ -10,6 +10,7 @@ import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionMapper
 import com.what3words.androidwrapper.helpers.AutosuggestHelper
 import com.what3words.core.types.common.W3WError
 import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.domain.W3WAddress
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.domain.W3WSuggestion
 import com.what3words.core.types.geometry.W3WCoordinates
@@ -368,11 +369,18 @@ class AutosuggestHelperTests {
             // given
             val suggestion = mockk<W3WSuggestion>()
             val coordinates = mockk<W3WCoordinates>()
+            val address = mockk<W3WAddress>()
 
             every {
                 suggestion.w3wAddress.address
             } answers {
                 "///index.home.raft"
+            }
+
+            every {
+                address.center
+            } answers {
+                coordinates
             }
 
             every {
@@ -432,7 +440,7 @@ class AutosuggestHelperTests {
             every {
                 dataSource.convertToCoordinates(any())
             } answers {
-                W3WResult.Success(coordinates)
+                W3WResult.Success(address)
             }
 
 
