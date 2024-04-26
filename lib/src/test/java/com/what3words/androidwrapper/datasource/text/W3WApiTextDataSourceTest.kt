@@ -30,7 +30,7 @@ class W3WApiTextDataSourceTest {
     fun convertTo3wa_withInvalidCoordinates_returnsBadCoordinatesError() {
         val result = w3WApiTextDataSource.convertTo3wa(
             W3WCoordinates(-91.0, 181.0),
-            W3WProprietaryLanguage("en", "en_GB")
+            W3WProprietaryLanguage("en", "en_GB", "English", "English")
         )
         assert(result is W3WResult.Failure)
         result as W3WResult.Failure
@@ -41,7 +41,7 @@ class W3WApiTextDataSourceTest {
     fun convertTo3wa_withValidCoordinates_returnsW3WAddress() {
         val result = w3WApiTextDataSource.convertTo3wa(
             W3WCoordinates(10.251020, 105.574460),
-            W3WProprietaryLanguage("en", "en_GB")
+            W3WProprietaryLanguage("en", "en_GB", name = null, nativeName = null)
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success

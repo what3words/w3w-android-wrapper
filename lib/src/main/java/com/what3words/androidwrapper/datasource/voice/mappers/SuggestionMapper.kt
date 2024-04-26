@@ -15,7 +15,12 @@ class SuggestionMapper: Mapper<Suggestion, W3WSuggestion> {
                 words = from.words,
                 center = null,
                 square = null,
-                language = W3WProprietaryLanguage(from.language, from.locale),
+                language = W3WProprietaryLanguage(
+                    code = from.language,
+                    locale = from.locale,
+                    name = null,
+                    nativeName = null
+                ),
                 country = W3WCountry(from.country),
                 nearestPlace = from.nearestPlace
             ),

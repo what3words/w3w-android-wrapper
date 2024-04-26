@@ -31,7 +31,12 @@ internal class AutosuggestResponseMapper(
                     square = suggestion.square?.let {
                         squareDtoToDomainMapper.mapFrom(it)
                     },
-                    language = W3WProprietaryLanguage(suggestion.language, suggestion.locale),
+                    language = W3WProprietaryLanguage(
+                        code = suggestion.language,
+                        locale = suggestion.locale,
+                        name = null,
+                        nativeName = null
+                    ),
                     country = W3WCountry(suggestion.country)
                 ),
                 distanceToFocus = suggestion.distanceToFocusKm?.toDouble()?.let(::W3WDistance),

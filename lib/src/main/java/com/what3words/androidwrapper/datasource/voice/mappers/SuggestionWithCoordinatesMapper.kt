@@ -28,7 +28,12 @@ class SuggestionWithCoordinatesMapper : Mapper<SuggestionWithCoordinates, W3WSug
                         )
                     )
                 },
-                language = W3WProprietaryLanguage(from.language, from.locale),
+                language = W3WProprietaryLanguage(
+                    code = from.language,
+                    locale = from.locale,
+                    name = null,
+                    nativeName = null
+                ),
                 country = W3WCountry(from.country),
                 nearestPlace = from.nearestPlace
             ),
