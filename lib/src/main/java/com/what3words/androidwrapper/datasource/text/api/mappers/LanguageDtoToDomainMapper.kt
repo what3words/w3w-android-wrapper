@@ -7,19 +7,22 @@ import com.what3words.core.types.language.W3WProprietaryLanguage
 internal class LanguageDtoToDomainMapper : Mapper<LanguageDto, List<W3WProprietaryLanguage>> {
     override fun mapFrom(from: LanguageDto): List<W3WProprietaryLanguage> {
         return buildList {
-            if (from.locales.isNullOrEmpty()) {
-                add(
-                    W3WProprietaryLanguage(
-                        code = from.code, locale = null
-                    )
+            add(
+                W3WProprietaryLanguage(
+                    code = from.code,
+                    locale = null,
+                    name = from.name,
+                    nativeName = from.nativeName
                 )
-            } else {
-                addAll(from.locales.map { localeDto ->
-                    W3WProprietaryLanguage(
-                        code = from.code, locale = localeDto.code
-                    )
-                })
-            }
+            )
+            from.locales?.map {
+                W3WProprietaryLanguage(
+                    code = from.code,
+                    locale = it.code,
+                    name = it.name,
+                    nativeName = it.nativeName
+                )
+            }?.let(::addAll)
         }
     }
 }

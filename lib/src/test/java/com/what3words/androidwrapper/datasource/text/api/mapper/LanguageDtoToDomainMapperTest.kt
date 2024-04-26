@@ -33,11 +33,21 @@ class LanguageDtoToDomainMapperTest {
         val expected = listOf(
             W3WProprietaryLanguage(
                 code = "en",
-                locale = "en_US"
+                locale = null,
+                name = "English",
+                nativeName = "English",
             ),
             W3WProprietaryLanguage(
                 code = "en",
-                locale = "en_GB"
+                locale = "en_US",
+                name = "United States",
+                nativeName = "United States"
+            ),
+            W3WProprietaryLanguage(
+                code = "en",
+                locale = "en_GB",
+                name = "United Kingdom",
+                nativeName = "United Kingdom"
             )
         )
 
@@ -58,7 +68,9 @@ class LanguageDtoToDomainMapperTest {
         val expected = listOf(
             W3WProprietaryLanguage(
                 code = "vi",
-                locale = null
+                locale = null,
+                name = "Vietnamese",
+                nativeName = "Tiếng Việt"
             )
         )
 
@@ -80,7 +92,9 @@ class LanguageDtoToDomainMapperTest {
         val expected = listOf(
             W3WProprietaryLanguage(
                 code = "vi",
-                locale = null
+                locale = null,
+                name = "Vietnamese",
+                nativeName = "Tiếng Việt"
             )
         )
 

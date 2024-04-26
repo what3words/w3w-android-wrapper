@@ -60,7 +60,7 @@ class W3WApiVoiceDataSource internal constructor(
 
                     is W3WVoiceClient.RecognitionStatus.Error -> {
                         val voiceError = status.error
-                        onResult(W3WResult.Failure(voiceError.message, voiceError))
+                        onResult(W3WResult.Failure(voiceError, voiceError.message))
                     }
                 }
             }

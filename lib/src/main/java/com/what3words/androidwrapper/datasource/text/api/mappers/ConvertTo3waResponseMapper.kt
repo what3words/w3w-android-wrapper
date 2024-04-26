@@ -22,7 +22,7 @@ internal class ConvertTo3waResponseMapper(
             val square = square?.let { squareDtoToDomainMapper.mapFrom(it) }
                 ?: throw NullPointerException("Square property cannot be null")
             val language = language?.let {
-                W3WProprietaryLanguage(code = it, locale = locale)
+                W3WProprietaryLanguage(code = it, locale = locale, name = null, nativeName = null)
             } ?: throw NullPointerException("Language property cannot be null")
             val country = country?.let { W3WCountry(twoLetterCode = it) }
                 ?: throw NullPointerException("Country property cannot be null")

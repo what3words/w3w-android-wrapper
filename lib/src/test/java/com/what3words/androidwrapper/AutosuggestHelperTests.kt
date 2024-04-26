@@ -259,8 +259,8 @@ class AutosuggestHelperTests {
             val error = InvalidKeyError("invalid_key", "Invalid key")
             val failureResult =
                 W3WResult.Failure<List<W3WSuggestion>>(
-                    "Error",
-                    error
+                    error,
+                    "Error"
                 )
 
             every {
@@ -295,8 +295,7 @@ class AutosuggestHelperTests {
             val error = InvalidKeyError("invalid_key", "Invalid key")
             val failureResult =
                 W3WResult.Failure<List<W3WSuggestion>>(
-                    "Error",
-                    error
+                    error,"Error"
                 )
 
             every {
@@ -512,7 +511,7 @@ class AutosuggestHelperTests {
             every {
                 dataSource.convertToCoordinates("index.home.raft")
             } answers {
-                W3WResult.Failure("Bad word", error)
+                W3WResult.Failure(error,"Bad word")
             }
 
             every {
