@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.google.gson.Gson
 import com.what3words.androidwrapper.helpers.plusAssign
-import com.what3words.core.domain.language.W3WLanguage
 import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.response.APIError
 import java.nio.ByteBuffer
@@ -33,25 +32,7 @@ interface VoiceProvider {
         sampleRate: Int,
         samplesPerChannel: Int,
         encoding: Int,
-        language: W3WLanguage,
-        autosuggestOptions: AutosuggestOptions,
-        listener: VoiceApiListener
-    )
-
-    fun initialize(
-        sampleRate: Int,
-        samplesPerChannel: Int,
-        encoding: Int,
         voiceLanguage: String,
-        autosuggestOptions: AutosuggestOptions,
-        listener: VoiceApiListenerWithCoordinates
-    )
-
-    fun initialize(
-        sampleRate: Int,
-        samplesPerChannel: Int,
-        encoding: Int,
-        language: W3WLanguage,
         autosuggestOptions: AutosuggestOptions,
         listener: VoiceApiListenerWithCoordinates
     )
@@ -86,45 +67,11 @@ open class VoiceApi(
             "autosuggest"
         const val URL_WITH_COORDINATES =
             "autosuggest-with-coordinates"
-        private val map = mapOf(
-            W3WLanguage.AR to VoiceApiCodes.AR,
-            W3WLanguage.ZH_HANS to VoiceApiCodes.CMN,
-            W3WLanguage.DE to VoiceApiCodes.DE,
-            W3WLanguage.EN_CA to VoiceApiCodes.EN,
-            W3WLanguage.EN_AU to VoiceApiCodes.EN,
-            W3WLanguage.EN_GB to VoiceApiCodes.EN,
-            W3WLanguage.EN_IN to VoiceApiCodes.EN,
-            W3WLanguage.EN_US to VoiceApiCodes.EN,
-            W3WLanguage.ES_MX to VoiceApiCodes.ES,
-            W3WLanguage.ES_ES to VoiceApiCodes.ES,
-            W3WLanguage.HI to VoiceApiCodes.HI,
-            W3WLanguage.JA to VoiceApiCodes.JA,
-            W3WLanguage.KO to VoiceApiCodes.KO
-        )
-
-        fun availableLanguages() : List<W3WLanguage> {
-            return map.keys.toList()
-        }
-        fun supportsLanguage(language: W3WLanguage) : Boolean {
-            return map.containsKey(language)
-        }
     }
 
     internal var socket: WebSocket? = null
     private var listener: VoiceApiListener? = null
     var listenerWithCoordinates: VoiceApiListenerWithCoordinates? = null
-
-    override fun initialize(
-        sampleRate: Int,
-        samplesPerChannel: Int,
-        encoding: Int,
-        language: W3WLanguage,
-        autosuggestOptions: AutosuggestOptions,
-        listener: VoiceApiListener
-    ) {
-        val voiceLanguage = map[language]?.code ?: language.code
-        initialize(sampleRate, samplesPerChannel, encoding, voiceLanguage, autosuggestOptions, listener)
-    }
 
     override fun initialize(
         sampleRate: Int,
@@ -141,18 +88,6 @@ open class VoiceApi(
             autosuggestOptions
         )
         open(sampleRate, encoding, url)
-    }
-
-    override fun initialize(
-        sampleRate: Int,
-        samplesPerChannel: Int,
-        encoding: Int,
-        language: W3WLanguage,
-        autosuggestOptions: AutosuggestOptions,
-        listener: VoiceApiListenerWithCoordinates
-    ) {
-        val voiceLanguage = map[language]?.code ?: language.code
-        initialize(sampleRate, samplesPerChannel, encoding, voiceLanguage, autosuggestOptions, listener)
     }
 
     override fun initialize(

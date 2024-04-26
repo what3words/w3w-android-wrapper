@@ -7,7 +7,6 @@ import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExten
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toVoiceApiString
 import com.what3words.core.datasource.voice.audiostream.W3WAndroidAudioStreamEncoding
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStreamEncoding
-import com.what3words.core.domain.language.W3WLanguage
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.geometry.W3WCircle
 import com.what3words.core.types.geometry.W3WCoordinates
