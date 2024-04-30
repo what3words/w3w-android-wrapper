@@ -125,13 +125,13 @@ The W3WApiTextDataSource class facilitates the conversion of coordinates to what
 
 Create an instance of W3WApiTextDataSource via the factory method.
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create("YOUR_API_KEY")
+val textDataSource = W3WApiTextDataSource.create(context, "YOUR_API_KEY")
 ```
 
 If you are running your own Enterprise Suite API Server, you can specify the URL to your server:
 
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create("YOUR_API_KEY", "YOUR_SERVER_ENPOINT")
+val textDataSource = W3WApiTextDataSource.create(context, "YOUR_API_KEY", "YOUR_SERVER_ENPOINT")
 ```
 
 #### convertTo3wa example
@@ -372,7 +372,7 @@ class MainActivity : AppCompatActivity() {
 Add the api and helper wherever you put your class variables and be sure to use your [API key](https://what3words.com/select-plan):
 
 ```Kotlin
-val dataSource = W3WApiTextDataSource.create("YOUR_API_KEY_HERE")
+val dataSource = W3WApiTextDataSource.create(context, "YOUR_API_KEY_HERE")
 val autosuggestOptions = W3WAutosuggestOptions.Builder().
     .focus(...)
     .clipToCountry(...)
@@ -477,7 +477,7 @@ Return ```ConvertToCoordinates```
 **In version 4.0**
 <br>
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val textDataSource = W3WApiTextDataSource.create(context, API_KEY) 
 val result = textDataSource.convertToCoordinates(words) // Must run on background thread
 ```
 Parameters: 
@@ -506,7 +506,7 @@ Return ```ConvertTo3WA```
 **In version 4.0**
 <br>
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val textDataSource = W3WApiTextDataSource.create(context, API_KEY) 
 val result = textDataSource.convertTo3wa(coordinates, language) // Must run on background thread
 ```
 Parameters: 
@@ -536,7 +536,7 @@ Return ```Autosuggest```
 **In version 4.0**
 <br>
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val textDataSource = W3WApiTextDataSource.create(context, API_KEY) 
 val result = textDataSource.autosuggest(word, options) // Must run on background thread
 ```
 Parameters: 
@@ -564,7 +564,7 @@ Return ```AvailableLanguages```
 **In version 4.0**
 <br>
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val textDataSource = W3WApiTextDataSource.create(context, API_KEY) 
 val result = textDataSource.availableLanguages() // Must run on background thread
 ```
 Return ```W3WResult<Set<W3WProprietaryLanguage>>```
@@ -590,7 +590,7 @@ Return ```GridSection```
 **In version 4.0**
 <br>
 ```kotlin
-val textDataSource = W3WApiTextDataSource.create(API_KEY) 
+val textDataSource = W3WApiTextDataSource.create(context, API_KEY) 
 val result = textDataSource.gridSection(boundingBox) // Must run on background thread
 ```
 Parameters:
@@ -666,7 +666,7 @@ To:
 <br>
 
 ```kotlin
-val dataSource = W3WApiTextDataSource.create("YOUR_API_KEY_HERE")
+val dataSource = W3WApiTextDataSource.create(context, "YOUR_API_KEY_HERE")
 val autosuggestHelper = AutosuggestHelper(dataSource)
 ```
 
