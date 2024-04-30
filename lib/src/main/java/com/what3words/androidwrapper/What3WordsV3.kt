@@ -55,7 +55,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(
@@ -71,7 +71,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         this.voiceProvider = voiceProvider
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     internal constructor(
@@ -97,7 +97,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, context: Context) : super(
@@ -109,7 +109,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(apiKey: String, endpoint: String, voiceEndpoint: String, context: Context) : super(
@@ -121,7 +121,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey, voiceEndpoint)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(
@@ -132,7 +132,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) : super(apiKey, endpoint, context.packageName, getSignature(context), headers) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(
@@ -150,7 +150,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         voiceProvider = VoiceApi(apiKey, voiceEndpoint)
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     constructor(
@@ -168,7 +168,7 @@ class What3WordsV3 : com.what3words.javawrapper.What3WordsV3, What3WordsAndroidW
     ) {
         dispatchers = DefaultDispatcherProvider()
         this.voiceProvider = voiceProvider
-        helper = AutosuggestHelper(W3WApiTextDataSource.create(apiKey), dispatchers)
+        helper = AutosuggestHelper(W3WApiTextDataSource.create(context, apiKey), dispatchers)
     }
 
     companion object {
