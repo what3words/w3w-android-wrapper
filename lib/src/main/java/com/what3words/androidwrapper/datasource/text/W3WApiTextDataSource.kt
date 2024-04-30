@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.text
 
+import android.content.Context
 import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
@@ -13,6 +14,7 @@ import com.what3words.androidwrapper.datasource.text.api.response.ConvertToCoord
 import com.what3words.androidwrapper.datasource.text.api.response.GridSectionResponse
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient.executeApiRequestAndHandleResponse
+import com.what3words.androidwrapper.helpers.PackageManagerHelper.getPackageSignature
 import com.what3words.core.datasource.text.W3WTextDataSource
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.domain.W3WAddress
@@ -24,6 +26,7 @@ import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import com.what3words.javawrapper.request.SourceApi
+import org.jetbrains.annotations.ApiStatus.*
 
 /**
  * Rest API implementation of the [com.what3words.core.datasource.text.W3WTextDataSource] interface.
@@ -174,24 +177,61 @@ class W3WApiTextDataSource internal constructor(
         /**
          * Creates a new [W3WApiTextDataSource] instance.
          *
-         * @param apiKey Your what3words API key obtained from https://accounts.what3words.com
-         * @param endPoint Override the default public API endpoint.
-         * @param packageName For use within Android applications to provide the application package name as part of API key restriction.
-         * @param signature For use within Android applications to provide the application SHA1 signature as part of API key restriction.
-         * @param headers Add any custom HTTP headers to send in each request.
+         * If you want to restrict the API key usage to just your application only, ensure that the provided [apiKey] has API restrictions enabled.
+         * For detailed instructions, refer to the API Key Restriction section of your [what3words developer account](https://accounts.what3words.com/overview).
+         *
+         * @param context The context of the application.
+         * @param apiKey Your what3words API key obtained from your [what3words developer account](https://accounts.what3words.com).
+         * @param endPoint (Optional) Override the default public API endpoint.
+         * @param headers (Optional) Additional custom HTTP headers to include in each request.
+         * @return A new instance of [W3WApiTextDataSource].
          */
         @JvmStatic
         fun create(
+            context: Context,
             apiKey: String,
             endPoint: String? = null,
-            packageName: String? = null,
-            signature: String? = null,
             headers: Map<String, String> = mapOf()
         ): W3WApiTextDataSource {
-            return W3WApiTextDataSource(
+            return create(
                 what3WordsV3Service = W3WV3RetrofitApiClient.createW3WV3Service(
-                    apiKey, endPoint, packageName, signature, headers
-                ),
+                    apiKey, endPoint, context.packageName, context.getPackageSignature(), headers
+                )
+            )
+        }
+
+        /**
+         * Creates a new [W3WApiTextDataSource] instance for internal purposes only.
+         *
+         * @param apiKey Your what3words API key obtained from your [what3words developer account](https://accounts.what3words.com).
+         * @param endPoint (Optional) Override the default public API endpoint.
+         * @param headers (Optional) Additional custom HTTP headers to include in each request.
+         * @return A new instance of [W3WApiTextDataSource].
+         */
+        @Internal
+        internal fun create(
+            apiKey: String,
+            endPoint: String? = null,
+            headers: Map<String, String> = mapOf()
+        ): W3WApiTextDataSource {
+            return create(
+                what3WordsV3Service = W3WV3RetrofitApiClient.createW3WV3Service(
+                    apiKey, endPoint, null, null, headers
+                )
+            )
+        }
+
+        /**
+         * Creates a new instance of [W3WApiTextDataSource] using the provided [What3WordsV3Service].
+         *
+         * @param what3WordsV3Service The What3WordsV3Service instance used for API communication.
+         * @return A new instance of W3WApiTextDataSource.
+         */
+        private fun create(
+            what3WordsV3Service: What3WordsV3Service
+        ): W3WApiTextDataSource {
+            return W3WApiTextDataSource(
+                what3WordsV3Service = what3WordsV3Service,
                 convertTo3waDtoToDomainMapper = MappersFactory.providesConvertTo3waDtoToDomainMapper(),
                 convertToCoordinatesResponseMapper = MappersFactory.providesConvertToCoordinatesResponseMapper(),
                 autosuggestResponseMapper = MappersFactory.providesAutosuggestResponseMapper(),
