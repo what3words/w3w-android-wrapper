@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper.datasource.voice
 
 import com.google.gson.Gson
+import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
 import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
 import com.what3words.androidwrapper.datasource.voice.error.W3WApiVoiceError
@@ -14,10 +15,17 @@ import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class W3WApiVoiceDataSourceTest {
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
 
     @MockK
     private lateinit var client: W3WVoiceClient
@@ -98,7 +106,7 @@ class W3WApiVoiceDataSourceTest {
     }
 
     @Test
-    fun `autosuggest return suggestions`() {
+    fun `autosuggest return suggestions`() = runTest {
         // Arrange
         mockClientReturnSuggestions(expectedExceptions)
 
@@ -111,7 +119,7 @@ class W3WApiVoiceDataSourceTest {
     }
 
     @Test
-    fun `autosuggest return error`() {
+    fun `autosuggest return error`() = runTest {
         // Arrange
         val error = W3WError(expectedError)
         mockClientReturnError(error)

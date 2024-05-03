@@ -50,25 +50,11 @@ class W3WApiVoiceDataSource internal constructor(
         W3WRFC5646Language.KO // KO: Korean
     )
 
-    /**
-     * Performs automatic speech recognition (ASR) on a provided audio stream to return a list of what3words address suggestions.
-     *
-     * @param input The audio stream (instance of [W3WAudioStream]) providing audio signals for ASR.
-     * @param voiceLanguage The language used to initialize the ASR engine.
-     *                      Accepts instances of [W3WRFC5646Language] or [W3WProprietaryLanguage].
-     * @param options Additional options for tuning the address suggestions.
-     * @param onSpeechDetected Callback invoked when a voice data source detects and synthesizes user speech,
-     *                         providing immediate ASR results. This callback is triggered before initiating
-     *                         what3words address suggestion process based on the recognized speech text.
-     * @param onResult Callback invoked when the ASR process is completed, providing a [W3WResult] instance
-     *                 containing a list of what3words address suggestions in case of success or [W3WError]
-     *                 in case of failure.
-     */
     override fun autosuggest(
         input: W3WAudioStream,
         voiceLanguage: W3WLanguage,
         options: W3WAutosuggestOptions?,
-        onSpeechDetected: ((String) -> Unit)?,
+        onRawResult: ((String) -> Unit)?,
         onResult: (result: W3WResult<List<W3WSuggestion>>) -> Unit
     ) {
         client.initialize(voiceLanguage, options, input)
@@ -91,10 +77,6 @@ class W3WApiVoiceDataSource internal constructor(
             }
     }
 
-    /**
-     * Terminates any ongoing autosuggest or speech recognition process within the voice data source
-     * and releases associated resources.
-     */
     override fun terminate() {
         client.close("Terminated by user")
     }
@@ -106,10 +88,6 @@ class W3WApiVoiceDataSource internal constructor(
         }
     }
 
-    /**
-     * Returns a set of RFC5646 languages supported by the what3words Voice API.
-     * For more information, refer to [supportedLanguages] and the [Voice Languages documentation](https://developer.what3words.com/voice-api/docs#resource-url:~:text=com/v1/autosuggest-,Configuration,-Voice%20Language).
-     */
     override fun availableLanguages(): Set<W3WRFC5646Language> {
         return supportedLanguages
     }
