@@ -6,6 +6,7 @@ import com.what3words.androidwrapper.datasource.text.api.error.BadCoordinatesErr
 import com.what3words.androidwrapper.datasource.text.api.error.BadWordsError
 import com.what3words.androidwrapper.datasource.text.fake.FakeWhat3WordsV3Service
 import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.domain.formattedWords
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WProprietaryLanguage
@@ -45,7 +46,7 @@ class W3WApiTextDataSourceTest {
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success
-        assert(result.value.address == "///${fakeWhat3WordsV3Service.w3w}")
+        assert(result.value.formattedWords() == "///${fakeWhat3WordsV3Service.w3w}")
     }
 
     @Test
@@ -56,7 +57,7 @@ class W3WApiTextDataSourceTest {
         )
         assert(result is W3WResult.Success)
         result as W3WResult.Success
-        assert(result.value.address == "///${fakeWhat3WordsV3Service.w3w}")
+        assert(result.value.formattedWords() == "///${fakeWhat3WordsV3Service.w3w}")
     }
 
     @Test

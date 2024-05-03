@@ -6,6 +6,7 @@ import com.what3words.androidwrapper.datasource.text.api.mappers.AutosuggestResp
 import com.what3words.androidwrapper.datasource.text.api.mappers.CoordinatesDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.mappers.SquareDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
+import com.what3words.core.types.domain.formattedWords
 import org.junit.Test
 
 class AutosuggestResponseMapperTest {
@@ -77,7 +78,7 @@ class AutosuggestResponseMapperTest {
 
         // Assert
         assert(result.size == 3)
-        assert(result[0].w3wAddress.address == "///index.home.raft")
+        assert(result[0].w3wAddress.formattedWords() == "///index.home.raft")
         assert(result[0].w3wAddress.nearestPlace == "Bayswater, London")
         assert(result[0].w3wAddress.language.w3wCode == "en")
         assert(result[0].w3wAddress.country.twoLetterCode == "GB")
@@ -87,7 +88,7 @@ class AutosuggestResponseMapperTest {
         assert(result[0].distanceToFocus == null)
         assert(result[0].rank == 1)
 
-        assert(result[1].w3wAddress.address == "///indexes.home.raft")
+        assert(result[1].w3wAddress.formattedWords() == "///indexes.home.raft")
         assert(result[1].w3wAddress.nearestPlace == "Prosperity, West Virginia")
         assert(result[1].w3wAddress.language.w3wCode == "en")
         assert(result[1].w3wAddress.country.twoLetterCode == "US")
@@ -97,7 +98,7 @@ class AutosuggestResponseMapperTest {
         assert(result[1].distanceToFocus == null)
         assert(result[1].rank == 2)
 
-        assert(result[2].w3wAddress.address == "///index.homes.raft")
+        assert(result[2].w3wAddress.formattedWords() == "///index.homes.raft")
         assert(result[2].w3wAddress.nearestPlace == "Greensboro, North Carolina")
         assert(result[2].w3wAddress.language.w3wCode == "en")
         assert(result[2].w3wAddress.country.twoLetterCode == "US")

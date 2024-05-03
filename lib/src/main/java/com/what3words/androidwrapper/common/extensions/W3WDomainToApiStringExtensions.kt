@@ -7,6 +7,7 @@ import com.what3words.core.types.geometry.W3WCircle
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WPolygon
 import com.what3words.core.types.geometry.W3WRectangle
+import com.what3words.core.types.geometry.km
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
 

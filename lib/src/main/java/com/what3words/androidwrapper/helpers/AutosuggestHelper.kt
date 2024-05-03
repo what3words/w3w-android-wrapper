@@ -111,7 +111,7 @@ class AutosuggestHelper(
                     is W3WResult.Success -> {
                         if (isDidYouMean) {
                             res.value.firstOrNull {
-                                it.w3wAddress.address.lowercase(Locale.getDefault()) == "///${finalQuery}".lowercase(
+                                it.w3wAddress.words.lowercase(Locale.getDefault()) == finalQuery.lowercase(
                                     Locale.getDefault()
                                 )
                             }?.let {
@@ -146,7 +146,7 @@ class AutosuggestHelper(
             CoroutineScope(dispatchers.io()).launch {
                 it.autosuggestionSelection(
                     rawString,
-                    suggestion.w3wAddress.address.substring(3), // remove "///",
+                    suggestion.w3wAddress.words,
                     suggestion.rank,
                     SourceApi.TEXT,
                     options
@@ -172,7 +172,7 @@ class AutosuggestHelper(
         onSuccessListener: Consumer<W3WSuggestion>,
         onFailureListener: Consumer<W3WError>?
     ) {
-        val word = suggestion.w3wAddress.address.substring(3) // remove "///"
+        val word = suggestion.w3wAddress.words
 
         CoroutineScope(dispatchers.io()).launch {
             (dataSource as? W3WApiTextDataSource)?.autosuggestionSelection(
