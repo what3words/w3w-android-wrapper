@@ -5,7 +5,6 @@ import com.what3words.androidwrapper.datasource.voice.W3WApiVoiceDataSource.Comp
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
 import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
 import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionWithCoordinatesMapper
-import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.core.datasource.voice.W3WVoiceDataSource
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
 import com.what3words.core.types.common.W3WResult
@@ -13,6 +12,9 @@ import com.what3words.core.types.domain.W3WSuggestion
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.language.W3WRFC5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Websocket implementation of the [com.what3words.core.datasource.voice.W3WVoiceDataSource] interface.
@@ -71,17 +73,19 @@ class W3WApiVoiceDataSource internal constructor(
     ) {
         client.initialize(voiceLanguage, options, input)
             .openWebSocketAndStartRecognition { status ->
-                when (status) {
-                    is W3WVoiceClient.RecognitionStatus.Suggestions -> {
-                        val suggestions = status.suggestions.map {
-                            suggestionWithCoordinatesMapper.mapFrom(it)
+                CoroutineScope(Dispatchers.Main).launch {
+                    when (status) {
+                        is W3WVoiceClient.RecognitionStatus.Suggestions -> {
+                            val suggestions = status.suggestions.map {
+                                suggestionWithCoordinatesMapper.mapFrom(it)
+                            }
+                            onResult(W3WResult.Success(suggestions))
                         }
-                        onResult(W3WResult.Success(suggestions))
-                    }
 
-                    is W3WVoiceClient.RecognitionStatus.Error -> {
-                        val voiceError = status.error
-                        onResult(W3WResult.Failure(voiceError, voiceError.message))
+                        is W3WVoiceClient.RecognitionStatus.Error -> {
+                            val voiceError = status.error
+                            onResult(W3WResult.Failure(voiceError, voiceError.message))
+                        }
                     }
                 }
             }
@@ -96,7 +100,7 @@ class W3WApiVoiceDataSource internal constructor(
     }
 
     override fun version(version: W3WVoiceDataSource.Version): String {
-        return when(version) {
+        return when (version) {
             W3WVoiceDataSource.Version.Library -> BuildConfig.VERSION_NAME
             W3WVoiceDataSource.Version.DataSource -> BuildConfig.VOICE_API_VERSION
         }
