@@ -33,4 +33,26 @@ class NetworkError : W3WApiError {
         this.code = null
         this.message = null
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as NetworkError
+
+        if (code != other.code) return false
+        if (message != other.message) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = code?.hashCode() ?: 0
+        result = 31 * result + (message?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "NetworkError(code=$code, message=$message)"
+    }
 }
