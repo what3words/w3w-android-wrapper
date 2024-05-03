@@ -6,6 +6,7 @@ import com.what3words.androidwrapper.datasource.text.api.mappers.ConvertTo3waRes
 import com.what3words.androidwrapper.datasource.text.api.mappers.CoordinatesDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.mappers.SquareDtoToDomainMapper
 import com.what3words.androidwrapper.datasource.text.api.response.ConvertTo3waResponse
+import com.what3words.core.types.domain.formattedWords
 import org.junit.Assert
 import org.junit.Test
 
@@ -40,7 +41,7 @@ class ConvertTo3waResponseMapperTest {
         val result = convertTo3waResponseMapper.mapFrom(convertTo3waResponse)
 
         // Assert
-        assert(result.address == "///index.home.raft")
+        assert(result.formattedWords() == "///index.home.raft")
         assert(result.language.w3wCode == "en")
         assert(result.language.w3wLocale == null)
         assert(result.center?.lng == -0.203586)

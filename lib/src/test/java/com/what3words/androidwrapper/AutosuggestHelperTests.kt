@@ -13,9 +13,11 @@ import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.domain.W3WAddress
 import com.what3words.core.types.domain.W3WCountry
 import com.what3words.core.types.domain.W3WSuggestion
+import com.what3words.core.types.domain.formattedWords
 import com.what3words.core.types.geometry.W3WCoordinates
 import com.what3words.core.types.geometry.W3WPolygon
 import com.what3words.core.types.geometry.W3WRectangle
+import com.what3words.core.types.geometry.km
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import com.what3words.javawrapper.request.SourceApi
 import com.what3words.javawrapper.response.Suggestion
@@ -330,9 +332,9 @@ class AutosuggestHelperTests {
             val suggestion = mockk<W3WSuggestion>()
 
             every {
-                suggestion.w3wAddress.address
+                suggestion.w3wAddress.words
             } answers {
-                "///index.home.raft"
+                "index.home.raft"
             }
 
             every {
@@ -371,9 +373,9 @@ class AutosuggestHelperTests {
             val address = mockk<W3WAddress>()
 
             every {
-                suggestion.w3wAddress.address
+                suggestion.w3wAddress.words
             } answers {
-                "///index.home.raft"
+                "index.home.raft"
             }
 
             every {
@@ -485,9 +487,9 @@ class AutosuggestHelperTests {
             val error = BadWordsError("bad_words", "Bad words")
 
             every {
-                suggestion.w3wAddress.address
+                suggestion.w3wAddress.words
             } answers {
-                "///index.home.raft"
+                "index.home.raft"
             }
 
             every {
