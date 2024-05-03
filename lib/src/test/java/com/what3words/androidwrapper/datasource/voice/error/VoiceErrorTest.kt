@@ -1,10 +1,17 @@
 package com.what3words.androidwrapper.datasource.voice.error
 
+import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.voice.error.W3WApiVoiceError
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class VoiceErrorTest {
+
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
 
     @Test
     fun `ConnectionError returns correct formatted message`() = runTest {

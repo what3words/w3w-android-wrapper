@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper.datasource.voice.client
 
 import com.google.gson.Gson
+import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.text.api.error.BadFocusError
 import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
@@ -21,14 +22,19 @@ import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class VoiceClientTest {
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
 
     @MockK
     private lateinit var mockWebSocket: WebSocket

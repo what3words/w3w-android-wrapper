@@ -5,7 +5,6 @@ import com.what3words.androidwrapper.datasource.voice.W3WApiVoiceDataSource.Comp
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
 import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
 import com.what3words.androidwrapper.datasource.voice.mappers.SuggestionWithCoordinatesMapper
-import com.what3words.androidwrapper.voice.VoiceApi
 import com.what3words.core.datasource.voice.W3WVoiceDataSource
 import com.what3words.core.datasource.voice.audiostream.W3WAudioStream
 import com.what3words.core.types.common.W3WResult
@@ -13,6 +12,9 @@ import com.what3words.core.types.domain.W3WSuggestion
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.language.W3WRFC5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Websocket implementation of the [com.what3words.core.datasource.voice.W3WVoiceDataSource] interface.
@@ -48,64 +50,44 @@ class W3WApiVoiceDataSource internal constructor(
         W3WRFC5646Language.KO // KO: Korean
     )
 
-    /**
-     * Performs automatic speech recognition (ASR) on a provided audio stream to return a list of what3words address suggestions.
-     *
-     * @param input The audio stream (instance of [W3WAudioStream]) providing audio signals for ASR.
-     * @param voiceLanguage The language used to initialize the ASR engine.
-     *                      Accepts instances of [W3WRFC5646Language] or [W3WProprietaryLanguage].
-     * @param options Additional options for tuning the address suggestions.
-     * @param onSpeechDetected Callback invoked when a voice data source detects and synthesizes user speech,
-     *                         providing immediate ASR results. This callback is triggered before initiating
-     *                         what3words address suggestion process based on the recognized speech text.
-     * @param onResult Callback invoked when the ASR process is completed, providing a [W3WResult] instance
-     *                 containing a list of what3words address suggestions in case of success or [W3WError]
-     *                 in case of failure.
-     */
     override fun autosuggest(
         input: W3WAudioStream,
         voiceLanguage: W3WLanguage,
         options: W3WAutosuggestOptions?,
-        onSpeechDetected: ((String) -> Unit)?,
+        onRawResult: ((String) -> Unit)?,
         onResult: (result: W3WResult<List<W3WSuggestion>>) -> Unit
     ) {
         client.initialize(voiceLanguage, options, input)
             .openWebSocketAndStartRecognition { status ->
-                when (status) {
-                    is W3WVoiceClient.RecognitionStatus.Suggestions -> {
-                        val suggestions = status.suggestions.map {
-                            suggestionWithCoordinatesMapper.mapFrom(it)
+                CoroutineScope(Dispatchers.Main).launch {
+                    when (status) {
+                        is W3WVoiceClient.RecognitionStatus.Suggestions -> {
+                            val suggestions = status.suggestions.map {
+                                suggestionWithCoordinatesMapper.mapFrom(it)
+                            }
+                            onResult(W3WResult.Success(suggestions))
                         }
-                        onResult(W3WResult.Success(suggestions))
-                    }
 
-                    is W3WVoiceClient.RecognitionStatus.Error -> {
-                        val voiceError = status.error
-                        onResult(W3WResult.Failure(voiceError, voiceError.message))
+                        is W3WVoiceClient.RecognitionStatus.Error -> {
+                            val voiceError = status.error
+                            onResult(W3WResult.Failure(voiceError, voiceError.message))
+                        }
                     }
                 }
             }
     }
 
-    /**
-     * Terminates any ongoing autosuggest or speech recognition process within the voice data source
-     * and releases associated resources.
-     */
     override fun terminate() {
         client.close("Terminated by user")
     }
 
     override fun version(version: W3WVoiceDataSource.Version): String {
-        return when(version) {
+        return when (version) {
             W3WVoiceDataSource.Version.Library -> BuildConfig.VERSION_NAME
             W3WVoiceDataSource.Version.DataSource -> BuildConfig.VOICE_API_VERSION
         }
     }
 
-    /**
-     * Returns a set of RFC5646 languages supported by the what3words Voice API.
-     * For more information, refer to [supportedLanguages] and the [Voice Languages documentation](https://developer.what3words.com/voice-api/docs#resource-url:~:text=com/v1/autosuggest-,Configuration,-Voice%20Language).
-     */
     override fun availableLanguages(): Set<W3WRFC5646Language> {
         return supportedLanguages
     }

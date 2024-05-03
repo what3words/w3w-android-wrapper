@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.text
 
+import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
 import com.what3words.androidwrapper.datasource.text.api.error.BadCoordinatesError
@@ -12,9 +13,14 @@ import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.language.W3WRFC5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class W3WApiTextDataSourceTest {
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
 
     private val fakeWhat3WordsV3Service = FakeWhat3WordsV3Service()
 
