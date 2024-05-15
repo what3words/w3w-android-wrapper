@@ -52,7 +52,7 @@ class W3WApiVoiceDataSource internal constructor(
 
     override fun autosuggest(
         input: W3WAudioStream,
-        voiceLanguage: W3WLanguage,
+        voiceLanguage: W3WRFC5646Language,
         options: W3WAutosuggestOptions?,
         onRawResult: ((String) -> Unit)?,
         onResult: (result: W3WResult<List<W3WSuggestion>>) -> Unit
