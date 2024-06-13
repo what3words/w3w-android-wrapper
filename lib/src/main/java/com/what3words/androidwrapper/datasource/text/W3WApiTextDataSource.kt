@@ -155,8 +155,8 @@ class W3WApiTextDataSource internal constructor(
         }
         return when (response) {
             is W3WResult.Success -> W3WResult.Success(response.value.any {
-                it.w3wAddress.words.replace("/", "").lowercase() == words.replace("/", "")
-                    .lowercase()
+                it.w3wAddress.words.replace("/", "")
+                    .equals(words.replace("/", ""), ignoreCase = true)
             })
 
             is W3WResult.Failure -> W3WResult.Failure(response.error)
