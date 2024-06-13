@@ -416,7 +416,8 @@ Check if a String is a possible what3words address, this regex allows different 
 ```kotlin
 com.what3words.javawrapper.What3WordsV3.didYouMean3wa("filled-count-soap") returns true
 com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not valid") returns false
-com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not.3wa address") returns true
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not.3wa address") returns false
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not.threewa address") returns true
 ```
 
 #### findPossible3wa
