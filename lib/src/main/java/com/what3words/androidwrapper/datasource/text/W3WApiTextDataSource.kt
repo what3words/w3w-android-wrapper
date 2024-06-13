@@ -25,6 +25,7 @@ import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WLanguage
 import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.options.W3WAutosuggestOptions
+import com.what3words.javawrapper.What3WordsV3
 import com.what3words.javawrapper.request.SourceApi
 import org.jetbrains.annotations.ApiStatus.*
 
@@ -134,8 +135,36 @@ class W3WApiTextDataSource internal constructor(
         }
     }
 
+    /**
+     * Checks if a given what3words address is valid.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param words The what3words address to validate.
+     * @return A [W3WResult] instance containing a boolean value indicating whether the what3words address is valid.
+     */
+    @Throws(InterruptedException::class)
+    override fun isValid3wa(words: String): W3WResult<Boolean> {
+        if (!What3WordsV3.isPossible3wa(words)) {
+            return W3WResult.Success(false)
+        }
+        val response = executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
+            what3WordsV3Service.autosuggest(
+                words
+            )
+        }
+        return when (response) {
+            is W3WResult.Success -> W3WResult.Success(response.value.any {
+                it.w3wAddress.words.replace("/", "").lowercase() == words.replace("/", "")
+                    .lowercase()
+            })
+
+            is W3WResult.Failure -> W3WResult.Failure(response.error)
+        }
+    }
+
     override fun version(version: W3WTextDataSource.Version): String? {
-        return when(version) {
+        return when (version) {
             W3WTextDataSource.Version.Library -> BuildConfig.VERSION_NAME
             W3WTextDataSource.Version.DataSource -> BuildConfig.TEXT_API_VERSION
             W3WTextDataSource.Version.Data -> null
