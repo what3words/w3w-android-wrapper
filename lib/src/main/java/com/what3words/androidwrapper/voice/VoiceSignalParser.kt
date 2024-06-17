@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.voice
 
+@Deprecated("This class is deprecated, please use new W3WMicrophone instead")
 object VoiceSignalParser {
 
     private const val MIN_SIGNAL_LEVEL = 20

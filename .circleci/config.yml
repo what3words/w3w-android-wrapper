@@ -62,6 +62,10 @@ jobs:
       - checkout
       - library-setup
       - run:
+          name: Snapshot Release Check
+          command: |
+            echo -e "\nIS_SNAPSHOT_RELEASE=$( [[ "${CIRCLE_BRANCH}" =~ ^epic.* ]] && echo true || echo false )" >> gradle.properties
+      - run:
           name: Inject Maven signing key
           command: |
             echo $GPG_SIGNING_KEY \
@@ -90,3 +94,4 @@ workflows:
             branches:
               only:
                 - staging
+                - /^epic.*/
