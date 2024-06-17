@@ -14,6 +14,8 @@ import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.language.W3WRFC5646Language
 import com.what3words.core.types.options.W3WAutosuggestOptions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -141,5 +143,21 @@ class W3WApiTextDataSourceTest {
         assert(result is W3WResult.Success)
         result as W3WResult.Success
         assert(result.value.isNotEmpty())
+    }
+
+    @Test
+    fun isValid3wa_returnsValid() {
+        val result = w3WApiTextDataSource.isValid3wa("///${fakeWhat3WordsV3Service.w3w}")
+        assert(result is W3WResult.Success)
+        result as W3WResult.Success
+        assertTrue(result.value)
+    }
+
+    @Test
+    fun isValid3wa_returnsInvalid() {
+        val result = w3WApiTextDataSource.isValid3wa("///invalid.address.test")
+        assert(result is W3WResult.Success)
+        result as W3WResult.Success
+        assertFalse(result.value)
     }
 }

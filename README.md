@@ -17,11 +17,16 @@ An Android library to use the [what3words v3 API](https://docs.what3words.com/ap
     - [AutoSuggest](#autosuggest-example)
     - [availableLanguages](#availablelanguages-example)
     - [gridSection](#gridsection-example)
+    - [isValid3wa](#isValid3wa-example)
   - [W3WApiVoiceDataSource](#w3wapivoicedatasource)
     - [Get the instance](#create-a-w3wapivoicedatasource-instance)
     - [Initialize the microphone](#create-a-w3wmicrophone-instance-to-handle-voice-recording)
     - [Set up microphone callbacks](#you-can-set-up-callbacks-to-receive-information-about-the-recording-progress)
     - [Perform Voice AutoSuggest](#perform-voice-autosuggest)
+  - [Helper Functions](#helper-functions)
+    - [isPossible3wa](#ispossible3wa)
+    - [didYouMean3wa](#didyoumean3wa)
+    - [findPossible3wa](#findpossible3wa)
 - [Integrate what3words to the existing textfield](#add-what3words-autosuggest-to-an-existing-autosuggest-field)
 - [UX guidelines](#ux-guidelines)
 - [Migration from version 3.x to 4.x](#migrate-from-version-3x-to-4x)
@@ -109,6 +114,7 @@ This table offers a succinct overview of the methods available in this library a
 | W3WApiTextDataSource  | autosuggest             | Get suggestions for a slightly incomplete what3words address.                                                    |
 | W3WApiTextDataSource  | availableLanguages      | Retrieve a set of all available languages that what3words supports.                                              |
 | W3WApiTextDataSource  | gridSection             | Get a section of the 3m x 3m what3words grid for a bounding box and convert it into GeoJSON format.              |
+| W3WApiTextDataSource  | isValid3wa              | Checks if a possible what3words address is valid.                                                                |
 | W3WApiVoiceDataSource | create                  | Create an instance of W3WApiVoiceDataSource with your API key and optional server endpoint.                      |
 | W3WApiVoiceDataSource | autosuggest             | Perform voice autosuggestion using a microphone input.                                                           |
 | AutosuggestHelper     | update                  | Update autosuggestion options dynamically.                                                                       |
@@ -289,6 +295,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
+```
+#### isValid3wa example
+This method checks if a possible what3words address is valid.
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ...
+        
+        CoroutineScope(Dispatchers.IO).launch { 
+            // Run to gridSection method in Dispatchers.IO   
+            val result = w3WApiTextDataSource.isValid3wa("filled.count.soap")
+            
+            //Switch to Dispatcher.Main to update your views with the results if needed
+            withContext(Dispatchers.Main) {
+                when (result) {
+                    is W3WResult.Failure -> {
+                        Log.e("MainActivity", "Error: ${result.message}")
+                    }
+                    is W3WResult.Success -> {
+                      Log.d("MainActivity", "isValid: ${result.value}")
+                    }
+                }
+            }
+        }
+    }
+}
 ```
 
 ### W3WApiVoiceDataSource
@@ -363,6 +397,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+```
+
+### Helper Functions
+
+#### isPossible3wa
+Check if a String is a possible what3words address. A reminder that this just checks the format of the text, hence why is called possible3wa, to verify if it's a real what3words address please use [isValid3wa](#isvalid3wa-example).
+
+```kotlin
+com.what3words.javawrapper.What3WordsV3.isPossible3wa("filled.count.soap") returns true
+com.what3words.javawrapper.What3WordsV3.isPossible3wa("not a 3wa") returns false
+com.what3words.javawrapper.What3WordsV3.isPossible3wa("not.3wa address") returns false
+```
+
+#### didYouMean3wa
+Check if a String is a possible what3words address, this regex allows different separators (i.e: not using standard full stop/dot). A reminder that this just checks the format of the text, hence why is called didYouMean3wa, to verify if it's a real what3words address please use [isValid3wa](#isvalid3wa-example) using full stop as a separator.
+
+```kotlin
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("filled-count-soap") returns true
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not valid") returns false
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not.3wa address") returns false
+com.what3words.javawrapper.What3WordsV3.didYouMean3wa("not.threewa address") returns true
+```
+
+#### findPossible3wa
+Get any possible what3words addresses from a text. Will return an empty list if no possible addresses are found. Reminder that this just checks the format of the text, hence why is called findPossible3wa, to verify if it's a real what3words address please use [isValid3wa](#isvalid3wa-example) to verify each item of the list.
+
+```kotlin
+com.what3words.javawrapper.What3WordsV3.findPossible3wa("Please leave by my porch at filled.count.soap") returns ["filled.count.soap"]
+com.what3words.javawrapper.What3WordsV3.findPossible3wa("Please leave by my porch at filled.count.soap or deed.tulip.judge") returns ["filled.count.soap", "deed.tulip.judge"]
+com.what3words.javawrapper.What3WordsV3.findPossible3wa("Please leave by my porch at") returns []
 ```
 
 ### Add what3words AutoSuggest to an existing text field
