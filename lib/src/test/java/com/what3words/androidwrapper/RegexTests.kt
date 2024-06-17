@@ -3,8 +3,6 @@ package com.what3words.androidwrapper
 import com.what3words.androidwrapper.helpers.didYouMean3wa
 import com.what3words.androidwrapper.helpers.isPossible3wa
 import com.what3words.androidwrapper.helpers.searchPossible3wa
-import com.what3words.androidwrapper.voice.VoiceApi
-import com.what3words.core.domain.language.W3WLanguage
 import org.junit.Test
 
 class RegexTests {
@@ -51,20 +49,5 @@ class RegexTests {
                     "\n" +
                     "Aenean id lacus ipsum. Integer ut dolor a enim efficitur aliquam. Aliquam vitae mattis diam, eget tincidunt nibh. Suspendisse mattis leo eu arcu finibus lobortis. Aenean bibendum, turpis id posuere aliquet, orci ante euismod ipsum, nec imperdiet ex felis nec nulla. Nulla facilisi. Nam auctor dapibus nunc, sed maximus quam varius a. Quisque eu lacinia dui. Sed at consectetur magna."
         assert(words.searchPossible3wa().count() == 0)
-    }
-
-    @Test
-    fun `split regex test`() {
-        assert(W3WLanguage.SR_CYRL_RS.getLanguageCode() == "sr")
-        assert(W3WLanguage.SR_CYRL_RS.getScriptCode() == "Cyrl")
-        assert(W3WLanguage.SR_CYRL_RS.getRegionCode() == "RS")
-
-        assert(W3WLanguage.DE.getLanguageCode() == "de")
-        assert(W3WLanguage.DE.getScriptCode() == null)
-        assert(W3WLanguage.DE.getRegionCode() == null)
-
-        assert(W3WLanguage.BS_LATN.getLanguageCode() == "bs")
-        assert(W3WLanguage.BS_LATN.getScriptCode() == "Latn")
-        assert(W3WLanguage.BS_LATN.getRegionCode() == null)
     }
 }

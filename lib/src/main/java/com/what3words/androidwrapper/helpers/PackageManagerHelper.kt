@@ -1,11 +1,73 @@
 package com.what3words.androidwrapper.helpers
 
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.os.Build
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 internal object PackageManagerHelper {
+
+    /**
+     * Retrieves the SHA1 signature of the package associated with this [Context].
+     *
+     * @return The SHA1 signature of the package, or null if an error occurs during retrieval.
+     */
+    internal fun Context.getPackageSignature(): String? {
+        return try {
+            val packageManager: PackageManager = packageManager
+            val packageName: String = packageName
+            val packageInfo: PackageInfo? =
+                packageManager.getPackageInfoCompat(
+                    packageName,
+                    getSigningFlagsCompat()
+                )
+            val packageSignatures: Array<Signature?>? = packageInfo?.getSignaturesCompat()
+
+            if (packageSignatures.isNullOrEmpty() || packageSignatures[0] == null) {
+                null
+            } else {
+                signatureDigest(packageSignatures[0])
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            null // Package not found
+        } catch (e: Exception) {
+            null // Other exceptions
+        }
+    }
+
+    /**
+     * Computes the SHA1 digest of the given [Signature].
+     *
+     * @param sig The signature whose digest is to be computed.
+     * @return The SHA1 digest of the signature, or null if the signature is null or if an error occurs during computation.
+     */
+    internal fun signatureDigest(sig: Signature?): String? {
+        sig ?: return null
+
+        return try {
+            val md = MessageDigest.getInstance("SHA1")
+            val sha1Hash = md.digest(sig.toByteArray())
+
+            val result = StringBuilder()
+            for ((index, byte) in sha1Hash.withIndex()) {
+                val formatResult = if (index != sha1Hash.lastIndex) {
+                    String.format("%02X:", byte)
+                } else {
+                    String.format("%02X", byte) // Don't append : to the last entry
+                }
+                result.append(formatResult)
+            }
+            result.toString()
+        } catch (e: NoSuchAlgorithmException) {
+            null // SHA1 algorithm not available
+        } catch (e: Exception) {
+            null // Other exceptions
+        }
+    }
+
     /**
      * Retrieves package information for the specified package name in a backward-compatible manner.
      *

@@ -4,7 +4,6 @@ import androidx.core.util.Consumer
 import com.what3words.androidwrapper.What3WordsAndroidWrapper
 import com.what3words.androidwrapper.helpers.DefaultDispatcherProvider
 import com.what3words.androidwrapper.helpers.DispatcherProvider
-import com.what3words.core.domain.language.W3WLanguage
 import com.what3words.javawrapper.request.AutosuggestOptions
 import com.what3words.javawrapper.request.BoundingBox
 import com.what3words.javawrapper.request.Coordinates
@@ -14,12 +13,12 @@ import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Deprecated("This class is deprecated, please use new W3WApiVoiceDataSource instead")
 class VoiceBuilderWithCoordinates : VoiceApiListenerWithCoordinates {
     internal var autosuggestOptions: AutosuggestOptions = AutosuggestOptions()
     private var onSuggestionsCallback: Consumer<List<SuggestionWithCoordinates>>? = null
     private var onErrorCallback: Consumer<APIResponse.What3WordsError>? = null
     private var isListening = false
-    private lateinit var language: W3WLanguage
     private var api: What3WordsAndroidWrapper
     private var mic: Microphone
     private lateinit var voiceLanguage: String
@@ -34,18 +33,6 @@ class VoiceBuilderWithCoordinates : VoiceApiListenerWithCoordinates {
         this.api = api
         this.mic = mic
         this.voiceLanguage = voiceLanguage
-        this.dispatchers = dispatchers
-    }
-
-    constructor(
-        api: What3WordsAndroidWrapper,
-        mic: Microphone,
-        language: W3WLanguage,
-        dispatchers: DispatcherProvider = DefaultDispatcherProvider()
-    ) {
-        this.api = api
-        this.mic = mic
-        this.language = language
         this.dispatchers = dispatchers
     }
 
@@ -114,15 +101,6 @@ class VoiceBuilderWithCoordinates : VoiceApiListenerWithCoordinates {
                 encoding = mic.encoding,
                 autosuggestOptions = autosuggestOptions,
                 voiceLanguage = voiceLanguage,
-                listener = this
-            )
-
-            ::language.isInitialized -> api.voiceProvider.initialize(
-                sampleRate = mic.recordingRate,
-                samplesPerChannel = mic.bufferSize,
-                encoding = mic.encoding,
-                autosuggestOptions = autosuggestOptions,
-                language = language,
                 listener = this
             )
 
