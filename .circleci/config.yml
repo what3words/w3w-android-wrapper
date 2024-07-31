@@ -8,7 +8,7 @@ commands:
     description: Restore cache, config gradlew, download dependencies and save cache
     steps:
       - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+          key: jars-{{ checksum "build.gradle.kts" }}-{{ checksum  "lib/build.gradle.kts" }}
       - run:
           name: Set up library dependencies
           command: |
@@ -17,7 +17,7 @@ commands:
       - save_cache:
           paths:
             - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+          key: jars-{{ checksum "build.gradle.kts" }}-{{ checksum  "lib/build.gradle.kts" }}
 jobs:
   android-test:
     executor:
