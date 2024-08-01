@@ -125,9 +125,9 @@ afterEvaluate {
         repositories {
             publications {
                 withType(MavenPublication::class.java) {
-                    from(components.findByName("release"))
+                    from(components.getByName("release"))
                     artifactId = "w3w-android-wrapper"
-                    groupId = "com.what3words"
+                    groupId = group.toString()
                     version = this@afterEvaluate.version.toString()
                     val publicationName = name
                     val dokkaJar =
