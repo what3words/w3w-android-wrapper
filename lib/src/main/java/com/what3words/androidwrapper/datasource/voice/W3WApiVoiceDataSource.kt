@@ -83,7 +83,7 @@ class W3WApiVoiceDataSource internal constructor(
 
     override fun version(version: W3WVoiceDataSource.Version): String {
         return when (version) {
-            W3WVoiceDataSource.Version.Library -> BuildConfig.VERSION_NAME
+            W3WVoiceDataSource.Version.Library -> BuildConfig.LIBRARY_VERSION
             W3WVoiceDataSource.Version.DataSource -> BuildConfig.VOICE_API_VERSION
         }
     }

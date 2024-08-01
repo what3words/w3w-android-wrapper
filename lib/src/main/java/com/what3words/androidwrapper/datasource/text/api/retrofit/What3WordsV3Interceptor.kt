@@ -14,7 +14,7 @@ internal class What3WordsV3Interceptor(
 ) : Interceptor {
 
     private val userAgent: String =
-        ("what3words-Android/" + BuildConfig.VERSION_NAME + " (Java " + System.getProperty("java.version") + "; "
+        ("what3words-Android/" + BuildConfig.LIBRARY_VERSION + " (Java " + System.getProperty("java.version") + "; "
                 + System.getProperty("os.name") + " " + System.getProperty("os.version") + ")")
 
     override fun intercept(chain: Interceptor.Chain): Response {

@@ -21,7 +21,7 @@ group = "com.what3words"
  */
 val isSnapshotRelease = findProperty("IS_SNAPSHOT_RELEASE") == "true"
 version =
-    if (isSnapshotRelease) "${findProperty("VERSION_NAME")}-SNAPSHOT" else "${findProperty("VERSION_NAME")}"
+    if (isSnapshotRelease) "${findProperty("LIBRARY_VERSION")}-SNAPSHOT" else "${findProperty("LIBRARY_VERSION")}"
 
 android {
     compileSdk = 34
@@ -36,7 +36,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        buildConfigField("String", "VERSION_NAME", "\"${findProperty("VERSION_NAME")}\"")
+        buildConfigField("String", "LIBRARY_VERSION", "\"${findProperty("LIBRARY_VERSION")}\"")
         buildConfigField(
             "String",
             "BASE_TEXT_API_ENDPOINT",
