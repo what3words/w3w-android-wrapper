@@ -13,11 +13,6 @@ plugins {
 apply(from = "../jacoco.gradle")
 apply(from = "../sonarqube.gradle")
 
-val ossrhUsername = findProperty("OSSRH_USERNAME") as String?
-val ossrhPassword = findProperty("OSSRH_PASSWORD") as String?
-val signingKey = findProperty("SIGNING_KEY") as String?
-val signingKeyPwd = findProperty("SIGNING_KEY_PWD") as String?
-
 group = "com.what3words"
 
 /**
@@ -83,7 +78,6 @@ android {
     publishing {
         singleVariant("release") {
             withSourcesJar()
-            withJavadocJar()
         }
     }
     namespace = "com.what3words.androidwrapper"
@@ -133,68 +127,73 @@ dependencies {
 
 //region publishing
 
-afterEvaluate {
-    publishing {
-        repositories {
-            maven {
-                name = "sonatype"
-                val releasesRepoUrl =
-                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                val snapshotsRepoUrl =
-                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                url = if (version.toString()
-                        .endsWith("SNAPSHOT")
-                ) URI.create(snapshotsRepoUrl) else URI.create(releasesRepoUrl)
+val ossrhUsername = findProperty("OSSRH_USERNAME") as String?
+val ossrhPassword = findProperty("OSSRH_PASSWORD") as String?
+val signingKey = findProperty("SIGNING_KEY") as String?
+val signingKeyPwd = findProperty("SIGNING_KEY_PWD") as String?
 
-                credentials {
-                    username = ossrhUsername
-                    password = ossrhPassword
+publishing {
+    repositories {
+        maven {
+            name = "sonatype"
+            val releasesRepoUrl =
+                "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            val snapshotsRepoUrl =
+                "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = if (version.toString()
+                    .endsWith("SNAPSHOT")
+            ) URI.create(snapshotsRepoUrl) else URI.create(releasesRepoUrl)
+
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+        publications {
+            create<MavenPublication>("Maven") {
+                artifactId = "w3w-android-wrapper"
+                groupId = "com.what3words"
+                version = project.version.toString()
+                afterEvaluate {
+                    from(components["release"])
                 }
             }
-            publications {
-                create<MavenPublication>("Maven") {
-                    artifactId = "w3w-android-wrapper"
-                    groupId = "com.what3words"
-                    version = project.version.toString()
-                    afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
-                }
-                withType(MavenPublication::class.java) {
-                    val publicationName = name
-                    val dokkaJar =
-                        project.tasks.register("${publicationName}DokkaJar", Jar::class) {
-                            group = JavaBasePlugin.DOCUMENTATION_GROUP
-                            description = "Assembles Kotlin docs with Dokka into a Javadoc jar"
-                            archiveClassifier.set("javadoc")
-                            from(tasks.named("dokkaHtml"))
+            withType(MavenPublication::class.java) {
+                val publicationName = name
+                val dokkaJar =
+                    project.tasks.register("${publicationName}DokkaJar", Jar::class) {
+                        group = JavaBasePlugin.DOCUMENTATION_GROUP
+                        description = "Assembles Kotlin docs with Dokka into a Javadoc jar"
+                        archiveClassifier.set("javadoc")
+                        from(tasks.named("dokkaHtml"))
 
-                            // Each archive name should be distinct, to avoid implicit dependency issues.
-                            // We use the same format as the sources Jar tasks.
-                            // https://youtrack.jetbrains.com/issue/KT-46466
-                            archiveBaseName.set("${archiveBaseName.get()}-$publicationName")
+                        // Each archive name should be distinct, to avoid implicit dependency issues.
+                        // We use the same format as the sources Jar tasks.
+                        // https://youtrack.jetbrains.com/issue/KT-46466
+                        archiveBaseName.set("${archiveBaseName.get()}-$publicationName")
+                    }
+                artifact(dokkaJar)
+                pom {
+                    name.set("w3w-android-wrapper")
+                    description.set("Android library for what3words REST API.")
+                    url.set("https://github.com/what3words/w3w-android-wrapper")
+                    licenses {
+                        license {
+                            name.set("The MIT License (MIT)")
+                            url.set("https://github.com/what3words/w3w-android-wrapper/blob/master/LICENSE")
                         }
-                    artifact(dokkaJar)
-                    pom {
-                        name.set("w3w-android-wrapper")
-                        description.set("Android library for what3words REST API.")
-                        url.set("https://github.com/what3words/w3w-android-wrapper")
-                        licenses {
-                            license {
-                                name.set("The MIT License (MIT)")
-                                url.set("https://github.com/what3words/w3w-android-wrapper/blob/master/LICENSE")
-                            }
+                    }
+                    developers {
+                        developer {
+                            id.set("what3words")
+                            name.set("what3words")
+                            email.set("development@what3words.com")
                         }
-                        developers {
-                            developer {
-                                id.set("what3words")
-                                name.set("what3words")
-                                email.set("development@what3words.com")
-                            }
-                        }
-                        scm {
-                            connection.set("scm:git:git://github.com/what3words/w3w-android-wrapper.git")
-                            developerConnection.set("scm:git:ssh://git@github.com:what3words/w3w-android-wrapper.git")
-                            url.set("https://github.com/what3words/w3w-android-wrapper/tree/master")
-                        }
+                    }
+                    scm {
+                        connection.set("scm:git:git://github.com/what3words/w3w-android-wrapper.git")
+                        developerConnection.set("scm:git:ssh://git@github.com:what3words/w3w-android-wrapper.git")
+                        url.set("https://github.com/what3words/w3w-android-wrapper/tree/master")
                     }
                 }
             }
