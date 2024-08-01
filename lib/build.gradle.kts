@@ -13,6 +13,11 @@ plugins {
 apply(from = "../jacoco.gradle")
 apply(from = "../sonarqube.gradle")
 
+val ossrhUsername = findProperty("OSSRH_USERNAME") as String?
+val ossrhPassword = findProperty("OSSRH_PASSWORD") as String?
+val signingKey = findProperty("SIGNING_KEY") as String?
+val signingKeyPwd = findProperty("SIGNING_KEY_PWD") as String?
+
 group = "com.what3words"
 
 /**
@@ -37,9 +42,17 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         buildConfigField("String", "VERSION_NAME", "\"${findProperty("VERSION_NAME")}\"")
-        buildConfigField("String", "BASE_TEXT_API_ENDPOINT", "\"${findProperty("BASE_TEXT_API_ENDPOINT")}\"")
+        buildConfigField(
+            "String",
+            "BASE_TEXT_API_ENDPOINT",
+            "\"${findProperty("BASE_TEXT_API_ENDPOINT")}\""
+        )
         buildConfigField("String", "TEXT_API_VERSION", "\"${findProperty("TEXT_API_VERSION")}\"")
-        buildConfigField("String", "BASE_VOICE_API_ENDPOINT", "\"${findProperty("BASE_VOICE_API_ENDPOINT")}\"")
+        buildConfigField(
+            "String",
+            "BASE_VOICE_API_ENDPOINT",
+            "\"${findProperty("BASE_VOICE_API_ENDPOINT")}\""
+        )
         buildConfigField("String", "VOICE_API_VERSION", "\"${findProperty("VOICE_API_VERSION")}\"")
         // for robolectric
         testOptions.unitTests.apply {
@@ -59,7 +72,12 @@ android {
         }
         named("release") {
             isMinifyEnabled = false
-            setProguardFiles(listOf(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"))
+            setProguardFiles(
+                listOf(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            )
         }
     }
     publishing {
@@ -97,7 +115,7 @@ dependencies {
 
     // testing
     testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly ("androidx.test:core:1.6.1")
+    testRuntimeOnly("androidx.test:core:1.6.1")
     testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
@@ -115,20 +133,32 @@ dependencies {
 
 //region publishing
 
-val ossrhUsername = findProperty("OSSRH_USERNAME") as String?
-val ossrhPassword = findProperty("OSSRH_PASSWORD") as String?
-val signingKey = findProperty("SIGNING_KEY") as String?
-val signingKeyPwd = findProperty("SIGNING_KEY_PWD") as String?
-
 afterEvaluate {
     publishing {
         repositories {
+            maven {
+                name = "sonatype"
+                val releasesRepoUrl =
+                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                val snapshotsRepoUrl =
+                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                url = if (version.toString()
+                        .endsWith("SNAPSHOT")
+                ) URI.create(snapshotsRepoUrl) else URI.create(releasesRepoUrl)
+
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
             publications {
-                withType(MavenPublication::class.java) {
-                    from(components.getByName("release"))
+                create<MavenPublication>("Maven") {
                     artifactId = "w3w-android-wrapper"
-                    groupId = group.toString()
-                    version = this@afterEvaluate.version.toString()
+                    groupId = "com.what3words"
+                    version = project.version.toString()
+                    afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+                }
+                withType(MavenPublication::class.java) {
                     val publicationName = name
                     val dokkaJar =
                         project.tasks.register("${publicationName}DokkaJar", Jar::class) {
@@ -165,21 +195,6 @@ afterEvaluate {
                             developerConnection.set("scm:git:ssh://git@github.com:what3words/w3w-android-wrapper.git")
                             url.set("https://github.com/what3words/w3w-android-wrapper/tree/master")
                         }
-                    }
-                }
-                maven {
-                    name = "sonatype"
-                    val releasesRepoUrl =
-                        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    val snapshotsRepoUrl =
-                        "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                    url = if (version.toString()
-                            .endsWith("SNAPSHOT")
-                    ) URI.create(snapshotsRepoUrl) else URI.create(releasesRepoUrl)
-
-                    credentials {
-                        username = ossrhUsername
-                        password = ossrhPassword
                     }
                 }
             }
