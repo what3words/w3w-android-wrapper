@@ -20,11 +20,8 @@ group = "com.what3words"
  * A snapshot release is generated for every pull request merged or commit made into an epic branch.
  */
 val isSnapshotRelease = findProperty("IS_SNAPSHOT_RELEASE") == "true"
-
-val libVersion =
+version =
     if (isSnapshotRelease) "${findProperty("VERSION_NAME")}-SNAPSHOT" else "${findProperty("VERSION_NAME")}"
-
-version = libVersion
 
 android {
     compileSdk = 34
@@ -79,11 +76,11 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.13.1")
     // kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     // w3w java wrapper
     api("com.what3words:w3w-java-wrapper:3.1.20")
@@ -100,19 +97,19 @@ dependencies {
 
     // testing
     testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly ("androidx.test:core:1.5.0")
-    testImplementation("com.google.truth:truth:1.1.3")
+    testRuntimeOnly ("androidx.test:core:1.6.1")
+    testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("org.robolectric:robolectric:4.10.3")
+    testImplementation("org.robolectric:robolectric:4.11.1")
     testImplementation("org.json:json:20230618")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // Moshi
-    implementation("com.squareup.moshi:moshi:1.14.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     annotationProcessor("com.squareup.moshi:moshi-kotlin-codegen:1.8.0")
 }
 
@@ -131,7 +128,7 @@ afterEvaluate {
                     from(components.findByName("release"))
                     artifactId = "w3w-android-wrapper"
                     groupId = "com.what3words"
-                    version = libVersion
+                    version = this@afterEvaluate.version.toString()
                     val publicationName = name
                     val dokkaJar =
                         project.tasks.register("${publicationName}DokkaJar", Jar::class) {
