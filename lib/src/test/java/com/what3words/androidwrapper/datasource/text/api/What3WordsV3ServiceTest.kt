@@ -10,6 +10,7 @@ import com.what3words.androidwrapper.datasource.text.api.error.BadClipToCircleEr
 import com.what3words.androidwrapper.datasource.text.api.error.BadCoordinatesError
 import com.what3words.androidwrapper.datasource.text.api.error.BadFocusError
 import com.what3words.androidwrapper.datasource.text.api.error.NetworkError
+import com.what3words.androidwrapper.datasource.text.api.error.QuotaExceededError
 import com.what3words.androidwrapper.datasource.text.api.error.UnknownError
 import com.what3words.androidwrapper.datasource.text.api.retrofit.W3WV3RetrofitApiClient.executeApiRequestAndHandleResponse
 import com.what3words.core.types.common.W3WResult
@@ -287,6 +288,37 @@ class What3WordsV3ServiceTest {
         assert(response is W3WResult.Failure)
         response as W3WResult.Failure
         assert(response.error is UnknownError)
+    }
+
+    @Test
+    fun `convert to coordinates should return quota error`() = runBlocking {
+        // Arrange
+        val w3a = null
+        val expectedResponseData = """
+            {
+                "error": {
+                    "code": "QuotaExceeded",
+                    "message": "Quota Exceeded. Please upgrade your usage plan, or contact support@what3words.com"
+                }
+            }
+        """.trimIndent()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(403)
+                .setBody(expectedResponseData)
+        )
+
+        // Act
+        val response =
+            executeApiRequestAndHandleResponse(resultMapper = MappersFactory.providesConvertToCoordinatesResponseMapper()) {
+                what3WordsV3Service.convertToCoordinates(w3a)
+            }
+
+        // Assert
+        assert(response is W3WResult.Failure)
+        response as W3WResult.Failure
+        assert(response.error is QuotaExceededError)
     }
 
     @Test
