@@ -165,7 +165,7 @@ class W3WApiTextDataSource internal constructor(
 
     override fun version(version: W3WTextDataSource.Version): String? {
         return when (version) {
-            W3WTextDataSource.Version.Library -> BuildConfig.VERSION_NAME
+            W3WTextDataSource.Version.Library -> BuildConfig.LIBRARY_VERSION
             W3WTextDataSource.Version.DataSource -> BuildConfig.TEXT_API_VERSION
             W3WTextDataSource.Version.Data -> null
         }
