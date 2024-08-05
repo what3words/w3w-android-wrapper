@@ -95,7 +95,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     // w3w java wrapper
-    api("com.what3words:w3w-java-wrapper:3.1.20")
+    api("com.what3words:w3w-java-wrapper:3.1.21")
 
     // w3w core library
     api("com.what3words:w3w-core-android:1.0.0")

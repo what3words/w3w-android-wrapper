@@ -26,6 +26,7 @@ import com.what3words.androidwrapper.datasource.text.api.error.UnknownError
 import com.what3words.androidwrapper.datasource.text.api.error.SuspendedKeyError
 import com.what3words.androidwrapper.datasource.text.api.dto.ErrorDto
 import com.what3words.androidwrapper.datasource.text.api.error.BadLanguageError
+import com.what3words.androidwrapper.datasource.text.api.error.QuotaExceededError
 import com.what3words.core.types.common.W3WError
 
 internal class ErrorDtoToDomainMapper : Mapper<ErrorDto, W3WError> {
@@ -67,6 +68,7 @@ internal class ErrorDtoToDomainMapper : Mapper<ErrorDto, W3WError> {
             )
 
             "SdkError" -> SDKError(code = from.code, message = from.message)
+            "QuotaExceeded" -> QuotaExceededError(code = from.code, message = from.message)
             else -> {
                 UnknownError(code = from.code, message = from.message)
             }
