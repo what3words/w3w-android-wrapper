@@ -50,8 +50,8 @@
 -keep class com.what3words.androidwrapper.voice.* { *; }
 
 #Android wrapper
--keep class com.what3words.androidwrapper.datasource.text.api.dto.** { *;}
--keep class com.what3words.androidwrapper.datasource.text.api.response.** { *;}
+-keep class com.what3words.androidwrapper.datasource.text.api.** { *;}
+-keep class com.what3words.androidwrapper.datasource.text.voice.** { *;}
 
 # OkHttp platform used only on JVM and when Conscrypt and other security providers are available.
 -dontwarn okhttp3.internal.platform.**
