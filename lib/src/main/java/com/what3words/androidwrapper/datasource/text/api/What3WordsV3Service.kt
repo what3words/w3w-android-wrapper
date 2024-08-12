@@ -16,7 +16,7 @@ internal interface What3WordsV3Service {
     suspend fun convertTo3wa(
         @Query("coordinates") coordinates: String?,
         @Query("language") language: String?,
-        @Query("locale") locale: String?,
+        @Query("locale") locale: String? = null,
         @HeaderMap headers: Map<String, String> = emptyMap()
     ): Response<ConvertTo3waResponse>
 
