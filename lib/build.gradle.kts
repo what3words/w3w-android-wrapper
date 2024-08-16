@@ -49,6 +49,9 @@ android {
             "\"${findProperty("BASE_VOICE_API_ENDPOINT")}\""
         )
         buildConfigField("String", "VOICE_API_VERSION", "\"${findProperty("VOICE_API_VERSION")}\"")
+        buildConfigField("String", "PRE_PROD_API_URL", "\"${findProperty("W3W_PRE_PROD_URL")}\"")
+        buildConfigField("String", "PRE_PROD_API_KEY", "\"${findProperty("PRE_PROD_API_KEY")}\"")
+
         // for robolectric
         testOptions.unitTests.apply {
             isIncludeAndroidResources = true
