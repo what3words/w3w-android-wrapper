@@ -78,11 +78,8 @@ internal object W3WDomainToApiStringExtensions {
                 put("focus", it.toAPIString())
             }
             language?.let {
-                put("language", it.w3wCode)
-                it.w3wLocale?.let { locale ->
-                    put("locale", locale)
-                }
-
+                if (it.w3wLocale != null) put("locale", it.w3wLocale!!)
+                else put("language", it.w3wCode)
             }
             nFocusResults?.let {
                 put("n-focus-results", it.toString())

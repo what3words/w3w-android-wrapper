@@ -67,8 +67,7 @@ class W3WApiTextDataSource internal constructor(
         return executeApiRequestAndHandleResponse(convertTo3waDtoToDomainMapper) {
             what3WordsV3Service.convertTo3wa(
                 coordinates = coordinates.toAPIString(),
-                language = language.w3wCode,
-                locale = language.w3wLocale
+                language = language.w3wLocale ?: language.w3wCode
             )
         }
     }
