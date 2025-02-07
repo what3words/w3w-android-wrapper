@@ -64,10 +64,29 @@ class W3WApiTextDataSource internal constructor(
     override fun convertTo3wa(
         coordinates: W3WCoordinates, language: W3WLanguage
     ): W3WResult<W3WAddress> {
+        return convertTo3wa(coordinates, language, emptyMap())
+    }
+
+    /**
+     * Converts a latitude and longitude to a 3 word address with specified headers.
+     * Additionally provides country information, grid square bounds, nearest place, and a map link.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param coordinates The latitude and longitude of the location to convert to a 3 word address.
+     * @param language The language in which the 3 word address should be provided.
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance containing the what3words address.
+     */
+    fun convertTo3wa(
+        coordinates: W3WCoordinates, language: W3WLanguage,
+        headers: Map<String, String>
+    ): W3WResult<W3WAddress> {
         return executeApiRequestAndHandleResponse(convertTo3waDtoToDomainMapper) {
             what3WordsV3Service.convertTo3wa(
                 coordinates = coordinates.toAPIString(),
-                language = language.w3wLocale ?: language.w3wCode
+                language = language.w3wLocale ?: language.w3wCode,
+                headers = headers
             )
         }
     }
@@ -82,9 +101,26 @@ class W3WApiTextDataSource internal constructor(
      */
     @Throws(InterruptedException::class)
     override fun convertToCoordinates(words: String): W3WResult<W3WAddress> {
+        return convertToCoordinates(words = words, headers = emptyMap())
+    }
+
+    /**
+     * Converts a 3 word address to coordinates with specified headers.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param words A 3 word address as a string.
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance containing the what3words coordinates.
+     */
+    fun convertToCoordinates(
+        words: String,        
+        headers: Map<String, String>
+    ): W3WResult<W3WAddress> {
         return executeApiRequestAndHandleResponse(convertToCoordinatesResponseMapper) {
             what3WordsV3Service.convertToCoordinates(
-                address = words
+                address = words,
+                headers = headers
             )
         }
     }
@@ -100,18 +136,38 @@ class W3WApiTextDataSource internal constructor(
      * @return A [W3WResult] instance containing a list of what3words address suggestions.
      */
     override fun autosuggest(
+        input: String, options: W3WAutosuggestOptions?
+    ): W3WResult<List<W3WSuggestion>> {
+        return autosuggest(input, options, emptyMap())
+    }
+
+    /**
+     * [autosuggest] can take a slightly incorrect 3 word address and suggest a list of valid 3 word addresses.
+     * It can optionally limit results to a country or area and prefer results near the user.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param input The full or partial 3 word address to obtain suggestions for.
+     * @param options Additional options for auto suggestion.
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance containing a list of what3words address suggestions.
+     */
+    fun autosuggest(
         input: String, options: W3WAutosuggestOptions?,
+        headers: Map<String, String>
     ): W3WResult<List<W3WSuggestion>> {
         return executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
             if (options?.includeCoordinates == true) {
                 what3WordsV3Service.autosuggestWithCoordinates(
                     input = input,
-                    options = options.toQueryMap()
+                    options = options.toQueryMap(),
+                    headers = headers
                 )
             } else {
                 what3WordsV3Service.autosuggest(
                     input = input,
-                    options = options?.toQueryMap() ?: emptyMap()
+                    options = options?.toQueryMap() ?: emptyMap(),
+                    headers = headers
                 )
             }
         }
@@ -127,9 +183,26 @@ class W3WApiTextDataSource internal constructor(
      */
     @Throws(InterruptedException::class)
     override fun gridSection(boundingBox: W3WRectangle): W3WResult<W3WGridSection> {
+        return gridSection(boundingBox, emptyMap())
+    }
+
+    /**
+     * Returns a section of the what3words grid for a bounding box with specified headers.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param boundingBox The bounding box for which the grid section should be returned.
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance representing the requested what3words grid section.
+     */
+    fun gridSection(
+        boundingBox: W3WRectangle,
+        headers: Map<String, String>
+    ): W3WResult<W3WGridSection> {
         return executeApiRequestAndHandleResponse(gridSectionResponseMapper) {
             what3WordsV3Service.gridSection(
-                bbox = boundingBox.toAPIString()
+                bbox = boundingBox.toAPIString(),
+                headers = headers
             )
         }
     }
@@ -144,12 +217,29 @@ class W3WApiTextDataSource internal constructor(
      */
     @Throws(InterruptedException::class)
     override fun isValid3wa(words: String): W3WResult<Boolean> {
+        return isValid3wa(words, emptyMap())
+    }
+
+    /**
+     * Checks if a given what3words address is valid.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param words The what3words address to validate.
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance containing a boolean value indicating whether the what3words address is valid.
+     */
+    fun isValid3wa(
+        words: String,
+        headers: Map<String, String>
+    ): W3WResult<Boolean> {
         if (!What3WordsV3.isPossible3wa(words)) {
             return W3WResult.Success(false)
         }
         val response = executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
             what3WordsV3Service.autosuggest(
-                words
+                words,
+                headers
             )
         }
         return when (response) {
@@ -179,8 +269,20 @@ class W3WApiTextDataSource internal constructor(
      */
     @Throws(InterruptedException::class)
     override fun availableLanguages(): W3WResult<Set<W3WProprietaryLanguage>> {
+        return availableLanguages(emptyMap())
+    }
+
+    /**
+     * Retrieves a set of all available what3words languages with specified headers.
+     *
+     * **This is a blocking I/O method and should only be called from a background thread.**
+     *
+     * @param headers Additional headers to be included in the request.
+     * @return A [W3WResult] instance containing a set of available what3words languages.
+     */
+    fun availableLanguages(headers: Map<String, String>): W3WResult<Set<W3WProprietaryLanguage>> {
         return executeApiRequestAndHandleResponse(availableLanguagesResponseMapper) {
-            what3WordsV3Service.availableLanguages()
+            what3WordsV3Service.availableLanguages(headers)
         }
     }
 
