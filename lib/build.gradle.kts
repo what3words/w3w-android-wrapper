@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 19
+        minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -98,14 +98,14 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     // w3w java wrapper
-    api("com.what3words:w3w-java-wrapper:3.1.21")
+    api("com.what3words:w3w-java-wrapper:3.1.22")
 
     // w3w core library
-    api("com.what3words:w3w-core-android:1.0.0")
+    api("com.what3words:w3w-core-android:1.2.0")
 
     // retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.5.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
 
