@@ -6,14 +6,12 @@ sonarqube {
         property "sonar.projectKey", "what3words_w3w-android-wrapper"
         property "sonar.organization", "what3words"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.tests", "src/test/java"
-        property "sonar.test.inclusions", "**/*Test*/**"
         property "sonar.sourceEncoding", "UTF-8"
-        property "sonar.sources", "src/main/java"
-        property "sonar.exclusions", '**/*Test*/**,' +
-                'build/**' +
+        // Source and test directories are auto-detected from the Android Gradle
+        // source sets by the SonarQube plugin; configuring them manually causes
+        // files to be indexed as both main and test sources.
+        property "sonar.exclusions", 'build/**,' +
                 '*.json,' +
-                '**/*test*/**,' +
                 '**/.gradle/**,' +
                 '**/R.class'
         property "sonar.java.coveragePlugin", "jacoco"
