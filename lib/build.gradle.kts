@@ -2,8 +2,6 @@ import java.util.Base64
 
 plugins {
     alias(libs.plugins.android.library)
-    id("com.avast.gradle.docker-compose") version "0.17.21"
-    alias(libs.plugins.sonarqube)
     alias(libs.plugins.dokka)
     alias(libs.plugins.jreleaser)
     `maven-publish`
@@ -11,7 +9,6 @@ plugins {
 }
 
 apply(from = "../jacoco.gradle")
-apply(from = "../sonarqube.gradle")
 
 group = "com.what3words"
 

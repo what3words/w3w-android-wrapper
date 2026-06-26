@@ -54,11 +54,8 @@ jobs:
       - name: Build Lib
         run: ./gradlew lib:build --refresh-dependencies
 
-      - name: Run unit tests, coverage and Sonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew lib:testDebugUnitTest jacocoTestReport sonarqube
+      - name: Run unit tests and coverage
+        run: ./gradlew lib:testDebugUnitTest jacocoTestReport
 
       - name: Store unit test results
         if: always()
