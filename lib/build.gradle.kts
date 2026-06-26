@@ -1,22 +1,20 @@
-import java.net.*
+import java.util.Base64
 
 plugins {
     alias(libs.plugins.android.library)
-    id("com.avast.gradle.docker-compose") version "0.17.21"
-    alias(libs.plugins.sonarqube)
-    id("maven-publish")
-    id("signing")
     alias(libs.plugins.dokka)
+    alias(libs.plugins.jreleaser)
+    `maven-publish`
+    signing
 }
 
 apply(from = "../jacoco.gradle")
-apply(from = "../sonarqube.gradle")
 
 group = "com.what3words"
 
 /**
  * IS_SNAPSHOT_RELEASE property will be automatically added to the root gradle.properties file by the CI pipeline, depending on the GitHub branch.
- * A snapshot release is generated for every pull request merged or commit made into an epic branch.
+ * A snapshot release is generated for every pull request merged or commit made into the staging branch.
  */
 val isSnapshotRelease = findProperty("IS_SNAPSHOT_RELEASE") == "true"
 version =
@@ -124,38 +122,17 @@ dependencies {
 }
 
 //region publishing
-
-val ossrhUsername = findProperty("OSSRH_USERNAME") as String?
-val ossrhPassword = findProperty("OSSRH_PASSWORD") as String?
-val signingKey = findProperty("SIGNING_KEY") as String?
-val signingKeyPwd = findProperty("SIGNING_KEY_PWD") as String?
-
 publishing {
-    repositories {
-        maven {
-            name = "sonatype"
-            val releasesRepoUrl =
-                "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            val snapshotsRepoUrl =
-                "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            url = if (version.toString()
-                    .endsWith("SNAPSHOT")
-            ) URI.create(snapshotsRepoUrl) else URI.create(releasesRepoUrl)
+    publications {
+        create<MavenPublication>("maven") {
+            afterEvaluate {
+                from(components["release"])
+            }
 
-            credentials {
-                username = ossrhUsername
-                password = ossrhPassword
-            }
-        }
-        publications {
-            create<MavenPublication>("Maven") {
-                artifactId = "w3w-android-wrapper"
-                groupId = "com.what3words"
-                version = project.version.toString()
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
+            groupId = "com.what3words"
+            artifactId = "w3w-android-wrapper"
+            version = project.version.toString()
+
             withType(MavenPublication::class.java) {
                 val publicationName = name
                 val dokkaJar =
@@ -195,13 +172,59 @@ publishing {
                     }
                 }
             }
+            // POM metadata
+        }
+    }
+
+    repositories {
+        maven {
+            name = "sonatypeSnapshots"
+            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            credentials {
+                username = findProperty("MAVEN_CENTRAL_USERNAME") as? String
+                password = findProperty("MAVEN_CENTRAL_PASSWORD") as? String
+            }
+        }
+        maven {
+            name = "stagingLocal"
+            url = uri(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
         }
     }
 }
 
-signing {
-    useInMemoryPgpKeys(signingKey, signingKeyPwd)
-    sign(publishing.publications)
-}
+jreleaser {
+    release {
+        github {
+            repoOwner = "what3words"
+            overwrite = true
+        }
+    }
 
+    signing {
+        active.set(org.jreleaser.model.Active.ALWAYS)
+        armored.set(true)
+        publicKey.set(
+            findProperty("W3W_GPG_PUBLIC_KEY")?.toString()
+                ?.let { String(Base64.getDecoder().decode(it)) } ?: "")
+        secretKey.set(
+            findProperty("W3W_GPG_SECRET_KEY")?.toString()
+                ?.let { String(Base64.getDecoder().decode(it)) } ?: "")
+        passphrase.set(findProperty("W3W_GPG_PASSPHRASE")?.toString())
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                create("sonatype") {
+                    active.set(org.jreleaser.model.Active.ALWAYS)
+                    url.set("https://central.sonatype.com/api/v1/publisher")
+                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
+                    username.set(findProperty("MAVEN_CENTRAL_USERNAME")?.toString())
+                    password.set(findProperty("MAVEN_CENTRAL_PASSWORD")?.toString())
+                    verifyPom.set(false)
+                    setStage(org.jreleaser.model.api.deploy.maven.MavenCentralMavenDeployer.Stage.UPLOAD.toString())
+                }
+            }
+        }
+    }
+}
 //endregion
