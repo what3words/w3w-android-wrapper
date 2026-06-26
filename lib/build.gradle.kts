@@ -1,13 +1,12 @@
 import java.net.*
 
 plugins {
-    id("com.android.library")
-    id("kotlin-android")
-    id("com.avast.gradle.docker-compose") version "0.14.3"
-    id("org.sonarqube")
+    alias(libs.plugins.android.library)
+    id("com.avast.gradle.docker-compose") version "0.17.21"
+    alias(libs.plugins.sonarqube)
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka") version "1.5.0"
+    alias(libs.plugins.dokka)
 }
 
 apply(from = "../jacoco.gradle")
@@ -24,14 +23,10 @@ version =
     if (isSnapshotRelease) "${findProperty("LIBRARY_VERSION")}-SNAPSHOT" else "${findProperty("LIBRARY_VERSION")}"
 
 android {
-    compileSdk = 34
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -60,8 +55,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.jvmToolchain.get())
     }
 
     buildTypes {
@@ -91,41 +86,41 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation(libs.androidx.core.ktx)
     // kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // w3w java wrapper
-    api("com.what3words:w3w-java-wrapper:3.1.22")
+    api(libs.w3w.java.wrapper)
 
     // w3w core library
-    api("com.what3words:w3w-core-android:1.2.0")
+    api(libs.w3w.core.multiplatform)
 
     // retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.5.0")
-    implementation("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converterGson)
+    implementation(libs.retrofit.converterMoshi)
+    implementation(libs.retrofit.kotlinCoroutinesAdapter)
 
 
     // testing
-    testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly("androidx.test:core:1.6.1")
-    testImplementation("com.google.truth:truth:1.4.2")
-    testImplementation("io.mockk:mockk:1.12.1")
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("org.robolectric:robolectric:4.11.1")
-    testImplementation("org.json:json:20230618")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    testImplementation(libs.junit)
+    testRuntimeOnly(libs.androidx.test.core)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.androidx.arch.core.testing)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.org.json)
+    testImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 
     // Moshi
-    implementation("com.squareup.moshi:moshi:1.15.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    annotationProcessor("com.squareup.moshi:moshi-kotlin-codegen:1.8.0")
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    annotationProcessor(libs.moshi.kotlin.codegen)
 }
 
 //region publishing
@@ -168,7 +163,7 @@ publishing {
                         group = JavaBasePlugin.DOCUMENTATION_GROUP
                         description = "Assembles Kotlin docs with Dokka into a Javadoc jar"
                         archiveClassifier.set("javadoc")
-                        from(tasks.named("dokkaHtml"))
+                        from(tasks.named("dokkaGeneratePublicationHtml"))
 
                         // Each archive name should be distinct, to avoid implicit dependency issues.
                         // We use the same format as the sources Jar tasks.

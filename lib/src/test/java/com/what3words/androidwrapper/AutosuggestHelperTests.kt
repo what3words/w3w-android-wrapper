@@ -28,7 +28,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -94,7 +94,7 @@ class AutosuggestHelperTests {
     }
 
     @Test
-    fun `invalid 3wa return empty list`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    fun `invalid 3wa return empty list`() = runTest(coroutinesTestRule.testDispatcher) {
         // given
         val list = emptyList<W3WSuggestion>()
 
@@ -107,7 +107,7 @@ class AutosuggestHelperTests {
     }
 
     @Test
-    fun `valid 3wa returns suggestions`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    fun `valid 3wa returns suggestions`() = runTest(coroutinesTestRule.testDispatcher) {
         // given
         val helper = AutosuggestHelper(dataSource, coroutinesTestRule.testDispatcherProvider)
         val suggestionsJson =
@@ -146,7 +146,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `did you mean 3wa returns suggestions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
 
             every {
@@ -182,7 +182,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `did you mean 3wa returns suggestions with capital letters`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             every {
                 dataSource.autosuggest("star.words.f", null)
@@ -217,7 +217,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `allowFlexibleDelimiters is true returns suggestions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             helper.allowFlexibleDelimiters(true)
 
@@ -255,7 +255,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `valid 3wa returns ApiError and callback is set`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
 
             val error = InvalidKeyError("invalid_key", "Invalid key")
@@ -292,7 +292,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `valid 3wa returns ApiError and callback is not set`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val error = InvalidKeyError("invalid_key", "Invalid key")
             val failureResult =
@@ -327,7 +327,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `selected suggestion without coordinates`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val suggestion = mockk<W3WSuggestion>()
 
@@ -366,7 +366,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `selected suggestion with coordinates`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val suggestion = mockk<W3WSuggestion>()
             val coordinates = mockk<W3WCoordinates>()
@@ -480,7 +480,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `selectedWithCoordinates returns error`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val suggestion = mockk<W3WSuggestion>()
             val coordinates = mockk<W3WCoordinates>()
@@ -549,7 +549,7 @@ class AutosuggestHelperTests {
 
     @Test
     fun `filters are set expect autosuggestBuilder filters to be called`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             val focus = W3WCoordinates(51.2, 0.234)
             val boundingBox = W3WRectangle(focus, focus)
             val polygon = W3WPolygon(listOf(focus, focus, focus))
