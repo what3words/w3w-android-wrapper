@@ -23,7 +23,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import okhttp3.WebSocket
 import org.junit.Before
 import org.junit.Rule
@@ -107,7 +107,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `startListening then force stopListening`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -136,7 +136,7 @@ class VoiceBuilderTests {
         }
 
     @Test
-    fun `startListening then error occurs`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    fun `startListening then error occurs`() = runTest(coroutinesTestRule.testDispatcher) {
         // given
         val what3WordsV3 = What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
         val builder = what3WordsV3.autosuggest(microphone, "en")
@@ -165,7 +165,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `startListening then returns suggestions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -200,7 +200,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `focus is set to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -219,7 +219,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `focus is set with nFocusResults to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -239,7 +239,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `nResults is set to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -257,7 +257,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `clipToCountry is set to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -275,7 +275,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `clipToCircle is set without radius to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -294,7 +294,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `clipToCircle is set with radius to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -313,7 +313,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `clipToBoundingBox is set to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val expectedUrl =
                 "${BASE_URL}${URL_WITHOUT_COORDINATES}?voice-language=en&clip-to-bounding-box=51.1,-0.152,51.1,-0.152"
@@ -340,7 +340,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `clipToPolygon is set to VoiceBuilder autosuggestOptions`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
@@ -370,7 +370,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `updateAutosuggestOptions in VoiceBuilder`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             val what3WordsV3 =
                 What3WordsV3("key", voiceApi, coroutinesTestRule.testDispatcherProvider)
             val builder = what3WordsV3.autosuggest(microphone, "en")
@@ -406,7 +406,7 @@ class VoiceBuilderTests {
 
     @Test
     fun `custom VoiceApi URL`() =
-        coroutinesTestRule.testDispatcher.runBlockingTest {
+        runTest(coroutinesTestRule.testDispatcher) {
             // given
             val textCustomUrl = "http://custom.text.url/"
             val voiceCustomUrl = "wss://custom.voice.url/"
