@@ -192,6 +192,19 @@ publishing {
     }
 }
 
+findProperty("W3W_GPG_SECRET_KEY")
+    ?.toString()
+    ?.takeIf { it.isNotBlank() }
+    ?.let { encodedSecretKey ->
+        signing {
+            useInMemoryPgpKeys(
+                String(Base64.getDecoder().decode(encodedSecretKey)),
+                findProperty("W3W_GPG_PASSPHRASE")?.toString().orEmpty()
+            )
+            sign(publishing.publications["maven"])
+        }
+    }
+
 jreleaser {
     release {
         github {
