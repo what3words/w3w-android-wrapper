@@ -1,17 +1,18 @@
 name: Publish Release
 
 on:
-  push:
-    branches:
-      - 'master'
   pull_request:
     branches:
       - 'master'
-    types: [ closed ]
-  workflow_dispatch:    # Allow manual triggering
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: publish-${{ github.event.pull_request.number }}
+  cancel-in-progress: ${{ github.event.action != 'closed' }}
 
 jobs:
   publish:
+    if: github.event.action != 'closed' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,14 +40,12 @@ jobs:
           W3W_GPG_SECRET_KEY: ${{ secrets.W3W_GPG_SECRET_KEY }}
           W3W_GPG_PUBLIC_KEY: ${{ secrets.W3W_GPG_PUBLIC_KEY }}
           W3W_GPG_PASSPHRASE: ${{ secrets.W3W_GPG_PASSPHRASE }}
-          W3W_GITHUB_TOKEN: ${{ secrets.W3W_GITHUB_TOKEN }}
         shell: bash
         run: |
           mkdir -p ~/.gradle/
-          echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
+          echo "GRADLE_USER_HOME=${HOME}/.gradle" >> "$GITHUB_ENV"
           echo "MAVEN_CENTRAL_USERNAME=${MAVEN_CENTRAL_USERNAME}" >> ~/.gradle/gradle.properties
           echo "MAVEN_CENTRAL_PASSWORD=${MAVEN_CENTRAL_PASSWORD}" >> ~/.gradle/gradle.properties
-          echo "W3W_GITHUB_TOKEN=${W3W_GITHUB_TOKEN}" >> ~/.gradle/gradle.properties
           echo "W3W_GPG_SECRET_KEY=${W3W_GPG_SECRET_KEY}" >> ~/.gradle/gradle.properties
           echo "W3W_GPG_PUBLIC_KEY=${W3W_GPG_PUBLIC_KEY}" >> ~/.gradle/gradle.properties
           echo "W3W_GPG_PASSPHRASE=${W3W_GPG_PASSPHRASE}" >> ~/.gradle/gradle.properties
@@ -58,7 +57,8 @@ jobs:
         run: ./gradlew :lib:publishMavenPublicationToStagingLocalRepository
 
       - name: Release with JReleaser
-        run: ./gradlew :lib:jreleaserFullRelease
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        run: ./gradlew :lib:jreleaserFullRelease --no-daemon
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GIT_ROOT_SEARCH: true
