@@ -10,21 +10,26 @@ ext {
     ]
 }
 
+def versionCatalog = rootProject.extensions
+        .getByType(VersionCatalogsExtension)
+        .named("libs")
+
 jacoco {
-    toolVersion = '0.8.7'
+    toolVersion = versionCatalog.findVersion("jacoco-core").get().requiredVersion
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     jacoco.includeNoLocationClasses = true
     // https://github.com/gradle/gradle/issues/5184#issuecomment-457865951
     jacoco.excludes = ['jdk.internal.*']
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
 
-task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn['testDebugUnitTest']
     group = "Reporting"
     description = "Generate Jacoco coverage reports for Debug build"
 
@@ -33,8 +38,9 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
         csv.required = false
     }
 
-    def javaTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/classes", excludes: coverageExclusions)
-    def kotlinTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: coverageExclusions)
+    def buildDirectory = layout.buildDirectory
+    def javaTree = fileTree(dir: buildDirectory.dir("intermediates/javac/debug/classes").get().asFile, excludes: coverageExclusions)
+    def kotlinTree = fileTree(dir: buildDirectory.dir("tmp/kotlin-classes/debug").get().asFile, excludes: coverageExclusions)
 
     def mainSrc = "/src/main/java"
 
@@ -42,5 +48,5 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     sourceDirectories.from = files([mainSrc])
     classDirectories.from = files([javaTree, kotlinTree])
 
-    executionData.from = files("${buildDir}/jacoco/testDebugUnitTest.exec")
+    executionData.from = files(buildDirectory.file("jacoco/testDebugUnitTest.exec").get().asFile)
 }
