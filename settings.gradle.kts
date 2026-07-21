@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            from("com.what3words:android-version-catalog:2026.06.01-SNAPSHOT")
+            from("com.what3words:android-version-catalog:2026.06.01")
 
             // minSdk differs from the remote catalog (25); pin to this project's value.
             version("minSdk", "21")
