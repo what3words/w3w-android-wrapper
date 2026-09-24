@@ -3,9 +3,9 @@ package com.what3words.androidwrapper.datasource.text
 import android.content.Context
 import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
-import com.what3words.androidwrapper.common.extensions.W3WCoordinatesExtensions.distanceTo
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
+import com.what3words.androidwrapper.common.extensions.W3WSuggestionExtensions.withRecalculatedDistanceToFocus
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
@@ -172,24 +172,13 @@ class W3WApiTextDataSource internal constructor(
                 )
             }
         }
-        return result.withRecalculatedDistanceToFocus(options?.focus)
-    }
+        return when (result) {
+            is W3WResult.Success -> W3WResult.Success(
+                result.value.withRecalculatedDistanceToFocus(options?.focus)
+            )
 
-    /**
-     * The API rounds the distance to focus to whole kilometres, so it is recalculated locally whenever
-     * a [focus] was requested and the suggestion has coordinates (see [W3WAutosuggestOptions.includeCoordinates]).
-     */
-    private fun W3WResult<List<W3WSuggestion>>.withRecalculatedDistanceToFocus(
-        focus: W3WCoordinates?
-    ): W3WResult<List<W3WSuggestion>> {
-        if (focus == null || this !is W3WResult.Success) return this
-        return W3WResult.Success(
-            value.map { suggestion ->
-                suggestion.w3wAddress.center?.let {
-                    suggestion.copy(distanceToFocus = focus.distanceTo(it))
-                } ?: suggestion
-            }
-        )
+            is W3WResult.Failure -> result
+        }
     }
 
     /**
