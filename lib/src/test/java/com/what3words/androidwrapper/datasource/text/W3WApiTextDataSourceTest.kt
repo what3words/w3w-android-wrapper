@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.text
 
+import android.os.Build.VERSION_CODES
 import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.error.BadBoundingBoxError
@@ -9,6 +10,7 @@ import com.what3words.androidwrapper.datasource.text.fake.FakeWhat3WordsV3Servic
 import com.what3words.core.types.common.W3WResult
 import com.what3words.core.types.domain.formattedWords
 import com.what3words.core.types.geometry.W3WCoordinates
+import com.what3words.core.types.geometry.km
 import com.what3words.core.types.geometry.W3WRectangle
 import com.what3words.core.types.language.W3WProprietaryLanguage
 import com.what3words.core.types.language.W3WRFC5646Language
@@ -18,8 +20,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [VERSION_CODES.TIRAMISU])
 class W3WApiTextDataSourceTest {
     @get:Rule
     var coroutinesTestRule = CoroutineTestRule()
@@ -116,6 +123,47 @@ class W3WApiTextDataSourceTest {
         assert(result is W3WResult.Success)
         result as W3WResult.Success
         assert(result.value[0].w3wAddress.center == null)
+    }
+
+    @Test
+    fun autosuggest_withFocusAndCoordinates_returnsRecalculatedDistanceToFocus() {
+        val suggestionCenter = W3WCoordinates(10.251020, 105.574460)
+        val result = w3WApiTextDataSource.autosuggest(
+            "country.square.wor",
+            options = W3WAutosuggestOptions.Builder()
+                .includeCoordinates(true)
+                .focus(W3WCoordinates(suggestionCenter.lat + 0.0045, suggestionCenter.lng))
+                .build()
+        )
+        assert(result is W3WResult.Success)
+        result as W3WResult.Success
+        val distance = result.value[0].distanceToFocus!!.km()
+        assert(distance > 0.4 && distance < 0.6)
+    }
+
+    @Test
+    fun autosuggest_withFocusWithoutCoordinates_keepsApiDistanceToFocus() {
+        val result = w3WApiTextDataSource.autosuggest(
+            "country.square.wor",
+            options = W3WAutosuggestOptions.Builder()
+                .includeCoordinates(false)
+                .focus(W3WCoordinates(10.251020, 105.574460))
+                .build()
+        )
+        assert(result is W3WResult.Success)
+        result as W3WResult.Success
+        assert(result.value[0].distanceToFocus!!.km() == fakeWhat3WordsV3Service.distanceToFocusKm.toDouble())
+    }
+
+    @Test
+    fun autosuggest_withoutFocus_keepsApiDistanceToFocus() {
+        val result = w3WApiTextDataSource.autosuggest(
+            "country.square.wor",
+            options = W3WAutosuggestOptions.Builder().includeCoordinates(true).build()
+        )
+        assert(result is W3WResult.Success)
+        result as W3WResult.Success
+        assert(result.value[0].distanceToFocus!!.km() == fakeWhat3WordsV3Service.distanceToFocusKm.toDouble())
     }
 
     @Test
