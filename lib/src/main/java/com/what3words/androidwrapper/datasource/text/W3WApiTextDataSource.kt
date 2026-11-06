@@ -5,6 +5,7 @@ import com.what3words.androidwrapper.BuildConfig
 import com.what3words.androidwrapper.common.Mapper
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toAPIString
 import com.what3words.androidwrapper.common.extensions.W3WDomainToApiStringExtensions.toQueryMap
+import com.what3words.androidwrapper.common.extensions.W3WSuggestionExtensions.withRecalculatedDistanceToFocus
 import com.what3words.androidwrapper.datasource.text.api.What3WordsV3Service
 import com.what3words.androidwrapper.datasource.text.api.di.MappersFactory
 import com.what3words.androidwrapper.datasource.text.api.response.AutosuggestResponse
@@ -156,7 +157,7 @@ class W3WApiTextDataSource internal constructor(
         input: String, options: W3WAutosuggestOptions?,
         headers: Map<String, String>
     ): W3WResult<List<W3WSuggestion>> {
-        return executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
+        val result = executeApiRequestAndHandleResponse(autosuggestResponseMapper) {
             if (options?.includeCoordinates == true) {
                 what3WordsV3Service.autosuggestWithCoordinates(
                     input = input,
@@ -170,6 +171,13 @@ class W3WApiTextDataSource internal constructor(
                     headers = headers
                 )
             }
+        }
+        return when (result) {
+            is W3WResult.Success -> W3WResult.Success(
+                result.value.withRecalculatedDistanceToFocus(options?.focus)
+            )
+
+            is W3WResult.Failure -> result
         }
     }
 

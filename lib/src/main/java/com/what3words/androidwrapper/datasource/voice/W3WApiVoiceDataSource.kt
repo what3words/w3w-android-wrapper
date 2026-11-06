@@ -1,6 +1,7 @@
 package com.what3words.androidwrapper.datasource.voice
 
 import com.what3words.androidwrapper.BuildConfig
+import com.what3words.androidwrapper.common.extensions.W3WSuggestionExtensions.withRecalculatedDistanceToFocus
 import com.what3words.androidwrapper.datasource.voice.W3WApiVoiceDataSource.Companion.create
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
 import com.what3words.androidwrapper.datasource.voice.di.MapperFactory
@@ -64,7 +65,7 @@ class W3WApiVoiceDataSource internal constructor(
                         is W3WVoiceClient.RecognitionStatus.Suggestions -> {
                             val suggestions = status.suggestions.map {
                                 suggestionWithCoordinatesMapper.mapFrom(it)
-                            }
+                            }.withRecalculatedDistanceToFocus(options?.focus)
                             onResult(W3WResult.Success(suggestions))
                         }
 

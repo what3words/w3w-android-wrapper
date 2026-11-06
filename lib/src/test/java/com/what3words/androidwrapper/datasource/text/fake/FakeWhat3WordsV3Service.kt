@@ -21,6 +21,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
     val coordinatesDto = CoordinatesDto(105.574460, 10.251020)
     val squareDto = SquareDto(coordinatesDto, coordinatesDto)
     val w3w = "country.square.words"
+    val distanceToFocusKm = 3
 
     val invalidRectangle =
         W3WRectangle(W3WCoordinates(51.1122, 0.12221), W3WCoordinates(51.1333, 0.1223))
@@ -110,7 +111,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
                         0,
                         "",
                         "",
-                        0,
+                        distanceToFocusKm,
                         squareDto,
                         null
                     )
@@ -134,7 +135,7 @@ internal class FakeWhat3WordsV3Service : What3WordsV3Service {
                         0,
                         "",
                         "",
-                        0,
+                        distanceToFocusKm,
                         squareDto,
                         coordinatesDto
                     )

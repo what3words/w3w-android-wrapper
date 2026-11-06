@@ -43,7 +43,9 @@ jobs:
           cache-read-only: false
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
 
       - name: Accept licenses
         run: yes | sdkmanager --licenses || true
@@ -93,7 +95,9 @@ jobs:
           cache-read-only: false
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
 
       - name: Enable KVM
         run: |
@@ -158,7 +162,9 @@ jobs:
           cache-read-only: false
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
 
       - name: Publish SNAPSHOT
         run: ./gradlew lib:publishMavenPublicationToSonatypeSnapshotsRepository --refresh-dependencies

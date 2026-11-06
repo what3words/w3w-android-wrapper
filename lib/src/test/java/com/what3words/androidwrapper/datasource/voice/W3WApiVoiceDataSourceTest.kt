@@ -1,5 +1,6 @@
 package com.what3words.androidwrapper.datasource.voice
 
+import android.os.Build.VERSION_CODES
 import com.google.gson.Gson
 import com.what3words.androidwrapper.CoroutineTestRule
 import com.what3words.androidwrapper.datasource.voice.client.W3WVoiceClient
@@ -10,7 +11,12 @@ import com.what3words.androidwrapper.voice.SuggestionsWithCoordinatesPayload
 import com.what3words.core.datasource.voice.audiostream.W3WMicrophone
 import com.what3words.core.types.common.W3WError
 import com.what3words.core.types.common.W3WResult
+import com.what3words.core.types.domain.W3WSuggestion
+import com.what3words.core.types.geometry.W3WCoordinates
+import com.what3words.core.types.geometry.km
 import com.what3words.core.types.language.W3WRFC5646Language
+import com.what3words.core.types.options.W3WAutosuggestOptions
+import com.what3words.javawrapper.response.Suggestion
 import com.what3words.javawrapper.response.SuggestionWithCoordinates
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -20,8 +26,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [VERSION_CODES.TIRAMISU])
 class W3WApiVoiceDataSourceTest {
     @get:Rule
     var coroutinesTestRule = CoroutineTestRule()
@@ -115,6 +126,59 @@ class W3WApiVoiceDataSourceTest {
             assert(result is W3WResult.Success)
             assert((result as W3WResult.Success).value.size == expectedExceptions!!.size)
         }
+    }
+
+    @Test
+    fun `autosuggest with focus returns recalculated distance to focus`() = runTest {
+        // Arrange
+        val center = W3WCoordinates(51.521251, -0.203586)
+        mockClientReturnSuggestions(
+            listOf(
+                SuggestionWithCoordinates(
+                    Suggestion("index.home.raft", "London", "GB", 166, 1, "en", null),
+                    center.lat,
+                    center.lng
+                )
+            )
+        )
+        val options = W3WAutosuggestOptions.Builder()
+            .focus(W3WCoordinates(center.lat + 0.0045, center.lng))
+            .build()
+
+        // Act
+        var result: W3WResult<List<W3WSuggestion>>? = null
+        dataSource.autosuggest(W3WMicrophone(), W3WRFC5646Language.EN_GB, options, null) {
+            result = it
+        }
+
+        // Assert
+        assert(result is W3WResult.Success)
+        val distance = (result as W3WResult.Success).value.first().distanceToFocus!!.km()
+        assert(distance > 0.4 && distance < 0.6)
+    }
+
+    @Test
+    fun `autosuggest without focus keeps api distance to focus`() = runTest {
+        // Arrange
+        mockClientReturnSuggestions(
+            listOf(
+                SuggestionWithCoordinates(
+                    Suggestion("index.home.raft", "London", "GB", 166, 1, "en", null),
+                    51.521251,
+                    -0.203586
+                )
+            )
+        )
+
+        // Act
+        var result: W3WResult<List<W3WSuggestion>>? = null
+        dataSource.autosuggest(W3WMicrophone(), W3WRFC5646Language.EN_GB, null, null) {
+            result = it
+        }
+
+        // Assert
+        assert(result is W3WResult.Success)
+        assert((result as W3WResult.Success).value.first().distanceToFocus!!.km() == 166.0)
     }
 
     @Test
